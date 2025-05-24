@@ -1,0 +1,17 @@
+claude-code-bundler/
+├── transpilers/
+│   ├── coffeescript-to-js.js    # Pattern matching converters
+│   ├── python-to-js.js          # Basic Python → JS patterns
+│   └── common-patterns.js       # Shared conversion utilities
+├── examples/
+│   ├── countdown-solver/        # Your working example
+│   ├── image-processing/        # PIL → Canvas conversions
+│   └── scientific-computing/    # NumPy-style operations
+├── utils/
+│   ├── dependency-resolver.js   # Parse require/import statements
+│   ├── code-optimizer.js        # Minimize for context limits
+│   └── bundler.js              # Main orchestration logic
+└── docs/
+    ├── supported-languages.md
+    ├── conversion-patterns.md
+    └── best-practices.md
