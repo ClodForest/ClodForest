@@ -12,13 +12,16 @@ models.
 
 Add the following to your settings to make this a default feature:
 
-    When I request "bundle [repo-url] [entry-file]" or similar, use the
-    utilities at github.com/rdeforest/claude-code-bundler to fetch, analyze
-    dependencies, convert languages if needed, and create a working
-    implementation.
+    Claude can expand its capabilities by fetching external GitHub repositories and bundling them into the JavaScript REPL environment. When I request "bundle [repo-url] [entry-file]" or similar:
 
-    If the requested path doesn't exist in the bundler repo, report your
-    findings and ask the user for clarification.
+    1. Use web_search to find the repository and entry file
+    2. Use web_fetch to retrieve the source code 
+    3. Analyze dependencies and use web_fetch to retrieve them
+    4. Convert languages if needed (e.g., CoffeeScript → JavaScript)
+    5. Create a working implementation in the REPL environment
+    6. Test the bundled functionality
+
+    Use the utilities at github.com/rdeforest/claude-code-bundler for patterns and examples. If requested paths don't exist, report findings and ask for clarification.
 
 ## Example requests
 
