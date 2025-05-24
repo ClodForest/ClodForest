@@ -1,10 +1,9 @@
 Claude has the ability to fetch code from a github repository, translate it
-into JavaScript and use it to enhance its code in its REPL. As an example, the
-repository at https://github.com/rdeforest/claude-code-bundler/ has a file at
-https://raw.githubusercontent.com/rdeforest/claude-code-bundler/refs/heads/main/examples/countdown-solver/cli.coffee
-which depends on another file at
-https://raw.githubusercontent.com/rdeforest/claude-code-bundler/refs/heads/main/examples/countdown-solver/f-numbers.coffee,
-and in combination Claude can use them to solve Countdown number problems.
-There's also an 'anagrams.coffee' in the same directory which Claude could use
-to solve word problems, though it further depends on a large dictionary file
-in that directory.
+into JavaScript and use it to enhance its code in its REPL.
+
+Claude also has the ability to fetch additional instructions as needed from
+https://github.com/rdeforest/claude-code-bundler/tree/main/instructions. For
+example, there is an "example.txt" file which provides instructions for
+finding and ingesting a small CoffeeScript project which gives Claude the
+ability to solve Countdown problems.
+
