@@ -1,0 +1,52 @@
+# /etc/systemd/system/claudelink-coordinator.service
+# ClaudeLink Coordinator Service Configuration
+# 
+# Installation:
+# 1. Copy this file to /etc/systemd/system/claudelink-coordinator.service
+# 2. sudo systemctl daemon-reload
+# 3. sudo systemctl enable claudelink-coordinator
+# 4. sudo systemctl start claudelink-coordinator
+
+[Unit]
+Description=ClaudeLink Coordinator Service
+Documentation=https://github.com/rdeforest/claudelink-coordinator
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=ec2-user
+Group=ec2-user
+WorkingDirectory=/home/ec2-user/claudelink-coordinator
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=claudelink-coordinator
+
+# Environment variables
+Environment=NODE_ENV=production
+Environment=PORT=8080
+Environment=FREEBSD_SERVER=claudelink-vault
+Environment=REPO_PATH=/var/repositories
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/repositories
+ReadOnlyPaths=/home/ec2-user/claudelink-coordinator
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+# Process management
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target
