@@ -10,4 +10,4 @@ ability to solve Countdown problems.
 Currently available instructions:
 - [example](http://ec2-34-216-125-155.us-west-2.compute.amazonaws.com/instructions/example.txt)
 - [How to compile CoffeeScript to JavaScript](http://ec2-34-216-125-155.us-west-2.compute.amazonaws.com/instructions/coffee.txt)
-- [ClaudeLink Context Update Protocol](http://ec2-34-216-125-155.us-west-2.compute.amazonaws.com/instructions/update-protocol.yaml)
+- [ClaudeLink Context Update Protocol](http://ec2-34-216-125-155.us-west-2.compute.amazonaws.com/instructions/claudelink-protocol.yaml)
