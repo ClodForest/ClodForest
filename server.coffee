@@ -28,15 +28,15 @@ corsOptions =
     'http://localhost:8080'
     'http://127.0.0.1:8080'
   ]
-  
+
   methods: [
     'GET'
-    'POST' 
+    'POST'
     'PUT'
     'DELETE'
     'OPTIONS'
   ]
-  
+
   allowedHeaders: [
     'Content-Type'
     'Authorization'
@@ -46,7 +46,7 @@ corsOptions =
     'Accept-Language'
     'Content-Language'
   ]
-  
+
   credentials: true
   maxAge:      86400  # 24 hours
 
@@ -63,15 +63,16 @@ app.use (req, res, next) ->
   # Basic path traversal protection
   if req.path.includes('..')
     return res.status(400).json error: 'Invalid path'
-  
+
   next()
 
 # Response format middleware - YAML first, JSON fallback
 formatResponse = (req, res, data) ->
   acceptHeader = req.get('Accept') or ''
-  preferJson   = acceptHeader.includes('application/json') and 
-                 not acceptHeader.includes('application/yaml')
-  
+  preferJson   = not acceptHeader.includes('application/yaml')
+  # preferJson   = acceptHeader.includes('application/json') and
+  #                not acceptHeader.includes('application/yaml')
+
   if preferJson
     res.set 'Content-Type', 'application/json'
     res.send JSON.stringify(data, null, 2)
@@ -179,13 +180,13 @@ app.get '/api/time', (req, res) ->
     timestamp: now.toISOString()
     unix:      Math.floor(now.getTime() / 1000)
     timezone:  'UTC'
-    
+
     formats:
       iso8601:      now.toISOString()
       rfc2822:      now.toUTCString()
       unix:         Math.floor(now.getTime() / 1000)
       milliseconds: now.getTime()
-    
+
     requestor: req.get('X-ClaudeLink-Instance') or 'unknown'
 
   formatResponse req, res, timeData
@@ -204,9 +205,9 @@ app.get '/api/repository', (req, res) ->
       path:         REPO_PATH
       server:       VAULT_SERVER
       timestamp:    new Date().toISOString()
-    
+
     formatResponse req, res, repoData
-  
+
   catch error
     formatResponse req, res,
       error:     'Repository access failed'
@@ -237,9 +238,9 @@ app.get '/api/repository/:repo', (req, res) ->
       items:      items
       count:      items.length
       timestamp:  new Date().toISOString()
-    
+
     formatResponse req, res, browseData
-  
+
   catch error
     formatResponse req, res,
       error:      'Browse failed'
@@ -265,9 +266,9 @@ app.get '/api/repository/:repo/file/*', (req, res) ->
       size:       stat.size
       modified:   stat.mtime.toISOString()
       timestamp:  new Date().toISOString()
-    
+
     formatResponse req, res, fileData
-  
+
   catch error
     formatResponse req, res,
       error:      'File read failed'
@@ -287,24 +288,24 @@ app.post '/api/repository/:repo/git/:command', (req, res) ->
       error:   'Git command not allowed'
       command: command
       allowed: allowedGitCommands
-  
+
   repoPath   = path.join(REPO_PATH, repo)
   gitCommand = "git -C #{repoPath} #{command} #{args.join(' ')}"
-  
+
   exec gitCommand, (error, stdout, stderr) ->
     gitData =
       repository: repo
       command:    command
       args:       args
       timestamp:  new Date().toISOString()
-    
+
     if error
       gitData.error  = error.message
       gitData.stderr = stderr
     else
       gitData.stdout = stdout
       gitData.stderr = stderr if stderr
-    
+
     formatResponse req, res, gitData
 
 # Context update endpoint
@@ -318,7 +319,7 @@ app.post '/api/context/update', (req, res) ->
     requestCount: requests?.length or 0
     timestamp:    new Date().toISOString()
     message:      'Context update processing not yet implemented'
-  
+
   # TODO: Implement actual context update processing
   formatResponse req, res, updateData
 
@@ -330,7 +331,7 @@ app.get '/api/instances', (req, res) ->
     instances: Array.from(instances.values())
     count:     instances.size
     timestamp: new Date().toISOString()
-  
+
   formatResponse req, res, instanceData
 
 # Admin interface (basic HTML for now)
@@ -419,18 +420,18 @@ app.use '/static', express.static(REPO_PATH)
 server = app.listen PORT, ->
   console.log """
   🔗 ClaudeLink Coordinator Started
-  
+
   Port: #{PORT}
   Environment: #{process.env.NODE_ENV or 'development'}
   Repository Path: #{REPO_PATH}
   Vault Server: #{VAULT_SERVER}
-  
+
   API Endpoints:
     Health: http://localhost:#{PORT}/api/health
     Time: http://localhost:#{PORT}/api/time
     Repositories: http://localhost:#{PORT}/api/repository
     Admin: http://localhost:#{PORT}/admin
-  
+
   Response Format: YAML (default) or JSON (with Accept: application/json header)
   """
 
