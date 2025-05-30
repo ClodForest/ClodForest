@@ -55,7 +55,13 @@ app.use cors(corsOptions)
 # Request logging middleware
 app.use (req, res, next) ->
   timestamp = new Date().toISOString()
-  console.log "[#{timestamp}] #{req.method} #{req.path}"
+  clientIP = req.ip || req.connection.remoteAddress || req.socket.remoteAddress || 'unknown'
+  queryString = if Object.keys(req.query).length > 0 then "?#{new URLSearchParams(req.query).toString()}" else ''
+
+  if process.env.LOG_LEVEL is 'debug'
+    console.log "[#{timestamp}] #{clientIP} #{req.method} #{req.path}#{queryString}"
+  else
+    console.log "[#{timestamp}] #{req.method} #{req.path}"
   next()
 
 # Security middleware
