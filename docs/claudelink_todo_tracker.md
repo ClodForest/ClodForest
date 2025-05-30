@@ -409,7 +409,32 @@ passport.use(new GitHubStrategy({
 - Package management integration
 - Configuration standardization across platforms
 
+## Repository Management
+
+### 8. Rename Repository to ClaudeLink
+**Status**: 🔴 Not Started  
+**Priority**: Medium  
+**Estimated Time**: 30 minutes  
+**Dependencies**: GitHub repository admin access
+
+**Tasks**:
+- [ ] Rename `rdeforest/claude-code-bundler` to `rdeforest/claudelink`
+- [ ] Update all documentation references
+- [ ] Update package.json name field
+- [ ] Update README.md title and descriptions
+- [ ] Verify all links and references still work
+- [ ] Update deployment scripts and service files
+- [ ] Notify any external integrations of name change
+
+**Rationale**: Repository name should match the actual project name for clarity and consistency.
+
+## Future Enhancements
+
+### 9. CloudFront + HTTPS Integration
+
 ---
 
-*Last Updated*: Session 2, May 29, 2025  
-*Next Review*: Session 3
+*Last Updated*: Session 2.5, May 29, 2025
+*Updated by*: Robert, manually, of necessity
+*Next Review*: Session 3.5
+
