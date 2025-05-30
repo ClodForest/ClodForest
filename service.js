@@ -2,10 +2,10 @@
 
 /**
  * ClaudeLink Coordinator Service
- * 
+ *
  * A NodeJS/Express service that provides the active portion of the ClaudeLink protocol.
  * Runs under ec2-user account, provides time services, repository access, and context coordination.
- * 
+ *
  * Server Names:
  * - Service: claudelink-coordinator
  * - FreeBSD Repository Server: claudelink-vault
@@ -32,6 +32,92 @@ app.use(express.urlencoded({ extended: true }));
 // Static files for admin interface
 app.use('/admin/static', express.static(path.join(__dirname, 'admin/static')));
 
+// Static repository file serving (replaces publicfile functionality)
+app.use('/static', express.static(GITHUB_REPO_PATH, {
+  dotfiles: 'deny',
+  index: false,
+  redirect: false,
+  setHeaders: function (res, path, stat) {
+    // Set appropriate cache headers
+    res.set('Cache-Control', 'public, max-age=3600'); // 1 hour cache
+    res.set('X-Served-By', 'claudelink-coordinator');
+  }
+}));
+
+// Repository file browser (HTML interface to static files)
+app.get('/browse', (req, res) => {
+  const requestedPath = req.query.path || '';
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>ClaudeLink Repository Browser</title>
+      <style>
+        body { font-family: system-ui, -apple-system, sans-serif; max-width: 1000px; margin: 0 auto; padding: 2rem; }
+        .header { border-bottom: 2px solid #e1e5e9; padding-bottom: 1rem; margin-bottom: 2rem; }
+        .path { background: #f8f9fa; padding: 1rem; border-radius: 0.5rem; font-family: Monaco, 'Courier New', monospace; }
+        .file-list { list-style: none; padding: 0; }
+        .file-item { padding: 0.5rem; border-bottom: 1px solid #e1e5e9; }
+        .file-item:hover { background: #f8f9fa; }
+        .file-link { text-decoration: none; color: #007bff; }
+        .file-link:hover { text-decoration: underline; }
+        .static-note { background: #d1ecf1; border: 1px solid #bee5eb; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>📁 ClaudeLink Repository Browser</h1>
+        <p>Browse repository files served directly by the coordinator</p>
+        <div class="path">Path: /${requestedPath}</div>
+      </div>
+
+      <div class="static-note">
+        <strong>Note:</strong> Static files are served via <code>/static/*</code> endpoint.
+        This replaces the publicfile functionality for simplified architecture.
+      </div>
+
+      <div>
+        <p><a href="/api/repository/claude-code-bundler">📋 JSON API</a> |
+           <a href="/admin?dev_admin=true">🛠️ Admin Interface</a> |
+           <a href="/static/README.md">📄 Repository README</a></p>
+      </div>
+
+      <div id="file-browser">
+        <p>🔄 Loading repository contents...</p>
+        <script>
+          fetch('/api/repository/claude-code-bundler?path=${encodeURIComponent(requestedPath)}')
+            .then(r => r.json())
+            .then(data => {
+              if (data.success) {
+                const browser = document.getElementById('file-browser');
+                const items = data.contents.map(item =>
+                  '<div class="file-item">' +
+                  (item.type === 'directory' ? '📁' : '📄') + ' ' +
+                  '<a href="' +
+                  (item.type === 'directory' ?
+                    '/browse?path=' + encodeURIComponent(item.path) :
+                    '/static/' + encodeURIComponent(item.path)) +
+                  '" class="file-link">' + item.name + '</a>' +
+                  ' <small>(' + item.size + ' bytes, ' + new Date(item.lastModified).toLocaleDateString() + ')</small>' +
+                  '</div>'
+                ).join('');
+                browser.innerHTML = '<ul class="file-list">' + items + '</ul>';
+              } else {
+                browser.innerHTML = '<p>❌ Error loading files: ' + data.error + '</p>';
+              }
+            })
+            .catch(err => {
+              document.getElementById('file-browser').innerHTML = '<p>❌ Network error: ' + err.message + '</p>';
+            });
+        </script>
+      </div>
+    </body>
+    </html>
+  `);
+});
+
 // Enhanced CORS configuration for learning opportunity
 const corsOptions = {
   origin: function (origin, callback) {
@@ -44,10 +130,10 @@ const corsOptions = {
       /^http:\/\/127\.0\.0\.1:\d+$/,
       /^https:\/\/.*\.claudelink\.thatsnice\.org$/
     ];
-    
+
     // Allow no origin (server-to-server requests)
     if (!origin) return callback(null, true);
-    
+
     const isAllowed = allowedOrigins.some(allowed => {
       if (typeof allowed === 'string') {
         return origin === allowed;
@@ -56,7 +142,7 @@ const corsOptions = {
       }
       return false;
     });
-    
+
     if (isAllowed) {
       callback(null, true);
     } else {
@@ -67,11 +153,11 @@ const corsOptions = {
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: [
-    'Origin', 
-    'X-Requested-With', 
-    'Content-Type', 
-    'Accept', 
-    'Authorization', 
+    'Origin',
+    'X-Requested-With',
+    'Content-Type',
+    'Accept',
+    'Authorization',
     'X-ClaudeLink-Instance',
     'X-Admin-Token'
   ],
@@ -100,26 +186,26 @@ function generateSessionToken() {
 function isValidAdminSession(token) {
   const session = adminSessions.get(token);
   if (!session) return false;
-  
+
   // Check if session is expired (24 hours)
   if (Date.now() - session.created > 24 * 60 * 60 * 1000) {
     adminSessions.delete(token);
     return false;
   }
-  
+
   return true;
 }
 
 // Admin authentication middleware
 function requireAdminAuth(req, res, next) {
   const token = req.headers['x-admin-token'] || req.query.admin_token;
-  
+
   // TODO: Replace with proper OAuth
   // For now, allow bypass in development
   if (process.env.NODE_ENV !== 'production' && req.query.dev_admin === 'true') {
     return next();
   }
-  
+
   if (!token || !isValidAdminSession(token)) {
     return res.status(401).json({
       success: false,
@@ -127,7 +213,7 @@ function requireAdminAuth(req, res, next) {
       loginUrl: '/admin/login'
     });
   }
-  
+
   next();
 }
 
@@ -157,14 +243,14 @@ app.get('/', (req, res) => {
         <p>Distributed Claude Instance Coordination Service</p>
         <p><strong>Server:</strong> ${FREEBSD_SERVER} | <strong>Port:</strong> ${PORT} | <strong>Status:</strong> Running</p>
       </div>
-      
+
       <div class="status">
         <h3>✅ Service Status</h3>
         <p>The ClaudeLink Coordinator is active and ready to handle requests from Claude instances.</p>
         <p><strong>Repository Path:</strong> ${GITHUB_REPO_PATH}</p>
         <p><strong>Uptime:</strong> ${Math.floor(process.uptime())} seconds</p>
       </div>
-      
+
       <div class="endpoints">
         <h3>🔌 Available API Endpoints</h3>
         <div class="endpoint">GET /api/health - Service health check</div>
@@ -176,12 +262,12 @@ app.get('/', (req, res) => {
         <div class="endpoint">POST /api/context/update - Process context updates</div>
         <div class="endpoint">GET /api/instances - List active instances</div>
       </div>
-      
+
       <div style="text-align: center;">
         <a href="/admin?dev_admin=true" class="admin-link">🛠️ Administration Interface</a>
         <br><small>(Development mode - OAuth coming soon)</small>
       </div>
-      
+
       <div class="todo">
         <h3>📋 Development TODO</h3>
         <ul>
@@ -191,7 +277,7 @@ app.get('/', (req, res) => {
           <li><strong>[MEDIUM]</strong> Enhanced admin interface features</li>
         </ul>
       </div>
-      
+
       <div style="text-align: center; margin-top: 3rem; color: #6c757d;">
         <p>ClaudeLink Coordinator v1.0.0 | Instance: ${process.env.INSTANCE_ID || 'claudelink-dev-001'}</p>
       </div>
@@ -230,7 +316,7 @@ app.get('/admin', requireAdminAuth, (req, res) => {
         <h1>🛠️ ClaudeLink Administration</h1>
         <p>Repository management and service monitoring</p>
       </div>
-      
+
       <div class="container">
         <div class="grid">
           <div class="card">
@@ -241,7 +327,7 @@ app.get('/admin', requireAdminAuth, (req, res) => {
             <p><strong>Node Version:</strong> ${process.version}</p>
             <a href="/api/health" class="btn" target="_blank">Health Check</a>
           </div>
-          
+
           <div class="card">
             <h3>📁 Repository Management</h3>
             <p><strong>Path:</strong> ${GITHUB_REPO_PATH}</p>
@@ -250,7 +336,7 @@ app.get('/admin', requireAdminAuth, (req, res) => {
             <a href="/admin/sync" class="btn btn-success">Sync from GitHub</a>
             <a href="/admin/git" class="btn btn-warning">Git Operations</a>
           </div>
-          
+
           <div class="card">
             <h3>🔗 Instance Coordination</h3>
             <p><strong>Active Instances:</strong> 1</p>
@@ -258,7 +344,7 @@ app.get('/admin', requireAdminAuth, (req, res) => {
             <a href="/admin/instances" class="btn">View Instances</a>
             <a href="/admin/context" class="btn">Context Updates</a>
           </div>
-          
+
           <div class="card">
             <h3>📋 TODO Items</h3>
             <div class="log-entry">[HIGH] Generate SSH keys for GitHub push</div>
@@ -267,7 +353,7 @@ app.get('/admin', requireAdminAuth, (req, res) => {
             <a href="/admin/todo" class="btn">Manage TODO</a>
           </div>
         </div>
-        
+
         <div class="card" style="margin-top: 1.5rem;">
           <h3>📜 Recent Activity</h3>
           <div id="recent-logs">
@@ -277,7 +363,7 @@ app.get('/admin', requireAdminAuth, (req, res) => {
           <a href="/admin/logs" class="btn">View Full Logs</a>
         </div>
       </div>
-      
+
       <script>
         // Auto-refresh status every 30 seconds
         setInterval(() => {
@@ -332,7 +418,7 @@ app.post('/admin/repository/:repo/sync', requireAdminAuth, async (req, res) => {
   }
 });
 
-// Health check endpoint  
+// Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'healthy',
@@ -368,14 +454,14 @@ class RepositoryManager {
     try {
       const repoPath = path.join(this.basePath, repoName);
       const fullCommand = `cd ${repoPath} && git ${command} ${args.join(' ')}`;
-      
+
       console.log(`Executing: ${fullCommand}`);
-      const result = execSync(fullCommand, { 
+      const result = execSync(fullCommand, {
         encoding: 'utf8',
         timeout: 30000,
         maxBuffer: 1024 * 1024 // 1MB buffer
       });
-      
+
       return {
         success: true,
         output: result.toString().trim(),
@@ -394,11 +480,11 @@ class RepositoryManager {
     try {
       const entries = await fs.readdir(this.basePath);
       const repos = [];
-      
+
       for (const entry of entries) {
         const entryPath = path.join(this.basePath, entry);
         const stat = await fs.stat(entryPath);
-        
+
         if (stat.isDirectory()) {
           const gitPath = path.join(entryPath, '.git');
           try {
@@ -419,7 +505,7 @@ class RepositoryManager {
           }
         }
       }
-      
+
       return repos;
     } catch (error) {
       throw new Error(`Failed to list repositories: ${error.message}`);
@@ -429,18 +515,18 @@ class RepositoryManager {
   async getFileContent(repoName, filePath) {
     try {
       const fullPath = path.join(this.basePath, repoName, filePath);
-      
+
       // Security check - ensure path is within repository
       const resolvedPath = path.resolve(fullPath);
       const repoBasePath = path.resolve(path.join(this.basePath, repoName));
-      
+
       if (!resolvedPath.startsWith(repoBasePath)) {
         throw new Error('Access denied: Path outside repository bounds');
       }
-      
+
       const content = await fs.readFile(resolvedPath, 'utf8');
       const stat = await fs.stat(resolvedPath);
-      
+
       return {
         content,
         size: stat.size,
@@ -457,18 +543,18 @@ class RepositoryManager {
       const fullPath = path.join(this.basePath, repoName, dirPath);
       const resolvedPath = path.resolve(fullPath);
       const repoBasePath = path.resolve(path.join(this.basePath, repoName));
-      
+
       if (!resolvedPath.startsWith(repoBasePath)) {
         throw new Error('Access denied: Path outside repository bounds');
       }
-      
+
       const entries = await fs.readdir(fullPath);
       const items = [];
-      
+
       for (const entry of entries) {
         const entryPath = path.join(fullPath, entry);
         const stat = await fs.stat(entryPath);
-        
+
         items.push({
           name: entry,
           type: stat.isDirectory() ? 'directory' : 'file',
@@ -477,7 +563,7 @@ class RepositoryManager {
           path: path.join(dirPath, entry)
         });
       }
-      
+
       return items.sort((a, b) => {
         if (a.type !== b.type) {
           return a.type === 'directory' ? -1 : 1;
@@ -515,7 +601,7 @@ app.get('/api/repository/:repo', async (req, res) => {
   try {
     const { repo } = req.params;
     const { path: dirPath = '' } = req.query;
-    
+
     const contents = await repoManager.listDirectory(repo, dirPath);
     res.json({
       success: true,
@@ -538,7 +624,7 @@ app.get('/api/repository/:repo/file/*', async (req, res) => {
   try {
     const { repo } = req.params;
     const filePath = req.params[0]; // Everything after /file/
-    
+
     const fileData = await repoManager.getFileContent(repo, filePath);
     res.json({
       success: true,
@@ -561,7 +647,7 @@ app.post('/api/repository/:repo/git/:command', async (req, res) => {
   try {
     const { repo, command } = req.params;
     const { args = [] } = req.body;
-    
+
     // Validate allowed git commands
     const allowedCommands = ['status', 'log', 'diff', 'branch', 'pull', 'push', 'checkout'];
     if (!allowedCommands.includes(command)) {
@@ -572,7 +658,7 @@ app.post('/api/repository/:repo/git/:command', async (req, res) => {
         timestamp: new Date().toISOString()
       });
     }
-    
+
     const result = await repoManager.executeGitCommand(repo, command, args);
     res.json({
       ...result,
@@ -595,14 +681,14 @@ app.post('/api/context/update', async (req, res) => {
   try {
     const { requestor, requests } = req.body;
     const instanceId = req.headers['x-claudelink-instance'] || requestor;
-    
+
     // Process context update requests
     const results = [];
     for (const request of requests) {
       const result = await processContextUpdate(request, instanceId);
       results.push(result);
     }
-    
+
     res.json({
       success: true,
       requestor,
@@ -621,7 +707,7 @@ app.post('/api/context/update', async (req, res) => {
 
 async function processContextUpdate(request, instanceId) {
   const { type, context, target_path, changes } = request;
-  
+
   try {
     switch (type) {
       case 'context_update':
@@ -645,12 +731,12 @@ async function processContextUpdate(request, instanceId) {
 async function handleContextUpdate(context, targetPath, changes, instanceId) {
   // For now, just log the context update
   // In future versions, this would apply changes to the actual context storage
-  
+
   console.log(`Context update from ${instanceId}:`);
   console.log(`  Context: ${context}`);
   console.log(`  Target: ${targetPath}`);
   console.log(`  Changes: ${changes.format}`);
-  
+
   return {
     success: true,
     applied: true,
