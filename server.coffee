@@ -153,7 +153,7 @@ app.get '/', (req, res) ->
     formatResponse req, res, welcomeData
 
 # Health check endpoint
-app.get '/api/health', (req, res) ->
+app.get '/api/health/*', (req, res) ->
   uptime   = process.uptime()
   memUsage = process.memoryUsage()
 
@@ -179,7 +179,7 @@ app.get '/api/health', (req, res) ->
   formatResponse req, res, healthData
 
 # Time service for instance synchronization
-app.get '/api/time', (req, res) ->
+app.get '/api/time/*', (req, res) ->
   now = new Date()
 
   timeData =
