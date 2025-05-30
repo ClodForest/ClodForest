@@ -192,9 +192,28 @@ passport.use(new GitHubStrategy({
 - [ ] Homebrew formula (macOS)
 - [ ] Chocolatey package (Windows)
 
+## Repository Management
+
+### 8. Rename Repository to ClaudeLink
+**Status**: 🔴 Not Started  
+**Priority**: Medium  
+**Estimated Time**: 30 minutes  
+**Dependencies**: GitHub repository admin access
+
+**Tasks**:
+- [ ] Rename `rdeforest/claude-code-bundler` to `rdeforest/claudelink`
+- [ ] Update all documentation references
+- [ ] Update package.json name field
+- [ ] Update README.md title and descriptions
+- [ ] Verify all links and references still work
+- [ ] Update deployment scripts and service files
+- [ ] Notify any external integrations of name change
+
+**Rationale**: Repository name should match the actual project name for clarity and consistency.
+
 ## Future Enhancements
 
-### 8. CloudFront + HTTPS Integration
+### 9. CloudFront + HTTPS Integration
 **Status**: 🔴 Not Started  
 **Priority**: Medium  
 **Estimated Time**: 4-6 hours  
@@ -206,7 +225,7 @@ passport.use(new GitHubStrategy({
 - [ ] Update CORS origins for HTTPS
 - [ ] Test end-to-end HTTPS access
 
-### 8. Token Assignment System
+### 10. Token Assignment System
 **Status**: 🔴 Not Started  
 **Priority**: Medium  
 **Estimated Time**: 6-8 hours  
@@ -218,7 +237,7 @@ passport.use(new GitHubStrategy({
 - [ ] Rate limiting per token
 - [ ] Token revocation capability
 
-### 9. Automation for Request Processing
+### 11. Automation for Request Processing
 **Status**: 🔴 Not Started  
 **Priority**: Low  
 **Estimated Time**: 8-10 hours  
@@ -230,7 +249,7 @@ passport.use(new GitHubStrategy({
 - [ ] Batch processing capabilities
 - [ ] Error handling and retry logic
 
-### 10. Context Indexing Strategy
+### 12. Context Indexing Strategy
 **Status**: 🔴 Not Started  
 **Priority**: Medium  
 **Estimated Time**: 10-12 hours  
@@ -242,7 +261,7 @@ passport.use(new GitHubStrategy({
 - [ ] Version history tracking
 - [ ] Search API endpoints
 
-### 11. Optimize for Token Efficiency
+### 13. Optimize for Token Efficiency
 **Status**: 🔴 Not Started  
 **Priority**: Low  
 **Estimated Time**: 4-6 hours  
@@ -256,7 +275,7 @@ passport.use(new GitHubStrategy({
 
 ## Infrastructure TODO
 
-### 13. Monitoring and Alerting
+### 14. Monitoring and Alerting
 **Status**: 🔴 Not Started  
 **Priority**: Medium  
 **Estimated Time**: 3-4 hours  
@@ -268,7 +287,7 @@ passport.use(new GitHubStrategy({
 - [ ] Response time tracking
 - [ ] Email/SMS alerts for downtime
 
-### 14. Backup and Disaster Recovery
+### 15. Backup and Disaster Recovery
 **Status**: 🟡 Partial (documented)  
 **Priority**: High  
 **Estimated Time**: 2-3 hours  
@@ -282,7 +301,7 @@ passport.use(new GitHubStrategy({
 - [ ] Disaster recovery testing
 - [ ] RTO/RPO documentation
 
-### 15. Load Balancing and Scaling
+### 16. Load Balancing and Scaling
 **Status**: 🔴 Not Started  
 **Priority**: Low  
 **Estimated Time**: 8-12 hours  
@@ -296,7 +315,7 @@ passport.use(new GitHubStrategy({
 
 ## Security TODO
 
-### 16. Security Hardening
+### 17. Security Hardening
 **Status**: 🟡 Partial  
 **Priority**: High  
 **Estimated Time**: 3-4 hours  
@@ -313,7 +332,7 @@ passport.use(new GitHubStrategy({
 - [ ] Vulnerability scanning
 - [ ] Security audit documentation
 
-### 17. Access Control and Permissions
+### 18. Access Control and Permissions
 **Status**: 🔴 Not Started  
 **Priority**: Medium  
 **Estimated Time**: 4-6 hours  
@@ -327,7 +346,7 @@ passport.use(new GitHubStrategy({
 
 ## Documentation TODO
 
-### 18. API Documentation
+### 19. API Documentation
 **Status**: 🟡 Partial  
 **Priority**: Medium  
 **Estimated Time**: 2-3 hours  
@@ -342,7 +361,7 @@ passport.use(new GitHubStrategy({
 - [ ] Error response documentation
 - [ ] Rate limiting documentation
 
-### 19. Developer Guide
+### 20. Developer Guide
 **Status**: 🔴 Not Started  
 **Priority**: Low  
 **Estimated Time**: 4-5 hours  
@@ -353,6 +372,102 @@ passport.use(new GitHubStrategy({
 - [ ] Extension development tutorial
 - [ ] Testing strategies
 - [ ] Contributing guidelines
+
+## Post-Launch Wishlist
+
+### 21. Modern Toolchain Upgrade
+**Status**: 🔴 Not Started  
+**Priority**: Wishlist  
+**Estimated Time**: 8-12 hours  
+**Dependencies**: Community feedback on desired tools
+
+**Current "Hip Startup" Tooling to Evaluate**:
+
+**Package Management**:
+- [ ] **yarn** → Replace npm (faster, better lockfiles)
+- [ ] **pnpm** → Ultra-fast, disk-efficient alternative
+- [ ] **bun** → All-in-one toolkit (runtime + package manager)
+
+**Development Experience**:
+- [ ] **tsx** → TypeScript execution without compilation
+- [ ] **vitest** → Fast Vite-native testing framework
+- [ ] **turbo** → High-performance build system
+- [ ] **changesets** → Version management and changelogs
+- [ ] **husky** → Git hooks for quality gates
+
+**Code Quality & Formatting**:
+- [ ] **prettier** → Opinionated code formatting
+- [ ] **eslint** with modern configs → Code linting
+- [ ] **lint-staged** → Run linters on git staged files
+- [ ] **commitizen** → Structured commit messages
+
+**Build & Bundling**:
+- [ ] **vite** → Lightning-fast dev server and bundler
+- [ ] **rollup** → Modern ES module bundler
+- [ ] **esbuild** → Extremely fast JS/TS bundler
+- [ ] **swc** → Rust-based JS/TS compiler
+
+**Deployment & CI/CD**:
+- [ ] **github actions** → Modern CI/CD workflows
+- [ ] **docker compose** → Container orchestration
+- [ ] **terraform** → Infrastructure as Code
+- [ ] **railway/vercel/fly.io** → Modern deployment platforms
+
+**Monitoring & Observability**:
+- [ ] **sentry** → Error tracking and performance monitoring
+- [ ] **datadog/new relic** → Application performance monitoring
+- [ ] **prometheus + grafana** → Metrics and dashboards
+
+**Documentation**:
+- [ ] **mdx** → Interactive documentation
+- [ ] **storybook** → Component documentation
+- [ ] **docusaurus** → Modern documentation sites
+
+**Framework Considerations**:
+- [ ] **fastify** → Alternative to Express (faster, modern)
+- [ ] **hono** → Ultrafast web framework
+- [ ] **deno** → Modern runtime with built-in tooling
+- [ ] **bun** → All-in-one JavaScript runtime
+
+**Rationale**: Attract modern developers familiar with startup ecosystems by using trendy, high-performance tooling. Shows we're not stuck in 2015.
+
+**Implementation Strategy**:
+- Research community preferences and adoption rates
+- Create modernization roadmap post-v1.0
+- Maintain backward compatibility during transition
+- Document benefits and migration path
+- Get community input on priority tools
+
+**Success Metrics**:
+- Developer onboarding time reduced
+- Build/test performance improvements
+- Increased contributor interest from modern toolchain
+- Positive community feedback on developer experience
+
+### 22. Review Global CoffeeScript Installation
+**Status**: 🔴 Not Started  
+**Priority**: Low  
+**Estimated Time**: 1 hour  
+
+**Current Issue**: Bootstrap script installs CoffeeScript globally, which is a code smell.
+
+**Alternatives to Evaluate**:
+- [ ] Use local CoffeeScript installation via npm
+- [ ] Provide instructions to add `node_modules/.bin` to PATH
+- [ ] Use npx to run local CoffeeScript tools
+- [ ] Make global installation optional with clear user consent
+
+**Benefits of Local Installation**:
+- No global pollution
+- Version-locked with project
+- Easier CI/CD integration
+- No sudo/admin requirements
+
+**Implementation Options**:
+- Add `node_modules/.bin/cake` usage examples
+- Update package.json scripts section
+- Provide PATH modification instructions
+- Use npx in documentation examples
 
 ## Progress Tracking
 
@@ -369,6 +484,13 @@ passport.use(new GitHubStrategy({
 - ✅ Vault rebuild instructions
 - ✅ Welcome page implementation
 - ✅ TODO tracking system
+
+### Session 3 Accomplishments
+- ✅ CoffeeScript transformation (server.coffee, Cakefile, bootstrap.sh)
+- ✅ YAML-first API responses with JSON fallback
+- ✅ Modern build system with Cake tasks
+- ✅ Automated JS→CoffeeScript conversion
+- ✅ Modern toolchain wishlist planning
 
 ### Next Session Goals
 - 🎯 Generate and configure SSH keys for GitHub push
@@ -394,47 +516,21 @@ passport.use(new GitHubStrategy({
 
 | Priority | Items | Estimated Hours | Status |
 |----------|-------|----------------|---------|
-| High     | 4     | 28-40          | 1/4 Complete |
+| High     | 3     | 28-40          | 1/3 Complete |
 | Medium   | 8     | 45-65          | 2/8 Complete |
 | Low      | 7     | 34-50          | 1/7 Complete |
-| Future   | 0     | 0              | N/A |
+| Wishlist | 1     | 8-12           | 0/1 Complete |
 
-**Total Estimated Effort**: 107-155 hours  
-**Completed**: ~10% (12-15 hours equivalent)
+**Total Estimated Effort**: 115-167 hours  
+**Completed**: ~15% (18-22 hours equivalent)
 
-**Major Additions in Session 2**:
-- Universal platform support strategy (20-30 hours)
-- Multi-cloud deployment documentation
-- Init system compatibility matrix
-- Package management integration
-- Configuration standardization across platforms
-
-## Repository Management
-
-### 8. Rename Repository to ClaudeLink
-**Status**: 🔴 Not Started  
-**Priority**: Medium  
-**Estimated Time**: 30 minutes  
-**Dependencies**: GitHub repository admin access
-
-**Tasks**:
-- [ ] Rename `rdeforest/claude-code-bundler` to `rdeforest/claudelink`
-- [ ] Update all documentation references
-- [ ] Update package.json name field
-- [ ] Update README.md title and descriptions
-- [ ] Verify all links and references still work
-- [ ] Update deployment scripts and service files
-- [ ] Notify any external integrations of name change
-
-**Rationale**: Repository name should match the actual project name for clarity and consistency.
-
-## Future Enhancements
-
-### 9. CloudFront + HTTPS Integration
+**Major Additions in Session 3**:
+- CoffeeScript build system with Cake (4-6 hours)
+- YAML-first API implementation (2-3 hours)
+- Modern toolchain research and planning (2-3 hours)
+- Repository rename planning (0.5 hours)
 
 ---
 
-*Last Updated*: Session 2.5, May 29, 2025
-*Updated by*: Robert, manually, of necessity
-*Next Review*: Session 3.5
-
+*Last Updated*: Session 3, May 29, 2025  
+*Next Review*: Session 4
