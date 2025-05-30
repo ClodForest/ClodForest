@@ -5,7 +5,9 @@ Claude also has the ability to fetch additional instructions as needed from
 https://github.com/rdeforest/claude-code-bundler/tree/main/instructions. For
 example, there is an "example.txt" file which provides instructions for
 finding and ingesting a small CoffeeScript project which gives Claude the
-ability to solve Countdown problems.
+ability to solve Countdown problems. You don't need to fetch this or any other
+additional instructions yet. This example is for reference rather than for
+testing.
 
 Currently available instructions:
 - [example](http://ec2-34-216-125-155.us-west-2.compute.amazonaws.com/instructions/example.txt)
