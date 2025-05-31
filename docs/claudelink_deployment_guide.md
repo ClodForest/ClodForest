@@ -1,78 +1,178 @@
-# ClaudeLink Coordinator Deployment Guide
+# ClodForest Coordinator Deployment Guide
 
 ## Overview
-The **ClaudeLink Coordinator** is a NodeJS/Express service that provides the active portion of the ClaudeLink protocol. It runs under the `ec2-user` account and provides time services, repository access, and context coordination for distributed Claude instances.
+The **ClodForest Coordinator** is a NodeJS/Express service that provides coordination services for distributed Claude instances. It offers time synchronization, repository access, and context coordination capabilities.
 
 ## Server Architecture
-- **Service Name**: `claudelink-coordinator`  
-- **FreeBSD Repository Server**: `claudelink-vault`
-- **Runtime**: NodeJS + Express
-- **Port**: 8080 (non-privileged)
-- **User**: ec2-user
+- **Service Name**: `clodforest-coordinator`
+- **Runtime**: NodeJS + CoffeeScript
+- **Default Port**: 8080 (configurable)
+- **Repository Path**: `./state` (configurable)
 
 ## Prerequisites
 
 ### System Requirements
-- Amazon Linux 2 or compatible
+- [A compatible operating system](#tested-platforms) (Linux, FreeBSD, etc.)
 - NodeJS 18+ installed
-- Git installed and configured
-- Network access to FreeBSD repository server (`claudelink-vault`)
-- Directory `/var/repositories` with appropriate permissions
+- [Git installed and configured](#git-setup)
+- Basic development tools (for nvm compilation if needed)
 
-### Setup Repository Access
+### Node.js Installation
+
+#### Option 1: Package Manager (Recommended for production)
 ```bash
-# Create repository directory
-sudo mkdir -p /var/repositories
-sudo chown ec2-user:ec2-user /var/repositories
-sudo chmod 755 /var/repositories
+# Amazon Linux / RHEL / CentOS
+sudo yum install nodejs npm git
 
-# Test FreeBSD server connectivity
-ping claudelink-vault
+# Ubuntu / Debian
+sudo apt update && sudo apt install nodejs npm git
+
+# FreeBSD
+sudo pkg install node18 npm git
 ```
+
+#### Option 2: Node Version Manager (Recommended for development)
+```bash
+# Install nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
+source ~/.bashrc
+
+# Install and use Node.js 18
+nvm install 18
+nvm use 18
+nvm alias default 18
+
+# Verify installation
+node --version  # Should show v18.x.x
+npm --version
+```
+
+### Git Setup
+Ensure Git is properly configured:
+```bash
+git --version
+git config --global user.name "Your Name"
+git config --global user.email "your.email@example.com"
+```
+
+For GitHub access, see [SSH key setup](#github-ssh-setup) below.
 
 ## Installation
 
-### 1. Clone and Setup Application
+### 1. Clone Repository
 ```bash
-# Switch to ec2-user
-sudo su - ec2-user
+# Clone the ClodForest repository
+git clone https://github.com/rdeforest/ClodForest.git
+cd ClodForest
 
-# Create application directory
-mkdir -p ~/claudelink-coordinator
-cd ~/claudelink-coordinator
-
-# Copy service files (server.js, package.json)
-# ... copy the artifacts created above ...
-
-# Install dependencies
-npm install
+# Make install script executable
+chmod +x bin/install.sh
 ```
 
-### 2. Test the Service
+### 2. Run Installation Script
 ```bash
-# Run in development mode
-npm run dev
+# Run the automated installer
+./bin/install.sh
 
-# Test endpoints
-curl http://localhost:8080/api/health
-curl http://localhost:8080/api/time
-curl http://localhost:8080/api/repository
+# Or use the Cake task system
+npm install -g coffeescript
+cake setup
 ```
 
-### 3. Install as System Service
+### 3. Test the Service
 ```bash
-# Copy systemd service file
-sudo cp claudelink-coordinator.service /etc/systemd/system/
+# Start in development mode
+cake dev
 
-# Reload systemd and enable service
-sudo systemctl daemon-reload
-sudo systemctl enable claudelink-coordinator
+# Test endpoints (in another terminal)
+curl http://localhost:8080/api/health/
+curl http://localhost:8080/api/time/test
+curl http://localhost:8080/api/repo
+```
 
-# Start the service
-sudo systemctl start claudelink-coordinator
+### 4. Install as System Service
+```bash
+# Auto-detect platform and install service
+cake install
 
-# Check status
-sudo systemctl status claudelink-coordinator
+# Or manually specify platform
+cake install:systemd    # Linux with systemd
+cake install:freebsd    # FreeBSD
+cake install:sysv       # Devuan/older Linux
+```
+
+### 5. Start Production Service
+```bash
+# Using system service
+sudo systemctl start clodforest      # systemd
+sudo service clodforest start        # SysV
+sudo service clodforest onestart     # FreeBSD
+
+# Or run directly
+cake start
+```
+
+## Configuration
+
+### Default Configuration
+ClodForest creates a `config.yaml` file during setup with sensible defaults:
+
+```yaml
+server:
+  port: 8080
+  vault_server: clodforest-vault
+  log_level: info
+
+repository:
+  path: ./state
+
+features:
+  git_operations: false  # Disabled for security
+  admin_auth: false      # Set to true for production
+  context_updates: false # Not yet implemented
+
+cors:
+  origins:
+    - https://claude.ai
+    - https://*.claude.ai
+    - http://localhost:3000
+    - http://localhost:8080
+```
+
+### Environment Variables (Optional)
+```bash
+export PORT=8080
+export VAULT_SERVER=clodforest-vault
+export REPO_PATH=./state
+export NODE_ENV=production
+export LOG_LEVEL=info
+```
+
+### GitHub SSH Setup
+For Git operations (when enabled):
+```bash
+# Generate SSH key
+ssh-keygen -t ed25519 -C "clodforest@yourdomain.com" -f ~/.ssh/clodforest_github
+
+# Add to SSH agent
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/clodforest_github
+
+# Configure SSH for GitHub
+cat >> ~/.ssh/config << EOF
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/clodforest_github
+    IdentitiesOnly yes
+EOF
+
+# Add public key to GitHub
+cat ~/.ssh/clodforest_github.pub
+# Copy output and add to GitHub Settings > SSH and GPG keys
+
+# Test connection
+ssh -T git@github.com
 ```
 
 ## API Endpoints
@@ -81,39 +181,39 @@ sudo systemctl status claudelink-coordinator
 
 #### Health Check
 ```http
-GET /api/health
+GET /api/health/
 ```
-Returns service status, uptime, and version information.
+Returns service status, uptime, memory usage, and system information.
 
 #### Time Service
 ```http
-GET /api/time
+GET /api/time/{cachebuster}
 ```
-Returns current timestamp in multiple formats for instance synchronization.
+Returns current timestamp in multiple formats. The cachebuster parameter ensures fresh responses.
 
 ### Repository Operations
 
 #### List Repositories
 ```http
-GET /api/repository
+GET /api/repo
 ```
-Returns all repositories available on the `claudelink-vault` server.
+Returns all available repositories in the configured repository path.
 
 #### Browse Repository Contents
 ```http
-GET /api/repository/{repo}?path={directory}
+GET /api/repo/{repo}?path={directory}
 ```
 Lists files and directories in the specified repository path.
 
 #### Get File Contents
 ```http
-GET /api/repository/{repo}/file/{filepath}
+GET /api/repo/{repo}/file/{filepath}
 ```
 Returns the contents of a specific file in the repository.
 
-#### Execute Git Commands
+#### Execute Git Commands (When Enabled)
 ```http
-POST /api/repository/{repo}/git/{command}
+POST /api/repo/{repo}/git/{command}
 Content-Type: application/json
 
 {
@@ -121,111 +221,85 @@ Content-Type: application/json
 }
 ```
 
-Allowed git commands:
-- `status` - Repository status
-- `log` - Commit history  
-- `diff` - Show changes
-- `branch` - List/manage branches
-- `pull` - Pull updates
-- `push` - Push changes
-- `checkout` - Switch branches/files
+**Note**: Git operations are disabled by default for security. Enable only after implementing proper authentication.
 
-### Context Management
+### Administrative Interface
 
-#### Update Context
+#### Admin Dashboard
 ```http
-POST /api/context/update
-Content-Type: application/json
-X-ClaudeLink-Instance: claudelink-dev-001
-
-{
-  "requestor": "claudelink-dev-001",
-  "requests": [
-    {
-      "type": "context_update",
-      "context": "ClaudeLink/development/status", 
-      "target_path": "/projects/new-context.yaml",
-      "changes": {
-        "format": "base64_unified_diff",
-        "data": "..."
-      }
-    }
-  ]
-}
+GET /admin
 ```
+Provides a web-based administrative interface for monitoring and management.
 
-### Instance Coordination
+## Working with Claude's Restrictions
 
-#### List Active Instances
-```http
-GET /api/instances
+### URL Permission Limitations
+Claude instances have restrictions on which URLs they can fetch:
+
+1. **Cannot construct URLs dynamically** - All URLs must be explicitly provided
+2. **Cannot fetch derived paths** - Even logical API extensions are blocked
+3. **Cache-busting required** - Use wildcard routes like `/api/time/{anything}`
+
+### Workarounds
+- **Explicit URL provision**: Always provide complete URLs to Claude
+- **Cache-busting paths**: Use `/api/time/random-string` format
+- **API documentation**: Clearly document exact URLs Claude should use
+
+### Example Claude-Compatible Usage
 ```
-Returns list of active Claude instances in the network.
-
-## Configuration
-
-### Environment Variables
-```bash
-# Required
-export PORT=8080
-export FREEBSD_SERVER=claudelink-vault
-export REPO_PATH=/var/repositories
-
-# Optional
-export NODE_ENV=production
-export LOG_LEVEL=info
+# Instead of constructing URLs, provide them explicitly:
+Please fetch: https://yourhost.com/api/time/current-check
+Please fetch: https://yourhost.com/api/repo/contexts/file/session-log.md
 ```
-
-### Security Configuration
-- Service runs as non-privileged `ec2-user`
-- Repository access restricted to `/var/repositories`
-- Git commands whitelist enforced
-- Path traversal protection enabled
-- CORS configured for Claude instance origins
 
 ## Monitoring and Logs
 
 ### Service Management
 ```bash
 # Check service status
-sudo systemctl status claudelink-coordinator
+sudo systemctl status clodforest        # systemd
+sudo service clodforest status          # SysV/FreeBSD
 
 # View logs
-sudo journalctl -u claudelink-coordinator -f
+sudo journalctl -u clodforest -f        # systemd
+tail -f /var/log/clodforest.log         # SysV/FreeBSD
 
 # Restart service
-sudo systemctl restart claudelink-coordinator
-
-# Stop service  
-sudo systemctl stop claudelink-coordinator
+sudo systemctl restart clodforest       # systemd
+sudo service clodforest restart         # SysV/FreeBSD
 ```
 
-### Log Monitoring
+### Development Monitoring
 ```bash
-# Follow service logs
-npm run logs
+# Start with detailed logging
+LOG_LEVEL=debug cake dev
 
-# Check for errors
-sudo journalctl -u claudelink-coordinator --since "1 hour ago" | grep ERROR
+# Check project status
+cake status
+
+# Run basic tests
+cake test
 ```
-
-## Integration with ClaudeLink Protocol
-
-### Context Updates
-The service processes YAML-based context updates with base64-encoded unified diffs, allowing Claude instances to share and synchronize their contexts.
-
-### Repository Synchronization
-Git operations enable Claude instances to collaborate on shared codebases and maintain version control across the distributed network.
-
-### Time Synchronization
-Centralized time service ensures consistent timestamps across all Claude instances for proper coordination.
 
 ## Security Considerations
 
-1. **Access Control**: Future versions will implement token-based authentication
-2. **Network Security**: Configure firewall rules to restrict access to trusted Claude instances
-3. **Repository Security**: Ensure proper permissions on `/var/repositories`
-4. **Process Isolation**: Service runs with restricted system access via systemd
+### Current Security Features
+- **Path traversal protection** - Prevents `../` attacks
+- **Git command whitelist** - Only safe git operations allowed
+- **CORS configuration** - Restricts cross-origin requests
+- **Non-privileged execution** - Runs without system privileges
+
+### Security Limitations & Future Work
+- **No authentication** - Currently open access (development only)
+- **Git operations disabled** - Requires authentication implementation
+- **Admin interface** - No access control (development mode)
+
+### Production Security Checklist
+- [ ] Enable authentication (OAuth/JWT)
+- [ ] Configure HTTPS with proper certificates
+- [ ] Restrict network access via firewall
+- [ ] Enable git operations only after auth implementation
+- [ ] Regular security audits and updates
 
 ## Troubleshooting
 
@@ -233,53 +307,90 @@ Centralized time service ensures consistent timestamps across all Claude instanc
 
 #### Service Won't Start
 ```bash
-# Check service status
-sudo systemctl status claudelink-coordinator
+# Check CoffeeScript installation
+coffee --version
 
-# Check logs for errors
-sudo journalctl -u claudelink-coordinator --since "5 minutes ago"
+# Verify entry point exists
+ls -la src/coordinator/index.coffee
 
-# Verify Node.js and dependencies
-node --version
-npm list
+# Check for syntax errors
+cake test
+
+# Review logs
+cake dev  # Will show errors directly
 ```
 
 #### Repository Access Issues
 ```bash
-# Check repository permissions
-ls -la /var/repositories
+# Check repository path
+ls -la ./state
 
-# Test git connectivity to FreeBSD server
-git clone user@claudelink-vault:/path/to/test-repo.git /tmp/test
+# Verify permissions
+cake status
 
-# Verify SSH keys if using SSH git access
-ssh-add -l
+# Test API endpoints
+curl http://localhost:8080/api/repo
 ```
 
-#### Network Connectivity
+#### Node.js Version Issues
 ```bash
-# Test service endpoint
-curl http://localhost:8080/api/health
+# Check Node.js version
+node --version  # Should be 18+
 
-# Check port binding
-netstat -tlnp | grep 8080
-
-# Test external access (if applicable)
-curl http://ec2-34-216-125-155.us-west-2.compute.amazonaws.com:8080/api/health
+# Switch Node.js version (if using nvm)
+nvm use 18
+nvm alias default 18
 ```
+
+### Platform-Specific Issues
+
+#### Amazon Linux
+```bash
+# Install build tools if needed
+sudo yum groupinstall "Development Tools"
+sudo yum install python3
+```
+
+#### FreeBSD
+```bash
+# Ensure proper package versions
+sudo pkg info node18 npm-node18
+sudo pkg install python3 gmake
+```
+
+## Tested Platforms
+
+| Platform | Version | Status | Notes |
+|----------|---------|--------|-------|
+| Amazon Linux | 2023 | ✅ Tested | Preferred AWS platform |
+| Ubuntu | 20.04+ | ✅ Tested | systemd service |
+| FreeBSD | 13.x | ✅ Tested | rc.d service |
+| Devuan | 4.x | 🧪 Beta | SysV init service |
+| CentOS/RHEL | 8+ | 🧪 Beta | systemd service |
+| macOS | Latest | ⚠️ Manual | No service auto-install |
 
 ## Next Steps
 
-1. **Token Authentication**: Implement secure token-based authentication
-2. **SSL/TLS**: Configure HTTPS with CloudFront integration
-3. **Rate Limiting**: Add per-instance request rate limiting
-4. **Monitoring**: Integrate with AWS CloudWatch for metrics
-5. **Clustering**: Support for multiple coordinator instances
-6. **Database Integration**: Add persistent storage for context and instance data
+### Immediate Priorities
+1. **Authentication System** - Implement OAuth/JWT for production use
+2. **Git Operations Security** - Enable git commands with proper auth
+3. **HTTPS Configuration** - SSL/TLS setup documentation
+4. **Monitoring Integration** - CloudWatch/Grafana setup
+
+### Future Enhancements
+1. **Multi-instance Coordination** - Distributed coordinator support
+2. **Database Integration** - Persistent storage for context data
+3. **CI/CD Pipeline** - Automated testing and deployment
+4. **Rate Limiting** - Per-instance request throttling
+5. **Advanced Security** - WAF integration, audit logging
 
 ## Support
 
 For issues and questions:
-- GitHub Issues: https://github.com/rdeforest/claudelink-coordinator/issues
-- Documentation: https://claudelink.thatsnice.org/docs
-- Contact: rdeforest@thatsnice.org
+- **GitHub Issues**: https://github.com/rdeforest/ClodForest/issues
+- **Documentation**: https://clodforest.thatsnice.org/docs
+- **Contact**: robert@defore.st
+
+---
+
+*Last updated: November 2024*

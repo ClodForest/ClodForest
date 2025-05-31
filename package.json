@@ -1,6 +1,6 @@
 {
   "name": "clodforest-coordinator",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "ClodForest Coordinator Service - Provides active protocol support for distributed Claude instance coordination",
   "main": "src/coordinator/index.coffee",
   "scripts": {
