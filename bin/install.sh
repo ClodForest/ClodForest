@@ -127,9 +127,9 @@ success "Dependencies installed or updated"
 
 # Install CoffeeScript globally if not available
 if ! command -v coffee >/dev/null 2>&1; then
-    log "Installing CoffeeScript globally..."
+    log "Installing CoffeeScript locally..."
     npm install -g coffeescript
-    success "CoffeeScript installed globally"
+    success "CoffeeScript installed locally. See deployment instructions for implications."
 else
     success "CoffeeScript already available"
 fi
