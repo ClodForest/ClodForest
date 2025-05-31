@@ -152,7 +152,7 @@ fi
 log "Delegating to Cake for full installation..."
 echo
 
-if cake build; then
+if $CAKE build; then
     echo
     success "ClaudeLink Coordinator installation complete!"
     echo
