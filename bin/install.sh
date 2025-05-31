@@ -137,7 +137,7 @@ else
 fi
 
 # Verify Cake is available
-if ! -x "$CAKE"; then
+if ! [ -x "$CAKE" ]; then
     error "Cake not found; cannot continue. Is CoffeeScript installed in the PATH?"
 fi
 
