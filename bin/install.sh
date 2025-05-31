@@ -130,13 +130,15 @@ if ! command -v coffee >/dev/null 2>&1; then
     log "Installing CoffeeScript locally..."
     npm install coffeescript
     success "CoffeeScript installed locally. See deployment instructions for implications."
+    CAKE=node_modules/coffeescript/bin/cake
 else
+    CAKE=`which cake`
     success "CoffeeScript already available"
 fi
 
 # Verify Cake is available
-if ! command -v cake >/dev/null 2>&1; then
-    error "Cake not found after CoffeeScript installation"
+if ! -x "$CAKE"; then
+    error "Cake not found; cannot continue. Is CoffeeScript installed in the PATH?"
 fi
 
 success "Cake build tool available"
