@@ -33,12 +33,6 @@ error() {
     exit 1
 }
 
-# Verify we're in the project root
-if [ ! -f "package.json" ] ||
-   [ ! -f "server.js" ]; then
-    error "This script must be run from the root of the ClaudeLink repository"
-fi
-
 log "Starting ClaudeLink Coordinator bootstrap..."
 
 # Check for Node.js, offer to install via nvm if missing
