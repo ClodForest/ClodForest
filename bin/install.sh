@@ -152,11 +152,12 @@ fi
 log "Delegating to Cake for full installation..."
 echo
 
-if $CAKE build; then
+if $CAKE setup; then
     echo
-    success "ClaudeLink Coordinator installation complete!"
+    success "ClaudeLink Coordinator setup complete!"
     echo
     log "Next steps:"
+    echo "If you want to run it as a service, and you have 'sudo' access, invoke 'cake install'"
     echo "  1. Review configuration in package.json"
     echo "  2. Start development server: cake dev"
     echo "  3. Or start production server: cake start"
