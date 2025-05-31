@@ -96,8 +96,8 @@ app.get '/', (req, res) ->
     timestamp:   new Date().toISOString()
 
     endpoints:
-      health:     '/api/health'
-      time:       '/api/time'
+      health:     '/api/health/'
+      time:       '/api/time/'
       repository: '/api/repository'
       context:    '/api/context/update'
       instances:  '/api/instances'
@@ -136,8 +136,8 @@ app.get '/', (req, res) ->
       <div class="status">Version: #{welcomeData.version}</div>
       <br>
       <div>API Endpoints:</div>
-      <div class="endpoint">• <a href="/api/health">/api/health</a> - Service health check</div>
-      <div class="endpoint">• <a href="/api/time">/api/time</a> - Time synchronization</div>
+      <div class="endpoint">• <a href="/api/health/">/api/health/</a> - Service health check</div>
+      <div class="endpoint">• <a href="/api/time/">/api/time/</a> - Time synchronization</div>
       <div class="endpoint">• <a href="/api/repository">/api/repository</a> - Repository listing</div>
       <div class="endpoint">• <a href="/admin">/admin</a> - Administrative interface</div>
       <br>
@@ -369,8 +369,8 @@ app.get '/admin', (req, res) ->
     <div class="section">
       <h3>Service Status</h3>
       <div class="status-ok">✅ Coordinator Service: Online</div>
-      <div>📊 <a href="/api/health">Health Check</a></div>
-      <div>🕐 <a href="/api/time">Time Service</a></div>
+      <div>📊 <a href="/api/health/">Health Check</a></div>
+      <div>🕐 <a href="/api/time/">Time Service</a></div>
     </div>
 
     <div class="section">
@@ -433,8 +433,8 @@ server = app.listen PORT, ->
   Vault Server: #{VAULT_SERVER}
 
   API Endpoints:
-    Health: http://localhost:#{PORT}/api/health
-    Time: http://localhost:#{PORT}/api/time
+    Health: http://localhost:#{PORT}/api/health/
+    Time: http://localhost:#{PORT}/api/time/
     Repositories: http://localhost:#{PORT}/api/repository
     Admin: http://localhost:#{PORT}/admin
 
