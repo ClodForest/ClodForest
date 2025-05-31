@@ -12,7 +12,7 @@ yaml    = require 'js-yaml'
 app          = express()
 PORT         = process.env.PORT         or 8080
 VAULT_SERVER = process.env.VAULT_SERVER or 'claudelink-vault'
-REPO_PATH    = process.env.REPO_PATH    or '/var/repositories'
+REPO_PATH    = process.env.REPO_PATH    or './state'
 
 # Middleware setup
 app.use express.json()
@@ -98,7 +98,7 @@ app.get '/', (req, res) ->
     endpoints:
       health:     '/api/health/'
       time:       '/api/time/'
-      repository: '/api/repository'
+      repository: '/api/repo'
       context:    '/api/context/update'
       instances:  '/api/instances'
       admin:      '/admin'
@@ -138,7 +138,7 @@ app.get '/', (req, res) ->
       <div>API Endpoints:</div>
       <div class="endpoint">• <a href="/api/health/">/api/health/</a> - Service health check</div>
       <div class="endpoint">• <a href="/api/time/">/api/time/</a> - Time synchronization</div>
-      <div class="endpoint">• <a href="/api/repository">/api/repository</a> - Repository listing</div>
+      <div class="endpoint">• <a href="/api/repo">/api/repo</a> - Repository listing</div>
       <div class="endpoint">• <a href="/admin">/admin</a> - Administrative interface</div>
       <br>
       <div>Features:</div>
@@ -198,7 +198,7 @@ app.get '/api/time/*', (req, res) ->
   formatResponse req, res, timeData
 
 # Repository operations
-app.get '/api/repository', (req, res) ->
+app.get '/api/repo', (req, res) ->
   try
     repositories = fs.readdirSync(REPO_PATH)
       .filter (item) ->
@@ -221,7 +221,7 @@ app.get '/api/repository', (req, res) ->
       timestamp: new Date().toISOString()
 
 # Browse repository contents
-app.get '/api/repository/:repo', (req, res) ->
+app.get '/api/repo/:repo', (req, res) ->
   {repo}     = req.params
   browsePath = req.query.path or ''
 
@@ -255,7 +255,7 @@ app.get '/api/repository/:repo', (req, res) ->
       path:       browsePath
 
 # Get file contents
-app.get '/api/repository/:repo/file/*', (req, res) ->
+app.get '/api/repo/:repo/file/*', (req, res) ->
   {repo}   = req.params
   filePath = req.params[0]  # Everything after /file/
 
@@ -285,7 +285,7 @@ app.get '/api/repository/:repo/file/*', (req, res) ->
 # Git operations
 allowedGitCommands = ['status', 'log', 'diff', 'branch', 'pull', 'push', 'checkout']
 
-app.post '/api/repository/:repo/git/:command', (req, res) ->
+app.post '/api/repo/:repo/git/:command', (req, res) ->
   {repo, command} = req.params
   {args = []}     = req.body
 
@@ -375,7 +375,7 @@ app.get '/admin', (req, res) ->
 
     <div class="section">
       <h3>Repository Management</h3>
-      <div>📂 <a href="/api/repository">List Repositories</a></div>
+      <div>📂 <a href="/api/repo">List Repositories</a></div>
       <button onclick="syncRepositories()">🔄 Sync All</button>
       <button onclick="browseRepositories()">🗂️ Browse Files</button>
     </div>
@@ -398,7 +398,7 @@ app.get '/admin', (req, res) ->
       }
 
       function browseRepositories() {
-        window.open('/api/repository', '_blank');
+        window.open('/api/repo', '_blank');
       }
 
       function viewContextHistory() {
@@ -435,7 +435,7 @@ server = app.listen PORT, ->
   API Endpoints:
     Health: http://localhost:#{PORT}/api/health/
     Time: http://localhost:#{PORT}/api/time/
-    Repositories: http://localhost:#{PORT}/api/repository
+    Repositories: http://localhost:#{PORT}/api/repo
     Admin: http://localhost:#{PORT}/admin
 
   Response Format: YAML (default) or JSON (with Accept: application/json header)
