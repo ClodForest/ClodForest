@@ -1,11 +1,11 @@
-# ClaudeLink Coordinator Cakefile
-# Build system for CoffeeScript compilation and project management
+# ClodForest Coordinator Cakefile
+# Streamlined task runner for development and deployment
 
 fs = require 'fs'
 path = require 'path'
 {exec, spawn} = require 'child_process'
 
-# Colors for console output
+# Colors for console output (TODO: Replace with chalk)
 colors =
   reset: '\x1b[0m'
   red: '\x1b[31m'
@@ -15,7 +15,7 @@ colors =
   cyan: '\x1b[36m'
 
 log = (message, color = 'blue') ->
-  console.log "#{colors[color]}[ClaudeLink Cake]#{colors.reset} #{message}"
+  console.log "#{colors[color]}[ClodForest]#{colors.reset} #{message}"
 
 success = (message) ->
   console.log "#{colors.green}✅#{colors.reset} #{message}"
@@ -46,200 +46,373 @@ fileExists = (filePath) ->
   catch
     false
 
+# Platform detection
+detectPlatform = ->
+  platform = process.platform
+
+  if platform is 'freebsd'
+    return 'freebsd'
+  else if platform is 'linux'
+    # Check for specific distributions
+    try
+      if fileExists '/etc/devuan_version'
+        return 'devuan'
+      else if fileExists '/etc/systemd'
+        return 'systemd'
+      else
+        return 'sysv'
+    catch
+      return 'linux'
+  else if platform is 'darwin'
+    return 'macos'
+  else
+    return platform
+
 # Configuration
 config =
-  sourceDir: 'src'
-  buildDir: 'dist'
-  coffeeFiles: ['server.coffee']
+  entryPoint: 'src/coordinator/index.coffee'
   watchFiles: ['src/**/*.coffee', 'Cakefile']
+  configFile: 'config.yaml'
 
 # Tasks
 
-task 'build', 'Compile CoffeeScript and prepare for deployment', ->
-  log 'Starting ClaudeLink build process...'
-  
-  # Create directories
-  unless fileExists config.sourceDir
-    log "Creating #{config.sourceDir} directory..."
-    fs.mkdirSync config.sourceDir, recursive: true
-  
-  unless fileExists config.buildDir
-    log "Creating #{config.buildDir} directory..."
-    fs.mkdirSync config.buildDir, recursive: true
-  
-  # Convert server.js to server.coffee if needed
-  if fileExists('server.js') and not fileExists('src/server.coffee')
-    log 'Converting server.js to CoffeeScript...'
-    invoke 'convert:server'
-  
-  # Compile CoffeeScript files
-  invoke 'compile'
-  
-  # Copy static files
-  invoke 'copy:static'
-  
-  success 'Build complete!'
+task 'setup', 'Initialize ClodForest configuration', ->
+  log 'Setting up ClodForest configuration...'
 
-task 'compile', 'Compile CoffeeScript files to JavaScript', ->
-  log 'Compiling CoffeeScript files...'
-  
-  if fileExists 'src'
-    runCommand 'coffee --compile --output dist src', ->
-      success 'CoffeeScript compilation complete'
+  unless fileExists config.configFile
+    log 'Creating default config.yaml...'
+
+    defaultConfig = """
+    # ClodForest Configuration
+    # Customize your deployment settings here
+
+    server:
+      port: 8080
+      vault_server: clodforest-vault
+      log_level: info
+
+    repository:
+      path: ./state
+
+    features:
+      git_operations: true
+      admin_auth: false  # Set to true for production
+      context_updates: false  # Not yet implemented
+
+    cors:
+      origins:
+        - https://claude.ai
+        - https://*.claude.ai
+        - http://localhost:3000
+        - http://localhost:8080
+
+    # SSH configuration for Git operations
+    ssh:
+      key_file: ~/.ssh/clodforest_github
+      key_comment: clodforest@thatsnice.org
+    """
+
+    fs.writeFileSync config.configFile, defaultConfig
+    success 'Created config.yaml - customize as needed'
   else
-    warning 'No src directory found, skipping compilation'
+    log 'config.yaml already exists'
 
-task 'copy:static', 'Copy static files to build directory', ->
-  log 'Copying static files...'
-  
-  staticFiles = [
-    'package.json'
-    'claudelink-coordinator.service'
-    'README.md'
-  ]
-  
-  for file in staticFiles
-    if fileExists file
-      runCommand "cp #{file} #{config.buildDir}/", ->
-        log "Copied #{file}"
-  
-  success 'Static files copied'
+  success 'Setup complete!'
 
-task 'convert:server', 'Convert server.js to CoffeeScript', ->
-  log 'Converting server.js to server.coffee...'
-  
-  unless fileExists 'server.js'
-    error 'server.js not found'
+task 'dev', 'Start development server with auto-restart on changes', ->
+  log 'Starting development server with auto-restart...'
+
+  unless fileExists config.entryPoint
+    error "Entry point not found: #{config.entryPoint}"
     return
-  
-  # Read the JavaScript file
-  serverJs = fs.readFileSync 'server.js', 'utf8'
-  
-  # Basic JS to CoffeeScript conversion
-  # This is a simplified converter - for complex files, manual conversion may be needed
-  coffeeScript = serverJs
-    # Remove semicolons
-    .replace /;$/gm, ''
-    # Convert function declarations
-    .replace /function\s+(\w+)\s*\([^)]*\)\s*{/g, '$1 = ->'
-    # Convert anonymous functions
-    .replace /function\s*\([^)]*\)\s*{/g, '->'
-    # Convert var/let/const to simple assignment
-    .replace /(var|let|const)\s+/g, ''
-    # Remove closing braces (this is overly simplistic but works for basic cases)
-    .replace /^\s*}$/gm, ''
-    # Convert require statements
-    .replace /require\(['"]([^'"]+)['"]\)/g, "require '$1'"
-    # Convert console.log
-    .replace /console\.log\(/g, 'console.log '
-    # Basic object syntax fixes
-    .replace /(\w+):\s*function\s*\([^)]*\)\s*{/g, '$1: ->'
-  
-  # Write the CoffeeScript file
-  fs.writeFileSync 'src/server.coffee', coffeeScript
-  success 'Converted server.js to src/server.coffee'
-  
-  # Keep original as backup
-  fs.renameSync 'server.js', 'server.js.backup'
-  log 'Original server.js backed up as server.js.backup'
 
-task 'dev', 'Start development server with auto-reload', ->
-  log 'Starting development server...'
-  
-  # Compile first
-  invoke 'compile'
-  
-  # Start server with nodemon if available, otherwise use node
-  if fileExists 'dist/server.js'
-    runCommand 'which nodemon', ->
-      log 'Starting with nodemon for auto-reload...'
-      spawn 'nodemon', ['dist/server.js'], stdio: 'inherit'
-  else if fileExists 'server.js'
-    log 'Starting server.js directly...'
-    spawn 'node', ['server.js'], stdio: 'inherit'
-  else
-    error 'No server file found to run'
+  # Check for nodemon
+  exec 'which nodemon', (err) ->
+    if err
+      warning 'nodemon not found - using basic restart'
+      log 'Install nodemon globally for better development experience: npm install -g nodemon'
+
+      # Basic file watching with coffee
+      log "Starting: coffee #{config.entryPoint}"
+      spawn 'coffee', [config.entryPoint],
+        stdio: 'inherit'
+        env: {
+          ...process.env
+          NODE_ENV: 'development'
+          LOG_LEVEL: 'debug'
+        }
+    else
+      log 'Using nodemon for auto-restart on file changes'
+      spawn 'nodemon', [
+        '--exec', 'coffee'
+        '--watch', 'src/'
+        '--ext', 'coffee'
+        config.entryPoint
+      ],
+        stdio: 'inherit'
+        env: {
+          ...process.env
+          NODE_ENV: 'development'
+          LOG_LEVEL: 'debug'
+        }
 
 task 'start', 'Start production server', ->
   log 'Starting production server...'
-  
-  if fileExists 'dist/server.js'
-    spawn 'node', ['dist/server.js'], stdio: 'inherit'
-  else if fileExists 'server.js'
-    spawn 'node', ['server.js'], stdio: 'inherit'
-  else
-    error 'No server file found to run'
 
-task 'watch', 'Watch CoffeeScript files and recompile on changes', ->
-  log 'Watching CoffeeScript files for changes...'
-  runCommand 'coffee --watch --compile --output dist src', ->
-    log 'Watch mode started'
-
-task 'clean', 'Clean build directory', ->
-  log 'Cleaning build directory...'
-  
-  if fileExists config.buildDir
-    runCommand "rm -rf #{config.buildDir}", ->
-      success 'Build directory cleaned'
-  else
-    log 'Build directory does not exist'
-
-task 'install', 'Install system service (requires sudo)', ->
-  log 'Installing ClaudeLink Coordinator as system service...'
-  
-  unless fileExists 'claudelink-coordinator.service'
-    error 'Service file not found. Run cake build first.'
+  unless fileExists config.entryPoint
+    error "Entry point not found: #{config.entryPoint}"
     return
-  
-  runCommand 'sudo cp claudelink-coordinator.service /etc/systemd/system/', ->
+
+  log "Starting: coffee #{config.entryPoint}"
+  spawn 'coffee', [config.entryPoint],
+    stdio: 'inherit'
+    env: {
+      ...process.env
+      NODE_ENV: 'production'
+    }
+
+task 'install', 'Install ClodForest as system service', ->
+  log 'Installing ClodForest as system service...'
+
+  platform = detectPlatform()
+  log "Detected platform: #{platform}"
+
+  switch platform
+    when 'systemd'
+      invoke 'install:systemd'
+    when 'freebsd'
+      invoke 'install:freebsd'
+    when 'devuan'
+      invoke 'install:sysv'
+    when 'sysv'
+      invoke 'install:sysv'
+    when 'macos'
+      warning 'macOS service installation not yet implemented'
+      log 'Consider using launchd or running manually'
+    else
+      warning "Unsupported platform for service installation: #{platform}"
+      log 'Manual setup required'
+
+task 'install:systemd', 'Install systemd service', ->
+  log 'Installing systemd service...'
+
+  serviceContent = """
+  [Unit]
+  Description=ClodForest Coordinator
+  After=network.target
+
+  [Service]
+  Type=simple
+  User=clodforest
+  WorkingDirectory=/opt/clodforest
+  ExecStart=/usr/local/bin/coffee src/coordinator/index.coffee
+  Restart=always
+  RestartSec=10
+  Environment=NODE_ENV=production
+  Environment=REPO_PATH=./state
+
+  [Install]
+  WantedBy=multi-user.target
+  """
+
+  fs.writeFileSync '/tmp/clodforest.service', serviceContent
+
+  runCommand 'sudo cp /tmp/clodforest.service /etc/systemd/system/', ->
     runCommand 'sudo systemctl daemon-reload', ->
-      runCommand 'sudo systemctl enable claudelink-coordinator', ->
-        success 'Service installed and enabled'
-        log 'Start with: sudo systemctl start claudelink-coordinator'
+      runCommand 'sudo systemctl enable clodforest', ->
+        success 'Systemd service installed and enabled'
+        log 'Start with: sudo systemctl start clodforest'
+
+task 'install:freebsd', 'Install FreeBSD rc.d service', ->
+  log 'Installing FreeBSD rc.d service...'
+
+  rcScript = """
+  #!/bin/sh
+  #
+  # PROVIDE: clodforest
+  # REQUIRE: LOGIN
+  # KEYWORD: shutdown
+  #
+  # Add the following lines to /etc/rc.conf to enable clodforest:
+  # clodforest_enable="YES"
+  #
+
+  . /etc/rc.subr
+
+  name="clodforest"
+  rcvar=clodforest_enable
+
+  load_rc_config $name
+
+  : ${clodforest_enable="NO"}
+  : ${clodforest_user="clodforest"}
+  : ${clodforest_dir="/opt/clodforest"}
+  : ${clodforest_env="NODE_ENV=production REPO_PATH=./state"}
+
+  pidfile="/var/run/clodforest.pid"
+  command="/usr/sbin/daemon"
+  command_args="-p ${pidfile} -u ${clodforest_user} /usr/local/bin/coffee ${clodforest_dir}/src/coordinator/index.coffee"
+
+  run_rc_command "$1"
+  """
+
+  fs.writeFileSync '/tmp/clodforest', rcScript
+
+  runCommand 'sudo cp /tmp/clodforest /usr/local/etc/rc.d/', ->
+    runCommand 'sudo chmod +x /usr/local/etc/rc.d/clodforest', ->
+      success 'FreeBSD rc.d script installed'
+      log 'Enable with: echo \'clodforest_enable="YES"\' | sudo tee -a /etc/rc.conf'
+      log 'Start with: sudo service clodforest start'
+
+task 'install:sysv', 'Install SysV init script', ->
+  log 'Installing SysV init script...'
+
+  initScript = """
+  #!/bin/bash
+  # ClodForest Coordinator init script
+  # chkconfig: 35 80 20
+  # description: ClodForest Coordinator Service
+
+  . /lib/lsb/init-functions
+
+  USER="clodforest"
+  DAEMON="coffee"
+  ROOT_DIR="/opt/clodforest"
+  SERVER="$ROOT_DIR/src/coordinator/index.coffee"
+  PIDFILE="/var/run/clodforest.pid"
+
+  case "$1" in
+    start)
+      echo -n "Starting ClodForest: "
+      start-stop-daemon --start --quiet --pidfile $PIDFILE --make-pidfile \\
+        --background --chuid $USER --exec $DAEMON -- $SERVER
+      echo "."
+      ;;
+    stop)
+      echo -n "Shutting down ClodForest: "
+      start-stop-daemon --stop --quiet --pidfile $PIDFILE
+      echo "."
+      ;;
+    restart)
+      $0 stop
+      $0 start
+      ;;
+    *)
+      echo "Usage: $0 {start|stop|restart}"
+      exit 1
+  esac
+
+  exit 0
+  """
+
+  fs.writeFileSync '/tmp/clodforest', initScript
+
+  runCommand 'sudo cp /tmp/clodforest /etc/init.d/', ->
+    runCommand 'sudo chmod +x /etc/init.d/clodforest', ->
+      runCommand 'sudo update-rc.d clodforest defaults', ->
+        success 'SysV init script installed'
+        log 'Start with: sudo service clodforest start'
 
 task 'test', 'Run basic functionality tests', ->
   log 'Running basic tests...'
-  
-  # Test compilation
-  invoke 'compile'
-  
-  # Test that compiled file is valid JavaScript
-  if fileExists 'dist/server.js'
-    runCommand 'node -c dist/server.js', ->
-      success 'Compiled JavaScript is syntactically valid'
-  
-  success 'Basic tests passed'
 
-task 'package', 'Create deployment package', ->
-  log 'Creating deployment package...'
-  
-  invoke 'build'
-  
-  runCommand 'tar -czf claudelink-coordinator.tar.gz dist/ package.json README.md', ->
-    success 'Deployment package created: claudelink-coordinator.tar.gz'
+  unless fileExists config.entryPoint
+    error "Entry point not found: #{config.entryPoint}"
+    return
+
+  # Test syntax
+  runCommand "coffee -c -p #{config.entryPoint} > /dev/null", ->
+    success 'CoffeeScript syntax is valid'
+
+    # TODO: Add more comprehensive tests
+    log 'Additional tests will be added as the project grows'
+
+    success 'Basic tests passed'
+
+task 'status', 'Show current project status', ->
+  console.log """
+  #{colors.cyan}ClodForest Project Status#{colors.reset}
+
+  #{colors.green}Core Files:#{colors.reset}
+  """
+
+  # Check entry point
+  if fileExists config.entryPoint
+    console.log "  ✅ Entry point: #{config.entryPoint}"
+  else
+    console.log "  ❌ Entry point missing: #{config.entryPoint}"
+
+  # Check modules
+  modules = [
+    'src/coordinator/lib/config.coffee'
+    'src/coordinator/lib/middleware.coffee'
+    'src/coordinator/lib/apis.coffee'
+    'src/coordinator/lib/routing.coffee'
+  ]
+
+  console.log "\n#{colors.green}Modules:#{colors.reset}"
+  for module in modules
+    if fileExists module
+      console.log "  ✅ #{module}"
+    else
+      console.log "  ❌ #{module}"
+
+  # Check configuration
+  console.log "\n#{colors.green}Configuration:#{colors.reset}"
+  if fileExists config.configFile
+    console.log "  ✅ #{config.configFile}"
+  else
+    console.log "  ❌ #{config.configFile} (run: cake setup)"
+
+  # Platform info
+  platform = detectPlatform()
+  console.log "\n#{colors.green}Platform:#{colors.reset}"
+  console.log "  📋 Detected: #{platform}"
+
+task 'clean', 'Clean temporary and generated files', ->
+  log 'Cleaning temporary files...'
+
+  tempFiles = [
+    '/tmp/clodforest'
+    '/tmp/clodforest.service'
+  ]
+
+  for file in tempFiles
+    if fileExists file
+      runCommand "rm #{file}", ->
+        log "Removed #{file}"
+
+  success 'Cleanup complete'
 
 task 'help', 'Show available tasks', ->
   console.log """
-  #{colors.cyan}ClaudeLink Coordinator Build Tasks#{colors.reset}
-  
+  #{colors.cyan}ClodForest Coordinator Tasks#{colors.reset}
+
   #{colors.green}Development:#{colors.reset}
-    cake build          - Compile CoffeeScript and prepare for deployment
-    cake dev            - Start development server with auto-reload
-    cake watch          - Watch and recompile CoffeeScript files
+    cake setup          - Initialize configuration files
+    cake dev            - Start development server with auto-restart
     cake test           - Run basic functionality tests
-  
+    cake status         - Show current project status
+
   #{colors.green}Production:#{colors.reset}
     cake start          - Start production server
-    cake install        - Install as system service (requires sudo)
-    cake package        - Create deployment package
-  
+    cake install        - Install as system service (auto-detects platform)
+
+  #{colors.green}Platform-Specific Install:#{colors.reset}
+    cake install:systemd    - Install systemd service (Linux)
+    cake install:freebsd    - Install FreeBSD rc.d service
+    cake install:sysv       - Install SysV init script (Devuan/older Linux)
+
   #{colors.green}Maintenance:#{colors.reset}
-    cake clean          - Clean build directory
-    cake convert:server - Convert server.js to CoffeeScript
+    cake clean          - Clean temporary files
     cake help           - Show this help message
-  
+
   #{colors.yellow}Examples:#{colors.reset}
-    cake build && cake dev    - Build and start development
-    cake clean && cake build  - Clean rebuild
-    cake package              - Create deployment archive
+    cake setup && cake dev      - Initialize and start development
+    cake install                - Auto-install for current platform
+    cake status                 - Check project health
+
+  #{colors.yellow}Platform Support:#{colors.reset}
+    ✅ Linux (systemd)     ✅ FreeBSD     ✅ Devuan/SysV
+    ⚠️  macOS (manual)     ❌ Windows
   """
