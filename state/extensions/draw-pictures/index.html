@@ -50,16 +50,17 @@ return {
         <p>🔧 Step adjustment: Up to 3 attempts • Distance optimization • Function-space scaling</p>
     </div>
 
-    <!-- Load all JavaScript modules -->
-    <script src="config.js"></script>
-    <script src="state.js"></script>
-    <script src="compiler.js"></script>
-    <script src="ui.js"></script>
-    <script src="presets.js"></script>
-    <script src="sampler-utils.js"></script>
-    <script src="sampler.js"></script>
-    <script src="renderer.js"></script>
-    <script src="main.js"></script>
+    <!-- Load all CoffeeScript modules (compiled to JS) -->
+    <script src="https://coffeescript.org/v2/browser-compiler-legacy/coffeescript.js"></script>
+    <script type="text/coffeescript" src="config.coffee"></script>
+    <script type="text/coffeescript" src="state.coffee"></script>
+    <script type="text/coffeescript" src="compiler.coffee"></script>
+    <script type="text/coffeescript" src="sampler-utils.coffee"></script>
+    <script type="text/coffeescript" src="sampler.coffee"></script>
+    <script type="text/coffeescript" src="renderer.coffee"></script>
+    <script type="text/coffeescript" src="ui.coffee"></script>
+    <script type="text/coffeescript" src="presets.coffee"></script>
+    <script type="text/coffeescript" src="yaml-loader.coffee"></script>
+    <script type="text/coffeescript" src="main.coffee"></script>
 </body>
 </html>
-

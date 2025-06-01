@@ -1,0 +1,17 @@
+{
+  "name": "spirograph-playground",
+  "version": "1.0.0",
+  "description": "Parametric function playground with adaptive sampling",
+  "main": "server.coffee",
+  "scripts": {
+    "start": "coffee server.coffee",
+    "dev": "coffee server.coffee"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "coffeescript": "^2.7.0"
+  },
+  "keywords": ["spirograph", "parametric", "coffeescript", "canvas"],
+  "author": "Robert de Forest",
+  "license": "MIT"
+}

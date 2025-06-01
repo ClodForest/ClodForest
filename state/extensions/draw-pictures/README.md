@@ -1,38 +1,61 @@
-# Parametric Function Playground
+# Spirograph Playground
 
-Interactive tool for experimenting with parametric mathematical functions that generate 2D curves with adaptive sampling and real-time compilation.
+Parametric function playground with adaptive sampling, now fully converted to CoffeeScript!
 
 ## Features
 
-- **Live Function Editor**: Edit position and color functions with auto-compilation
-- **Adaptive Sampling**: Automatically adjusts sample density based on curve complexity  
-- **Mathematical Presets**: Built-in examples (spirals, Lissajous curves, roses)
-- **Real-time Rendering**: See changes instantly as you type
+- **Adaptive Sampling**: Intelligent step sizing based on function-space distance
+- **Backtracking Algorithm**: Finds optimal step sizes for smooth curves
+- **Curvature Estimation**: Adjusts sampling density in high-curvature regions
+- **Real-time Compilation**: Auto-compile with 3-second delay
+- **Preset Library**: Rose curves, Lissajous figures, spirals, and more
+- **Debug Mode**: Visualize step sizes and sampling behavior
 
-## Usage
+## Quick Start
 
-1. Open `index.html` in a browser
-2. Edit the position and color functions in the text areas
-3. Functions auto-compile after 3 seconds of typing or when you click away
-4. Try the preset buttons for inspiration
+```bash
+# Install dependencies
+npm install
 
-## Function Format
+# Start the server
+npm start
 
-**Position Function**: Returns `{x, y}` coordinates in range `[-1, 1]`
-**Color Function**: Returns `{r, g, b, a}` values in range `[0, 1]`
-
-Available math: `sin, cos, PI, Tau, colorClamp`
+# Open browser to http://localhost:3000
+```
 
 ## Architecture
 
-- `ui-component.js`: Function compilation and editor management
-- `presets-component.js`: Mathematical function templates  
-- `sampler-component.js`: Adaptive sampling algorithm
-- `renderer-component.js`: Canvas rendering and coordinate transformation
+**Modular CoffeeScript Design:**
+- `config.coffee` - Configuration objects
+- `state.coffee` - Centralized state management
+- `compiler.coffee` - Function compilation utilities
+- `sampler-utils.coffee` - Geometry and scaling utilities
+- `sampler.coffee` - Adaptive sampling algorithms
+- `renderer.coffee` - Canvas rendering functions
+- `ui.coffee` - UI interaction handlers
+- `presets.coffee` - Preset configurations
+- `main.coffee` - Initialization
 
-## Next Steps
+## Usage
 
-- Refactor sampler with dependency injection
-- Add CoffeeScript compilation support
-- Optimize performance for complex curves
-- Add more mathematical functions and constants
+1. Write position functions that return `{x, y}` coordinates
+2. Write color functions that return `{r, g, b, a}` values
+3. Functions auto-compile after 3 seconds or on blur
+4. Use presets for inspiration
+5. Debug mode shows step size visualization
+
+## Technical Notes
+
+- Uses browser CoffeeScript compiler for development
+- Adaptive sampling targets 1.0/scale function-space distance
+- Backtracking finds optimal step sizes within 3 attempts
+- Maximum 50,000 samples for performance
+- CORS-safe with Express server wrapper
+
+## Why CoffeeScript?
+
+As is tradition, CoffeeScript provides:
+- Cleaner syntax with significant whitespace
+- Implicit returns and comprehensions
+- Better function composition patterns
+- Reduced boilerplate for object-oriented patterns
