@@ -29,6 +29,14 @@ function adjustStepSize(step, distance, clamp) {
     return clamp(step / distance);
 }
 
+function calculateFunctionSpaceDistance(p1, p2) {
+    return pythagoras(p1, p2);
+}
+
+function estimateCurvature(p1, p2, p3) {
+    return Math.abs((p2.x - p1.x) * (p3.y - p1.y) - (p3.x - p1.x) * (p2.y - p1.y));
+}
+
 function scaleToCanvas(canvas, location, center = null) {
     const actualCenter = center || getCanvasCenter();
     const scale = getCanvasScale();

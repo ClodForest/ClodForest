@@ -12,9 +12,9 @@ const canvasConfig = {
 };
 
 const samplerConfig = {
-    MIN_STEP: 1/10000,
-    MAX_STEP: 1/100, 
-    MAX_ADAPTION_ATTEMPTS: 3,
-    MAX_DISTANCE_EPSILON: 0.1
+      MIN_STEP: 1/10000,
+      MAX_STEP: 1/50,  // Increased for better performance on smooth curves
+      MAX_ADAPTION_ATTEMPTS: 3,
+      TARGET_PIXEL_DISTANCE: 2  // Clearer name than MAX_DISTANCE_EPSILON
 };
 

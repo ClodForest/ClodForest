@@ -15,10 +15,10 @@ function validateFunction(func, context) {
 function compileFunctions(positionCode, colorCode, mathContext) {
     const positionFunc = createFunction(positionCode, ['sin', 'cos', 'PI', 'Tau']);
     const colorFunc = createFunction(colorCode, ['sin', 'cos', 'PI', 'Tau', 'colorClamp']);
-    
+
     validateFunction(positionFunc, mathContext);
     validateFunction(colorFunc, mathContext);
-    
+
     return { positionFunc, colorFunc };
 }
 
