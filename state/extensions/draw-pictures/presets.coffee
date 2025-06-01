@@ -90,6 +90,8 @@ getPreset = (name) ->
 
 loadPreset = (name) ->
   try
+    positionEditor = document.getElementById 'positionCode'
+    colorEditor = document.getElementById 'colorCode'
     preset = getPreset name
     positionEditor.value = preset.position
     colorEditor.value = preset.color
