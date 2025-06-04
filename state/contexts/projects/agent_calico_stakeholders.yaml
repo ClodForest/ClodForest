@@ -1,0 +1,190 @@
+---
+# Agent Calico Stakeholders
+version: "1.0.0"
+created: "2025-06-03T21:33:00Z"
+context_type: "project_stakeholders"
+description: "Team dynamics, relationships, and organizational context for Agent Calico project"
+
+inherits_project: "projects/agent-calico/project-overview.yaml"
+
+executive_leadership:
+  jamin_cleveland:
+    title: "Acting CTO"
+    role: "Executive Sponsor, Robert's Manager"
+    challenge: "96 direct reports creating unprecedented time pressure"
+    leadership_style: "Pragmatic 'good enough' philosophy, vision-driven inspiration"
+    timeline_pressure: "CEO commitment for June 30 delivery"
+    communication_needs: "TL;DR format, efficiency over detail"
+    relationship_with_robert: "Primary inspiration source, trusts early delivery pattern"
+    success_criteria: "Win by June 30, reduced management overhead"
+    quoted_philosophy: "Good enough per business needs"
+
+project_management:
+  catalina_yue:
+    title: "Project Manager"
+    role: "Process Excellence, Documentation Lead"
+    collaboration_strength: "Shared methodological values with Robert"
+    expertise_areas: ["Comprehensive documentation", "Stakeholder coordination", "Timeline management"]
+    partnership_quality: "Deep collaboration on project planning"
+    teams_organization: "Created folder structure (some redundancy identified)"
+    working_style: "Structured approach, clear deliverable tracking"
+    relationship_dynamics: "Strong ally, mutual respect for systematic approaches"
+
+engineering_leadership:
+  arsen_zakarian:
+    title: "Engineering Manager"
+    role: "Tiger Team Leader, Technical Implementation"
+    team_evolution: "Now sees Peter's team as allies rather than obstacles"
+    pressure_points: "Timeline vs. quality tension, end-of-quarter stress"
+    strengths: "Believes in project vision, professional approach to collaboration"
+    deliverables_status: "Producing required documentation for Peter's team"
+    robert_relationship: "Professional boundaries established, positive feedback channeled to Jamin"
+    technical_confidence: "High belief in Agent Calico feasibility"
+    leadership_growth: "Demonstrating increased collaboration maturity"
+
+infrastructure_leadership:
+  peter_zimmerman:
+    title: "Director of Cloud Engineering"
+    role: "Infrastructure Gatekeeper, Security Advocate"
+    stance: "Unwilling to compromise infrastructure security principles"
+    value_system: "Proper cloud usage, security-first approach, long-term scalability"
+    relationship_key: "Robert's technical credibility enables productive collaboration"
+    cooperation_level: "Providing necessary control to Arsen's engineering team"
+    mars_awareness: "Infrastructure decisions will enable/constrain future expansion"
+    strategic_importance: "Critical for sustainable project success"
+
+information_security:
+  team_composition:
+    members: ["Mark", "Taylor", "Edward", "James"]
+    team_culture: "Refreshingly pleasant to work with"
+    relationship_quality: "Unusually cooperative for InfoSec team"
+    collaboration_approach: "Positive dynamics established early"
+    
+  strategic_priorities:
+    security_review: "AppSec framework submission pending"
+    pii_scanning: "Automated detection flagging potential issues"
+    mars_expansion: "AI policy coordination for future scaling"
+    relationship_preservation: "Maintain positive dynamics through infrastructure transition"
+
+customer_voice_representatives:
+  brian_boner:
+    title: "ServiceNow Expert"
+    role: "User Perspective, Skeptical Validator"
+    value_to_project: "Essential skeptic who could prevent 'brand-destroying gaff'"
+    expertise_areas: "ServiceNow systems, support workflow pain points"
+    feedback_contributions: "Password reset costs ($12 each), organizational vs. technical problems"
+    collaboration_style: "Valuable 'negativity' providing reality checks"
+    hospital_connection: "Contact at hospital (Krista) for UAT participation"
+    
+  kristyn:
+    title: "Data Dashboard Developer" 
+    role: "Support Load Analysis, Cost/Benefit Modeling"
+    relationship_building: "Meeting started with 'Cat tree!' bonding moment"
+    collaboration_opportunity: "Building dashboard for Jamin that Robert also needs"
+    meeting_style: "Preference for early arrival, structured agendas"
+    outcome: "New working relationship established, shared data access planned"
+
+hospital_contacts:
+  krista:
+    title: "Hospital Contact"
+    role: "Potential UAT Participant"
+    connection_source: "Brian Boner network"
+    outreach_status: "Initial contact made through comprehensive project explanation"
+    value_proposition: "Real hospital staff perspective for testing"
+    engagement_approach: "Professional but engaging, emphasized testing as 'fun'"
+
+testing_team:
+  jeff_and_brian:
+    composition: "Testing team (corrected from previous Mark & Brian reference)"
+    meeting_scheduled: "June 4, 12:30 PM"
+    preparation_style: "Async-friendly with detailed materials sent in advance"
+    timeline_goal: "Start formal testing by Monday if meeting successful"
+    dev_access_needed: "Arsen controls access to development instance"
+    skepticism_factor: "Brian specifically skeptical about AI capabilities"
+
+organizational_dynamics:
+  cross_team_relationships:
+    arsen_peter_evolution: "Transformed from tension to alliance"
+    infosec_engineering: "Positive collaboration established"
+    pm_leadership: "Robert facilitating communication across teams"
+    
+  communication_patterns:
+    stakeholder_adaptation: "Tailored messaging for different audiences"
+    context_setting: "Comprehensive background provided to reduce confusion"
+    credit_assignment: "Share successes, take responsibility for challenges"
+    
+  success_factors:
+    technical_credibility: "Robert's infrastructure expertise enables cross-team collaboration"
+    relationship_building: "Instant rapport development (Kristyn 'Cat tree!' example)"
+    proactive_communication: "Reaching out before problems arise"
+
+external_stakeholders:
+  vca_hospital_staff:
+    primary_users: "Hospital managers, veterinary staff, support personnel"
+    pain_points: "Misdirected tickets, password resets, non-veterinary time waste"
+    success_metrics: "Reduced support calls, increased user satisfaction"
+    representation_gap: "Still no direct VCA employee voices in development"
+    
+  mars_organization:
+    expansion_context: "Future scaling beyond VCA to entire Mars ecosystem"
+    policy_coordination: "AI governance framework development needed"
+    infrastructure_implications: "Current decisions will constrain/enable future growth"
+
+stakeholder_management_strategies:
+  relationship_building:
+    trust_development: "Proven reliability through consistent early delivery"
+    value_demonstration: "Ahead-of-schedule performance builds confidence"
+    collaboration_facilitation: "Help teams work together more effectively"
+    
+  communication_excellence:
+    efficiency_focus: "Respect for time constraints (Jamin's 96 reports)"
+    preparation_emphasis: "Structured agendas, clear objectives, early arrival"
+    follow_up_integration: "Natural continuation points built into communications"
+    
+  conflict_resolution:
+    tension_identification: "Early recognition of Arsen/Peter infrastructure friction"
+    mediation_approach: "Technical credibility enables productive problem-solving"
+    relationship_repair: "Transform obstacles into allies through understanding"
+
+risk_factors:
+  stakeholder_risks:
+    timeline_pressure: "June 30 deadline creating stress across teams"
+    scope_creep: "Success momentum tempting feature expansion"
+    resource_constraints: "Limited time for comprehensive testing and validation"
+    
+  relationship_risks:
+    infosec_dynamics: "Maintain unusually positive relationship through changes"
+    cross_team_coordination: "Sustain Arsen/Peter alliance under pressure"
+    customer_voice_gap: "Lack of direct hospital staff input in development"
+
+success_indicators:
+  team_collaboration:
+    improved_dynamics: "Arsen/Peter relationship transformation"
+    positive_reception: "Engineering validation of user stories and test plan"
+    cross_functional_coordination: "Effective communication across organizational boundaries"
+    
+  stakeholder_satisfaction:
+    executive_confidence: "Jamin's trust in delivery capability"
+    engineering_buy_in: "Arsen team positive feedback on deliverables"
+    infrastructure_cooperation: "Peter team providing necessary cloud control"
+    
+  relationship_quality:
+    trust_calibration: "Proven reliability reducing need for oversight"
+    collaborative_problem_solving: "Joint approach to challenges"
+    mutual_support: "Teams helping each other succeed"
+
+future_stakeholder_development:
+  immediate_priorities:
+    testing_team_activation: "Jeff & Brian meeting success"
+    hospital_user_integration: "Krista UAT participation"
+    infosec_review_completion: "AppSec framework submission"
+    
+  medium_term_goals:
+    customer_voice_amplification: "Direct VCA employee feedback integration"
+    mars_coordination: "AI policy stakeholder identification"
+    success_metrics_validation: "Quantitative measurement of stakeholder satisfaction"
+    
+  long_term_vision:
+    sustainable_collaboration: "Self-maintaining positive team dynamics"
+    scalable_relationships: "Patterns that work for Mars expansion"
+    continuous_improvement: "Stakeholder feedback driving product evolution"

@@ -1,0 +1,214 @@
+---
+# Ozryn's Keep D&D Campaign
+version: "1.0.0"
+created: "2025-06-03T21:33:00Z"
+context_type: "dnd_campaign_reference"
+description: "Complete campaign context from 70,000+ word chronicle"
+
+inherits_domain: "domains/personal-assistant.yaml"
+additional_contexts:
+  - "ship-operations.yaml"
+  - "session-planning.yaml"
+
+campaign_overview:
+  name: "Ozryn's Keep"
+  party_name: "The Animals"
+  campaign_theme: "Political intrigue, dragon-humanoid peace, fey court navigation"
+  current_focus: "Breaking Braynor's resurrection cycle, Tasha alliance"
+  session_frequency: "Bi-weekly"
+  chronicle_scope: "70,000+ words of comprehensive session documentation"
+
+current_party:
+  leon:
+    race_class: "Blue Harengon Sorcerer"
+    signature_item: "Combined dragon orb staff"
+    character_trait: "Collects trophies from defeated enemies"
+    backstory: "Was cursed blue but later cured by Sveldolos"
+    role: "Artillery/control magic, charm spells, chaos bolts"
+    
+  honey:
+    race_class: "Tabaxi Ranger/Rogue"
+    specialty: "Master of daggers, especially dragon part darts"
+    obsession: "Treasure and pretties"
+    unique_feature: "Independent shadow companion"
+    role: "High-speed melee, thrown weapons, tactical movement"
+    
+  oralie_lightfoot:
+    race_class: "Halfling Cleric/Warlock"
+    dual_patrons: "Pelor and the Raven Queen"
+    transformation_item: "Hellhound transformation coat"
+    communication_tool: "Long-distance communication book"
+    role: "Support magic, healing, hellhound form for frontline"
+    backstory: "Born as Owen, transitioned during sparring practice via Raven Queen's sword"
+    
+  sveldolos:
+    race_class: "Centaur Druid (current PC of chronicler)"
+    background: "Stolen from Feywild as child, raised by Tasha/Iggwilv"
+    mentor_relationship: "Tasha staged her death, creating abandonment trauma"
+    personal_quest: "Confronting Tasha about deception, reconnecting with centaur heritage"
+    role: "Utility magic, area control, curse removal"
+    
+  baeleth:
+    race_class: "Shadar-kai Monster Hunter"
+    signature_weapon: "Sunblade"
+    expertise: "Undead hunting, teleportation"
+    joining_circumstances: "Met in Shadowfell, joined when player schedule allowed"
+    role: "Tank/damage, undead expertise, teleportation"
+
+former_party_members:
+  hjoot_whisperwing:
+    race_class: "Owlin Druid"
+    departure_reason: "Left to complete studies at Silver Academy"
+    role: "Navigator and scholar"
+    
+  bryore:
+    race_class: "Minotaur Paladin serving Chauntea"
+    current_mission: "Managing Ozryn's Keep, rehabilitating kobolds and young dragons"
+    departure_context: "Former PC of chronicler, left to handle captured enemies"
+    significance: "Proof that 'evil' creatures can be redeemed"
+
+major_npcs:
+  allies:
+    princess_coryn: "Dragonborn princess, potential Tarhun descendant, teleportation services"
+    ragna: "Blacksmith traveling with Princess Coryn"
+    tarhun: "Ancient silver dragon, former ally to mortals, tested party's worthiness"
+    throden: "Lizardfolk leader, military alliance against dragons"
+    nalla: "Goliath sentinel, taught Honey about remorhaz harvesting"
+    tortle_researchers: "Recently recruited to ship crew for underwater operations"
+    
+  enemies:
+    braynor_the_eternal: "Ancient red dragon tyrant with resurrection cycle"
+    rhogar: "Braynor's scion (killed by the party)"
+    lady_sairl: "Leader of Gloom Court with flickering mastiffs"
+    loba: "Werewolf pack leader (deceased)"
+    
+  complex_relationships:
+    tasha_iggwilv: "Powerful witch, Sveldolos's former mentor, current alliance target"
+    vanuath: "Elf traitor from Gloom Court who helped escape"
+    raven_queen: "Oralie's patron with mysterious agenda"
+
+current_situation:
+  location: "Operating from The Ashwood Laurel (ship)"
+  recent_development: "Contacted Tasha via sending spell"
+  challenge_received: "Worthiness challenge before potential alliance"
+  primary_mission: "Break Braynor's resurrection cycle permanently"
+  strategy: "Seek Tasha's aid rather than hunt her as enemy"
+
+ship_operations:
+  vessel_name: "The Ashwood Laurel (formerly Gale's Breath)"
+  ship_type: "50+ year old 3-masted warship"
+  weapons: "2 ballistas, 2 mangonels, naval ram"
+  crew_structure: "44 total shares (6 officers, 21 regular crew, 2 cats)"
+  profit_sharing: "Democratic distribution system"
+
+key_crew_members:
+  officers:
+    morgan: "First Mate (she/her), safety & security, longest-serving"
+    haig: "Quartermaster (he/him), tragic backstory with murdered partner Sherasho"
+    sven: "Cook (he/him), Quinn's brother"
+    quinn: "Bosun (she/her), crew management, Sven's sister"
+    myra: "Master-at-Arms (she/her), former city guard, party fan"
+    oakes: "Carpenter (they/them), lighthouse keeper who lost everything"
+
+ongoing_plot_threads:
+  primary_mission: "Dragon-humanoid peace through breaking Braynor's cycle"
+  personal_arcs:
+    sveldolos_confrontation: "Face Tasha about staged death and deception"
+    oralie_divine_balance: "Serve both Pelor and Raven Queen"
+    leon_growth: "Evolution from trophy collector to tactical leader"
+    honey_shadow: "Develop independent shadow companion abilities"
+    
+  strategic_considerations:
+    bryore_rehabilitation: "Kobold rehabilitation success at Ozryn's Keep"
+    princess_coryn_resistance: "Growing refugee resistance movement"
+    lizardfolk_alliance: "Maintain strategic military positions"
+    ship_operations: "Mobile base for broader campaign"
+
+world_building:
+  magic_system:
+    feywild_time_dilation: "6 months passed during brief stay"
+    planar_travel: "Various means (amulets, portals, accidents)"
+    curse_mechanics: "Werewolf transmission, blue fur, confusion effects"
+    divine_complexity: "Multiple god relationships, competing interests"
+    
+  political_landscape:
+    dragon_empire: "Braynor's hierarchical scion system"
+    fey_courts: "Competing agendas, unwilling recruitment"
+    refugee_movements: "Resistance cells against dragon rule"
+    ancient_legacies: "Wizard council history and artifact consequences"
+
+notable_locations:
+  fey_realms:
+    gloom_court: "Dark fey court, perpetual twilight, Lady Sairl's domain"
+    summer_court: "Opposing court focused on spreading fey influence"
+    moonstone_cave: "Where party befriended opal dragon"
+    
+  material_plane:
+    two_hollows: "Starting village, burned during Feywild absence"
+    ten_thousand_hollows: "Princess Coryn's refugee settlement"
+    ozryns_keep: "Former dragon stronghold, now kobold rehabilitation center"
+    dogs_breakfast_fortress: "River fortress captured from kobolds"
+    
+  other_planes:
+    shadowfell: "Raven Queen's realm, where party met Baeleth"
+    vampire_castle: "Cleared undead threat"
+    ancient_temple: "Where Tasha's statue revealed her true nature"
+
+major_story_arcs:
+  feywild_arc: "Gloom Court infiltration, garden maze, night hag encounter"
+  dragon_war_arc: "Return to dragon-ruled world, lizardfolk alliance, Rhogar's defeat"
+  maritime_arc: "Shadowfell journey, mountain adventures, ship acquisition"
+  current_arc: "Tasha contact, worthiness challenge, alliance building"
+
+bastion_facilities:
+  operational:
+    workshop: "Sveldolos (16x16), works with Oakes and Sonny"
+    
+  planned:
+    sacristy: "Oralie - religious space"
+    trophy_room: "León - display space"
+    garden: "Honey - greenhouse in aft deck roof"
+    teleportation_circle: "Baeleth - if approved"
+
+combat_highlights:
+  rhogar_dragon_fight: "Dragon-calming song, charm tactics, Vanuath betrayal"
+  frost_giant_battle: "Corrupted multi-headed giant, triggered Shadowfell transport"
+  vampire_castle: "Baeleth expertise, holy water, charm resistance"
+  werewolf_packs: "Sveldolos's vendetta, magical weapons required"
+
+cultural_elements:
+  party_dynamics: "Found family, mutual support, collaborative problem-solving"
+  moral_complexity: "Redemption vs. destruction of 'evil' creatures"
+  political_intrigue: "Supernatural courts, ancient betrayals, power struggles"
+  personal_growth: "Individual character development through adversity"
+
+campaign_themes:
+  redemption_possibility: "Bryore's kobold success proves change is possible"
+  family_creation: "Chosen family dynamics within adventuring party"
+  political_complexity: "War, survival, moral ambiguity in conflict"
+  ancient_magic_return: "Old powers awakening in modern world"
+  trust_and_betrayal: "Tasha's deception, Vanuath's betrayal, alliance building"
+
+session_management:
+  documentation_system: "Comprehensive chronicling of all major events"
+  continuity_tracking: "Character development across multiple arcs"
+  world_building_evolution: "Consistent expansion of setting and lore"
+  player_agency: "Meaningful choices affecting story direction"
+
+current_session_status:
+  preparation_needed: "Several sessions behind in documentation"
+  immediate_focus: "Tasha's worthiness challenge response"
+  resources_available: "Fully armed warship, experienced crew, allied factions"
+  challenges_ahead: "Complete challenge, negotiate alliance, confront Braynor"
+
+innovation_aspects:
+  character_continuity: "Seamless transition between player characters"
+  rehabilitation_theme: "Redemption of traditionally evil creatures"
+  maritime_campaign: "Ship-based adventures with crew management"
+  multi_planar_politics: "Complex relationships across different realms"
+
+future_directions:
+  immediate_goals: "Complete Tasha's challenge, secure alliance"
+  medium_term: "Prepare for final confrontation with Braynor"
+  long_term: "Establish lasting peace between dragons and humanoids"
+  campaign_conclusion: "Resolution of ancient conflicts, new world order"

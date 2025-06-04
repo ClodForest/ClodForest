@@ -1,0 +1,240 @@
+---
+# Agent Calico Security Review Framework
+version: "1.0.0"
+created: "2025-06-03T21:33:00Z"
+context_type: "security_assessment"
+description: "Application Security review framework for InfoSec team submission"
+
+inherits_project: "projects/agent-calico/project-overview.yaml"
+
+security_review_structure:
+  total_sections: 10
+  completion_status: "Framework complete, ready for InfoSec submission"
+  submission_deadline: "June 16 (Robert estimates completion by Tuesday)"
+  review_team: "InfoSec (Mark, Taylor, Edward, James)"
+
+section_breakdown:
+  section_1_executive_summary:
+    status: "To be completed"
+    content_focus: "High-level security posture overview"
+    audience: "Executive leadership and InfoSec management"
+    key_elements: ["Risk assessment summary", "Mitigation strategies", "Compliance status"]
+    
+  section_2_application_overview:
+    status: "Complete"
+    description: "AI chatbot integrating ServiceNow, SharePoint via Azure"
+    architecture: "Microsoft Teams interface, Azure OpenAI backend"
+    user_base: "VCA hospital staff, veterinary professionals"
+    data_sensitivity: "ServiceNow tickets, SharePoint documents (potential HIPAA-adjacent)"
+    
+  section_3_authentication_authorization:
+    status: "Complete"
+    approach: "Delegated to Okta for enterprise SSO"
+    concerns: "Service account privilege levels"
+    user_context: "Strict enforcement - users see only their own data"
+    session_management: "Leverages existing enterprise systems"
+    
+  section_4_data_security:
+    status: "Complete"
+    primary_focus: "Preventing LLM data exposure"
+    data_classification: "ServiceNow tickets (potentially sensitive), SharePoint documents"
+    encryption: "Azure-managed encryption in transit and at rest"
+    data_residency: "Microsoft Azure US regions"
+    
+  section_5_input_validation_output_encoding:
+    status: "Complete"
+    primary_concern: "Prompt injection prevention"
+    validation_strategy: "Multi-layer input sanitization"
+    output_encoding: "Structured response formatting"
+    llm_specific_protections: "Retired spy cat jailbreak resistance"
+    
+  section_6_infrastructure_security:
+    status: "Complete"
+    environment: "Azure cloud infrastructure"
+    access_control: "Managed identities for service-to-service communication"
+    network_security: "VPC isolation, Azure security groups"
+    monitoring: "Azure Security Center integration"
+    
+  section_7_third_party_dependencies:
+    status: "Complete"
+    azure_openai: "Microsoft-managed AI service"
+    microsoft_graph: "Enterprise API for SharePoint/Teams integration"
+    servicenow_apis: "Established enterprise system integration"
+    dependency_management: "Vendor security assessments on file"
+    
+  section_8_operational_security:
+    status: "Complete"
+    devops_pipeline: "Azure DevOps with security scanning"
+    incident_response: "Integration with existing VCA IR procedures"
+    logging_monitoring: "Azure Monitor, Application Insights"
+    backup_recovery: "Azure-managed backup strategies"
+    
+  section_9_compliance_governance:
+    status: "Complete"
+    regulatory_scope: "GDPR, CCPA, potential HIPAA-adjacent considerations"
+    data_governance: "Alignment with VCA data classification policies"
+    audit_trails: "Comprehensive logging for compliance reporting"
+    privacy_controls: "User data access restrictions"
+    
+  section_10_risk_matrix_remediation:
+    status: "Complete"
+    risk_prioritization: "Vulnerability severity and likelihood assessment"
+    mitigation_timeline: "Remediation plans with target dates"
+    residual_risk: "Accepted risks with business justification"
+    monitoring_strategy: "Ongoing risk assessment procedures"
+
+primary_security_risks:
+  prompt_injection:
+    description: "Malicious prompts attempting to manipulate AI behavior"
+    likelihood: "High (users will experiment with system boundaries)"
+    impact: "Medium (could expose data or break functionality)"
+    mitigation: "Retired spy cat approach, input validation, output filtering"
+    
+  service_account_over_privilege:
+    description: "Service accounts with excessive system permissions"
+    likelihood: "Medium (common in rapid development)"
+    impact: "High (could enable lateral movement or data access)"
+    mitigation: "Principle of least privilege, regular permission audits"
+    
+  user_context_bypass:
+    description: "Users accessing data they shouldn't see"
+    likelihood: "Medium (testing will attempt this deliberately)"
+    impact: "Critical (data breach, compliance violation)"
+    mitigation: "Strict user context enforcement, comprehensive testing"
+    
+  data_leakage_through_llm:
+    description: "AI model inadvertently revealing sensitive information"
+    likelihood: "Medium (inherent risk with LLMs)"
+    impact: "High (confidentiality breach, regulatory issues)"
+    mitigation: "Output filtering, response validation, monitoring"
+
+security_architecture:
+  defense_in_depth:
+    layer_1_network: "Azure VPC isolation, security groups"
+    layer_2_application: "Input validation, authentication checks"
+    layer_3_ai_model: "Prompt engineering, output filtering"
+    layer_4_monitoring: "Logging, anomaly detection, alerting"
+    
+  zero_trust_principles:
+    verify_explicitly: "Every request validated regardless of source"
+    least_privilege: "Minimal access rights for all components"
+    assume_breach: "Design with expectation of compromise"
+    
+  enterprise_integration:
+    identity_provider: "Okta SSO integration"
+    logging_systems: "Azure Monitor, existing SIEM integration"
+    compliance_frameworks: "Alignment with VCA security policies"
+
+ai_specific_security_considerations:
+  model_security:
+    training_data_protection: "Azure OpenAI service manages training data isolation"
+    inference_isolation: "Request isolation between users"
+    model_versioning: "Controlled updates with security validation"
+    
+  prompt_engineering_security:
+    system_prompt_protection: "Retired spy cat approach prevents override"
+    context_pollution: "Input sanitization prevents conversation poisoning"
+    jailbreak_resistance: "Character-consistent deflection of manipulation"
+    
+  output_validation:
+    response_filtering: "Check outputs for sensitive data patterns"
+    hallucination_detection: "Confidence scoring and uncertainty indicators"
+    scope_enforcement: "Ensure responses stay within defined boundaries"
+
+compliance_considerations:
+  gdpr_requirements:
+    data_minimization: "Collect only necessary information"
+    purpose_limitation: "Use data only for specified purposes"
+    user_rights: "Data access, correction, deletion capabilities"
+    
+  ccpa_compliance:
+    transparency: "Clear privacy notice about data collection"
+    user_control: "Opt-out mechanisms for data processing"
+    data_security: "Reasonable security measures for personal information"
+    
+  hipaa_adjacent_concerns:
+    healthcare_context: "Veterinary data may have similar sensitivity"
+    access_controls: "Strict user authentication and authorization"
+    audit_trails: "Comprehensive logging of data access"
+
+testing_security_integration:
+  vulnerability_assessment:
+    systematic_testing: "Comprehensive guide for security boundary testing"
+    penetration_testing: "Professional security assessment"
+    user_acceptance_testing: "Real-world vulnerability discovery"
+    
+  continuous_monitoring:
+    runtime_security: "Real-time monitoring of AI behavior"
+    anomaly_detection: "Unusual usage pattern identification"
+    incident_response: "Automated alerting and response procedures"
+
+infosec_collaboration:
+  team_dynamics:
+    relationship_quality: "Unusually cooperative InfoSec team"
+    communication_approach: "Positive, collaborative problem-solving"
+    review_process: "Structured assessment with clear criteria"
+    
+  submission_strategy:
+    comprehensive_documentation: "Complete framework with detailed analysis"
+    proactive_communication: "Regular updates during development"
+    issue_resolution: "Collaborative approach to security concerns"
+
+deployment_security:
+  production_readiness:
+    security_validation: "Complete vulnerability assessment"
+    access_control_verification: "Strict user context enforcement tested"
+    monitoring_systems: "Full logging and alerting operational"
+    
+  operational_security:
+    incident_response: "Integration with existing VCA procedures"
+    security_updates: "Patch management and update procedures"
+    user_training: "Security awareness for hospital staff"
+
+risk_mitigation_timeline:
+  immediate_priorities:
+    prompt_injection_protection: "Retired spy cat implementation"
+    user_context_enforcement: "Strict data access controls"
+    input_validation: "Comprehensive sanitization"
+    
+  short_term_goals:
+    penetration_testing: "Professional security assessment"
+    monitoring_enhancement: "Advanced anomaly detection"
+    incident_response_testing: "Tabletop exercises"
+    
+  ongoing_activities:
+    security_monitoring: "Continuous threat detection"
+    vulnerability_management: "Regular security assessments"
+    compliance_validation: "Periodic compliance audits"
+
+success_criteria:
+  security_objectives:
+    data_protection: "Zero unauthorized access to user data"
+    system_integrity: "No successful manipulation of AI behavior"
+    compliance_adherence: "Full regulatory requirement satisfaction"
+    
+  infosec_approval:
+    review_completion: "Comprehensive assessment by InfoSec team"
+    issue_resolution: "All critical findings addressed"
+    deployment_authorization: "Formal approval for production launch"
+
+innovation_security_aspects:
+  retired_spy_cat_approach:
+    security_innovation: "Novel jailbreak resistance maintaining user experience"
+    character_consistency: "Security through personality rather than restrictions"
+    scalability: "Applicable to other AI personality-based systems"
+    
+  enterprise_ai_security:
+    healthcare_ai_deployment: "Security patterns for sensitive industry"
+    regulatory_compliance: "Framework for AI in regulated environments"
+    user_empowerment: "Enable secure AI usage by non-technical staff"
+
+future_security_enhancements:
+  advanced_monitoring:
+    behavioral_analytics: "AI usage pattern analysis"
+    threat_intelligence: "Integration with external threat feeds"
+    predictive_security: "Proactive threat identification"
+    
+  security_automation:
+    automated_response: "Incident response automation"
+    self_healing_systems: "Automatic security control adjustment"
+    continuous_compliance: "Automated compliance validation"

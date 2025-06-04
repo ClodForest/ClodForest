@@ -1,0 +1,18 @@
+# ClodForest/state/contexts/projects/thunder-mountain/campaign-context.yaml
+project_repository: "https://github.com/rdeforest/ThunderMountain"
+context_type: "cross_reference"
+description: "Campaign-specific content lives in ThunderMountain repo"
+
+collaboration_patterns:
+  gm_confidence_building: "Equipment quality as psychological support"
+  new_player_focus: "Thunder-centric experience design"
+  safety_first_approach: "Anonymous requests, comprehensive boundaries"
+  
+campaign_reference:
+  active_planning: "See ThunderMountain/docs/ for current campaign materials"
+  session_notes: "See ThunderMountain/contexts/ for session chronicles"
+  
+collaboration_insights:
+  robert_gm_evolution: "From Ozryn's Keep experience to new player introduction"
+  teaching_moments: "Claude's GM technique reminders and confidence building"
+  dual_campaign_management: "Running experienced vs. beginner campaigns simultaneously"

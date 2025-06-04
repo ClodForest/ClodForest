@@ -1,0 +1,277 @@
+---
+# The Ashwood Laurel - Ship Operations
+version: "1.0.0"
+created: "2025-06-03T21:33:00Z"
+context_type: "dnd_ship_management"
+description: "Complete operational details for The Ashwood Laurel mobile base"
+
+inherits_project: "projects/dnd-campaign/ozryns-keep-campaign.yaml"
+
+ship_specifications:
+  current_name: "The Ashwood Laurel"
+  original_name: "Gale's Breath"
+  age: "50+ years"
+  origin: "Built on different continent"
+  type: "3-masted warship with triangular sheets and jib sails"
+  
+  armament:
+    ballistas: 2
+    mangonels: 2
+    naval_ram: 1
+    tactical_advantage: "Significant firepower for ship-to-ship combat"
+    
+  operational_history:
+    legitimate_trade: "12 years under original ownership"
+    pirate_operations: "3.5 years under Lightbeard's control"
+    current_ownership: "The Animals (acquired through adventure)"
+
+crew_structure:
+  total_personnel: 44
+  crew_categories:
+    officers: 6
+    sailors: 9
+    deckhands: 12  
+    regular_cats: 2
+    
+  profit_sharing_system:
+    total_shares: 44
+    distribution: "1 share per crew member, 2 shares per officer, 1 share for ship maintenance"
+    democratic_principle: "Equal voice regardless of share count"
+
+officer_roster:
+  morgan:
+    title: "First Mate"
+    pronouns: "she/her"
+    role: "Safety & security"
+    background: "Pirate Warrior, longest-serving crew member"
+    family: "Son named Sonny (works with Sveldolos in workshop)"
+    relationship: "Potential hireling for León's planned Trophy Room bastion"
+    
+  haig:
+    title: "Quartermaster"
+    pronouns: "he/him"
+    role: "Supplies & navigation"
+    tragic_backstory: "Co-owner with partner Sherasho, murdered by Lightbeard during takeover"
+    trauma: "Head injury during takeover, lives in emotional haze"
+    relationship_evolution: "Initially resistant to ship renaming, came around"
+    survival_significance: "Survivor of Lightbeard's violent takeover"
+    
+  sven:
+    title: "Cook"
+    pronouns: "he/him"
+    role: "Meals & rationing"
+    stats: "Commoner"
+    family: "Quinn's brother"
+    personality: "Laid-back, helps calm Quinn's anxieties"
+    
+  quinn:
+    title: "Bosun"
+    pronouns: "she/her"
+    role: "Crew management & HR"
+    stats: "Pirate Warrior"
+    family: "Sven's sister"
+    personality: "Frustrated with vague instructions from party"
+    shopping_trip_dynamics: "Better at combat than brother"
+    
+  myra:
+    title: "Master-at-Arms"
+    pronouns: "she/her"
+    role: "Weapons & training"
+    background: "Former city guard, party fan before joining"
+    motivation: "Wants to serve people who act on convictions"
+    responsibility: "Crew combat training per Honey's orders"
+    
+  oakes:
+    title: "Carpenter"
+    pronouns: "they/them"
+    role: "Ship maintenance"
+    stats: "Priest/Commoner"
+    tragic_backstory: "Lost lighthouse and friend Pigeon to red dragon attack"
+    current_motivation: "Appreciates having one ship to focus on"
+    workshop_collaboration: "Works with Sveldolos and Sonny"
+
+ship_management_domains:
+  captain_decisions:
+    responsibility: "Party collectively"
+    scope: "Top-level decision making, strategic direction"
+    
+  stock_cargo:
+    leads: "León with Morgan"
+    scope: "Trade routes & goods management"
+    
+  navigation:
+    leads: "Baeleth with Haig"
+    scope: "Course plotting & sailing operations"
+    
+  maintenance:
+    leads: "Sveldolos with Oakes"
+    scope: "Ship health & repairs"
+    
+  combat_operations:
+    leads: "Honey with Myra"
+    scope: "Tactics & weapons systems"
+    
+  crew_supplies:
+    leads: "Sven & Quinn"
+    scope: "Personnel & resource management"
+
+bastion_facilities:
+  currently_operational:
+    workshop:
+      owner: "Sveldolos"
+      size: "16x16 at back of bottom deck"
+      collaborators: "Oakes and Sonny (Morgan's son)"
+      function: "Ship maintenance, crafting, equipment repair"
+      
+  planned_expansions:
+    sacristy:
+      owner: "Oralie"
+      function: "Religious space for worship and divine magic"
+      requirement: "One hireling needed"
+      
+    trophy_room:
+      owner: "León"
+      function: "Display space for collected enemy trophies"
+      potential_hireling: "Morgan (due to ship history knowledge)"
+      
+    garden:
+      owner: "Honey"
+      design: "Greenhouse built into aft deck roof"
+      feature: "Retractable for weather protection"
+      function: "Food production, alchemy ingredients"
+      
+    teleportation_circle:
+      owner: "Baeleth (if approved)"
+      function: "Strategic movement and logistics"
+      consideration: "Requires Baeleth's consent to implement"
+      
+  future_possibilities:
+    dry_dock_capabilities: "Ship modification and major repairs"
+    additional_storage: "Expanded cargo capacity"
+    crew_barracks: "Improved quarters for larger crew"
+
+current_cargo_supplies:
+  trade_goods:
+    grain_and_spices: "For merchant trading operations"
+    market_value: "Moderate profit potential"
+    
+  magical_creatures:
+    released_wampus_cats: "Oralie collected magical herbs from them"
+    
+  equipment:
+    taxidermy_items: "Various preserved specimens"
+    crafting_materials: "Dragon scales, remorhaz organs"
+    
+  provisions:
+    food_supplies: "3 months duration"
+    investment: "360 GP initial cost"
+    daily_cost: "5 SP per person per day"
+
+crew_dynamics:
+  haig_emotional_state:
+    grief_process: "Still mourning Sherasho's murder"
+    coping_mechanism: "Emotional haze from head trauma"
+    work_dedication: "Maintains professional competence despite personal loss"
+    ship_attachment: "Represents lost dreams with murdered partner"
+    
+  sven_quinn_relationship:
+    role_distribution: "Quinn handles logistics frustration, Sven provides calming influence"
+    communication_pattern: "Quinn expresses crew needs, Sven mediates"
+    family_support: "Mutual assistance in fulfilling crew management duties"
+    
+  myra_enthusiasm:
+    fan_status: "Admired party's exploits before joining"
+    motivation: "Serve people who act on moral convictions"
+    training_responsibility: "Ensure crew combat readiness"
+    
+  oakes_healing:
+    loss_processing: "Finding new purpose after lighthouse destruction"
+    grief_work: "Pigeon's death and life's work destruction"
+    renewal_opportunity: "Ship maintenance provides focused healing work"
+
+operational_challenges:
+  crew_communication:
+    vague_instructions: "Party sometimes provides unclear direction"
+    expectation_management: "Quinn's frustration with ambiguous orders"
+    solution_development: "More structured briefing protocols needed"
+    
+  emotional_support:
+    haig_trauma_care: "Ongoing support for grief and head injury effects"
+    oakes_integration: "Help recent recruit find belonging"
+    crew_morale: "Maintain positive atmosphere despite individual challenges"
+    
+  resource_management:
+    supply_coordination: "Balance trade goods with crew needs"
+    maintenance_scheduling: "Regular ship upkeep without disrupting operations"
+    security_protocols: "Protect ship and crew during adventuring absences"
+
+strategic_advantages:
+  mobile_base:
+    flexibility: "Can relocate base of operations as needed"
+    logistics: "Carry supplies and equipment for extended missions"
+    escape_route: "Strategic withdrawal option if land-based threats arise"
+    
+  crew_loyalty:
+    motivation: "Crew chose to stay after Lightbeard's defeat"
+    investment: "Profit-sharing creates financial stake in success"
+    purpose: "Fighting dragon tyranny provides moral motivation"
+    
+  operational_capability:
+    naval_combat: "Significant firepower and experienced crew"
+    trade_operations: "Generate income through merchant activities"
+    transportation: "Move party and allies quickly across waterways"
+
+bastion_synergies:
+  workshop_integration:
+    maintenance_efficiency: "In-house repair capability"
+    crafting_support: "Custom equipment and modification"
+    crew_training: "Skill development for ship operations"
+    
+  planned_facility_benefits:
+    sacristy_healing: "Divine magic support for crew health"
+    trophy_room_morale: "Display victories for crew inspiration"
+    garden_sustainability: "Fresh food reduces supply costs"
+    teleportation_logistics: "Rapid personnel and supply movement"
+
+historical_significance:
+  lightbeard_legacy:
+    trauma_resolution: "Crew healing from pirate abuse period"
+    ship_redemption: "Transform vessel from tool of oppression to liberation"
+    justice_satisfaction: "Defeating oppressor provides crew closure"
+    
+  new_purpose:
+    dragon_war_participation: "Crew contributes to larger cause"
+    moral_alignment: "Fighting tyranny aligns with crew values"
+    legacy_building: "Creating positive history for ship"
+
+future_development:
+  crew_expansion:
+    recruitment_needs: "Additional specialists for growing operations"
+    skill_development: "Training existing crew in new capabilities"
+    leadership_growth: "Prepare crew for increased responsibilities"
+    
+  facility_enhancement:
+    bastion_completion: "Full implementation of planned facilities"
+    operational_efficiency: "Optimize ship systems and workflows"
+    strategic_capability: "Expand mission support functions"
+    
+  relationship_deepening:
+    crew_integration: "Continue building trust and loyalty"
+    family_atmosphere: "Develop deeper bonds beyond professional"
+    shared_purpose: "Strengthen commitment to common cause"
+
+success_metrics:
+  operational_effectiveness:
+    mission_support: "Successful facilitation of party objectives"
+    crew_satisfaction: "High morale and voluntary retention"
+    financial_sustainability: "Profitable operations support ship expenses"
+    
+  crew_wellbeing:
+    trauma_recovery: "Haig and Oakes healing progress"
+    professional_development: "Skill growth and increased confidence"
+    community_building: "Strong interpersonal relationships"
+    
+  strategic_value:
+    tactical_advantage: "Ship provides meaningful combat capability"
+    logistical_support: "Effective supply and transportation"
+    base_operations: "Reliable mobile headquarters for campaign"
