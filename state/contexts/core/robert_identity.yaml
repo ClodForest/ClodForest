@@ -1,0 +1,105 @@
+---
+# ClodForest Core Context: Robert de Forest Identity
+version: "1.0.0"
+created: "2025-06-03T21:33:00Z"
+context_type: "core_identity"
+description: "Foundational identity context inherited by all collaboration domains"
+
+personal:
+  name: "Robert de Forest"
+  birth: "1974-03-16T15:10:00-07:00"  # McMinnville, OR
+  birthplace: "McMinnville, OR"
+  astrology: "Pisces Sun, Capricorn Moon, Leo Rising"
+  emails:
+    work: "robert.deforest@vca.com"
+    personal: "robert@defore.st"
+    signup_strategy: "<domain>@thatsnice.org"  # Detect/block data selling
+  location: "San Diego, California, US"
+
+technical_expertise:
+  experience_years: 40
+  started_programming: 1984
+  first_language: "Turbo Pascal"
+  background: "Self-taught IT/Internet tech with deep physics/chemistry/electronics foundation"
+  response_level: "highly_technical"  # No hand-holding needed
+  learning_approach: "Request specifics when needed, assume deep knowledge otherwise"
+
+technology_preferences:
+  languages:
+    preferred: ["CoffeeScript", "Perl5"]
+    avoid: ["C++"]
+  data_formats:
+    config: "YAML"
+    serialization: "YAML" 
+    persistence: "SQLite"
+  systems:
+    philosophy: "Unix"
+    os_preference: "FreeBSD"
+    init_system: "sysvinit"  # Anti-systemd
+  tools:
+    editor: "Vim"
+    utilities: "publicfile (DJB tools)"
+    aesthetic: "HHKB (Happy Hacking Keyboard)"
+  organizations:
+    supported: ["IETF", "W3C", "Mozilla", "EFF", "Devuan", "FSF"]
+
+aesthetic_philosophy:
+  core_principle: "Function-driven beauty"
+  code_style: "Vertical alignment over diff-friendliness"
+  design_approach: "Aesthetics serve purpose, not ego"
+  beauty_definition: "Elegant solutions to complex problems"
+
+work_context:
+  current_role: "Product Manager"
+  company: "VCA Animal Hospitals (Mars Inc.)"
+  manager: "Jamin Cleveland (Acting CTO)"
+  unique_value: "Customer voice amplification, cross-team translation"
+  mission_hierarchy: ["Animals", "Animal people", "VCA staff"]
+
+development_methodology:
+  workflow: "Ship working software, iterate rapidly"
+  change_strategy: "Surgical changes over wholesale rewrites"
+  validation: "Real-world testing over theoretical correctness"
+  documentation: "Battle-tested insights, honest edge cases"
+  quality_standard: "Good enough per business needs"
+
+personal_patterns:
+  neurodiversity: "ADHD, benefits from external cognitive load management"
+  energy_management: "25-minute focused work blocks"
+  productivity: "Morning medication, coffee, immediate task execution"
+  social_balance: "Maintains relationships while optimizing for work flow"
+  cognitive_support: "Thinking out loud, external tracking reduces mental overhead"
+
+environmental_factors:
+  home_setup: "5 virtual desktops for different life contexts"
+  thermal_challenges: "Monitor heat (80-93°F) overwhelming 8000 BTU A/C"
+  service_coordination: "Laundry pickup, Merry Maids variable timing"
+  habit_tracking: "Ōura ring system, timer management needs improvement"
+
+meta_cognitive_patterns:
+  self_examination: "What's the weirdest way I could be wrong?"
+  domain_independence: "Naturally asks 'what if foundational assumptions wrong?'"
+  edge_case_discovery: "Superpower for finding security vulnerabilities"
+  pattern_recognition: "Applies insights across domains consistently"
+  irony_awareness: "Meta-recursion appreciation, 'irony meter explosions'"
+
+current_projects:
+  primary: "ClodForest - AI coordination infrastructure"
+  work: "Agent Calico - VCA ServiceNow chatbot"
+  migration: "ClodHearth - Local LLM fine-tuning system"
+  future: "Devtwo - Unix-philosophy OS distribution"
+  research: "BEM - Bio-economic computing model"
+  personal: "Ozryn's Keep D&D campaign"
+
+collaboration_readiness:
+  trust_level: "High - proven reliability, minimal checking needed"
+  expertise_match: "40+ years programming experience, assume deep knowledge"
+  communication_efficiency: "Brevity protocol, skip recaps unless requested"
+  partnership_model: "Equal collaborator, not user/assistant dynamic"
+  error_tolerance: "Mutual correction appreciated, gentle roasting welcomed"
+
+physical_environment:
+  workspace: "Hybrid Devuan system (partially Excalibur for nVidia drivers)"
+  connectivity: "Corporate network restrictions affect Node.js tooling"
+  infrastructure: "Linux workstation, Windows VMs for enterprise needs"
+  debugging_philosophy: "Fix '69 VW bus on side of road maintenance approach"

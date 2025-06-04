@@ -1,0 +1,171 @@
+---
+# ClodForest Instructions: REPL Utilities
+version: "1.0.0"
+created: "2025-06-03T21:33:00Z"
+instruction_type: "capability_module"
+description: "Terminal formatting and shell interface utilities for ClaSH"
+
+coffeescript_source:
+  location: "https://github.com/rdeforest/ClodForest/state/instructions/repl-utilities.coffee"
+  compilation: "Use CoffeeScript compiler from jashkenas/coffeescript repository"
+  target: "window.ClaSH object with utility functions"
+
+javascript_functions:
+  terminal_formatting:
+    terminalBox:
+      purpose: "Create bordered terminal-style boxes with titles"
+      parameters: ["title (string)", "content (string)", "options (object)"]
+      options:
+        width: "Box width in characters (default: 55)"
+        padding: "Add empty lines around content (default: 1)"
+      example: "terminalBox('Status', 'All systems operational', {width: 60})"
+      
+    statusTable:
+      purpose: "Aligned key-value pair display with separators"
+      parameters: ["data (array)", "options (object)"]
+      data_format: 
+        - "String entries become section headers"
+        - "Objects with key/value become aligned pairs"
+      options:
+        separator: "Column separator character (default: '│')"
+        keyWidth: "Left column width (default: 25)"
+        valueWidth: "Right column width (default: 30)"
+        header: "Add header separator line (default: false)"
+      
+    treeView:
+      purpose: "Hierarchical structure visualization"
+      parameters: ["structure (object)", "options (object)"]
+      structure_format: "Nested objects represent directories, strings represent files"
+      options:
+        indent: "Indentation string (default: '  ')"
+        showFiles: "Include leaf nodes (default: true)"
+      unicode_chars: "Uses box-drawing characters for tree lines"
+
+  shell_interface:
+    commandHelp:
+      purpose: "Formatted help documentation for commands"
+      parameters: ["command (string)", "details (object)"]
+      details_structure:
+        syntax: "Command syntax pattern"
+        description: "Detailed explanation"
+        examples: "Array of {command, description} objects"
+        related: "Array of related command names"
+        
+    motdGenerator:
+      purpose: "Message of the Day with tips and context"
+      parameters: ["tips (array)", "currentContext (string)"]
+      output: "Formatted session greeting with random tip"
+      date_format: "Full weekday, month, day, year"
+      
+    progressBar:
+      purpose: "Visual progress indicator with percentage"
+      parameters: ["current (number)", "total (number)", "options (object)"]
+      options:
+        width: "Bar width in characters (default: 40)"
+        filled: "Character for completed portion (default: '█')"
+        empty: "Character for remaining portion (default: '░')"
+
+  data_utilities:
+    alignColumns:
+      purpose: "Align tabular data in columns"
+      parameters: ["rows (array)", "options (object)"]
+      input_format: "Array of arrays representing table rows"
+      options:
+        separator: "Column separator (default: ' │ ')"
+        padding: "Extra padding between columns (default: 1)"
+      output: "Array of formatted strings ready for display"
+
+box_drawing_characters:
+  horizontal: "─"
+  vertical: "│"
+  corners: ["┌", "┐", "└", "┘"]
+  intersections: ["├", "┤", "┬", "┴", "┼"]
+  usage: "Unicode box-drawing for terminal aesthetics"
+
+integration_patterns:
+  status_command:
+    format: "terminalBox + statusTable combination"
+    sections: ["Project Status", "Context Status", "Collaboration State"]
+    example: "Professional multi-section status display"
+    
+  help_system:
+    format: "commandHelp for individual commands"
+    discovery: "help [category] for grouped commands"
+    examples: "Copy-paste ready command examples"
+    
+  context_visualization:
+    format: "treeView for inheritance hierarchies"
+    usage: "ctx tree command implementation"
+    structure: "Nested objects representing context relationships"
+
+performance_considerations:
+  unicode_support: "Ensure terminal font supports box-drawing characters"
+  string_operations: "Efficient padding and alignment algorithms"
+  memory_usage: "Avoid large string concatenations in loops"
+  browser_compatibility: "Modern JavaScript string methods required"
+
+error_handling:
+  missing_parameters: "Graceful defaults for undefined inputs"
+  malformed_data: "Safe handling of unexpected data structures"
+  unicode_fallback: "ASCII alternatives if box-drawing unavailable"
+  empty_content: "Sensible behavior for empty or null inputs"
+
+extension_points:
+  custom_themes: "Color and character customization"
+  additional_widgets: "New formatting functions"
+  integration_hooks: "Callbacks for interactive elements"
+  responsive_design: "Width-adaptive formatting"
+
+usage_examples:
+  clash_greeting:
+    code: |
+      const motd = motdGenerator([
+        "Commands support tab completion",
+        "Type 'help' for available commands",
+        "Use 'ctx load' to switch contexts"
+      ], "general-development")
+      
+      const greeting = terminalBox(
+        "ClaSH v0.1.0 - Claude Shell Interface",
+        motd,
+        {width: 55, padding: 1}
+      )
+      
+  status_display:
+    code: |
+      const statusData = [
+        "PROJECT STATUS",
+        {key: "ClodForest", value: "Session 7 Ready"},
+        {key: "Agent Calico", value: "Testing phase"},
+        "",
+        "CONTEXT STATUS", 
+        {key: "Active Domain", value: "general-development"},
+        {key: "Inheritance", value: "3 core files loaded"}
+      ]
+      
+      const status = statusTable(statusData, {
+        header: true,
+        keyWidth: 20,
+        separator: "│"
+      })
+      
+  context_tree:
+    code: |
+      const contextStructure = {
+        "contexts": {
+          "core": ["robert-identity.yaml", "collaboration-patterns.yaml"],
+          "domains": ["vca-assistant.yaml", "general-development.yaml"],
+          "projects": {
+            "agent-calico": ["overview.yaml", "testing.yaml"]
+          }
+        }
+      }
+      
+      const tree = treeView(contextStructure)
+
+deployment_instructions:
+  compilation_required: true
+  target_object: "window.ClaSH"
+  initialization: "Automatic upon script load"
+  testing: "Verify all functions available in browser console"
+  integration: "Use in ClaSH command implementations"

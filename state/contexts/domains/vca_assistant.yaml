@@ -1,0 +1,183 @@
+---
+# ClodForest Domain: VCA Assistant
+version: "1.0.0"
+created: "2025-06-03T21:33:00Z"
+domain_type: "work_collaboration"
+description: "VCA Animal Hospitals work projects, Agent Calico development, customer advocacy"
+
+inherits:
+  - "core/robert-identity.yaml"
+  - "core/collaboration-patterns.yaml"
+  - "core/communication-style.yaml"
+
+projects:
+  - "projects/agent-calico/"
+
+work_context:
+  company: "VCA Animal Hospitals (Mars Inc.)"
+  role: "Product Manager"
+  manager: "Jamin Cleveland (Acting CTO)"
+  team_size: "Jamin has 96 direct reports"
+  mission_hierarchy: ["Animals", "Animal people", "VCA staff"]
+  
+unique_value_proposition:
+  primary_focus: "Customer voice amplification"
+  secondary_focus: "Cross-team translation and communication"
+  key_strength: "Technical credibility enabling blocker prevention"
+  differentiation: "Only advocate for end users in development process"
+
+organizational_dynamics:
+  jamin_cleveland:
+    role: "Acting CTO, Robert's manager"
+    challenge: "96 direct reports creating time pressure"
+    leadership_style: "Inspires through vision and pragmatic 'good enough' philosophy"
+    needs: "Win by June 30, reduced management overhead"
+    
+  catalina_yue:
+    role: "Project Manager"
+    relationship: "Strong ally with shared methodological values"
+    strengths: "Process expertise, comprehensive documentation"
+    collaboration: "Deep partnership on project planning"
+    
+  arsen_zakarian:
+    role: "Engineering Manager, Tiger Team leader"
+    evolution: "Now sees Peter's team as allies rather than obstacles"
+    pressure_points: "Timeline vs. quality tension"
+    strengths: "Believes in vision, professional approach"
+    
+  peter_zimmerman:
+    role: "Director of Cloud Engineering"
+    stance: "Infrastructure gatekeeper, unwilling to compromise security"
+    relationship: "Robert's technical credibility enables productive collaboration"
+    value: "Proper cloud usage and security principles"
+    
+  infosec_team:
+    members: ["Mark", "Taylor", "Edward", "James"]
+    relationship: "Unusually cooperative, positive dynamics established"
+    approach: "Refreshingly pleasant to work with"
+    priority: "Maintain positive relationship through infrastructure transition"
+
+stakeholder_management_strategies:
+  communication_excellence:
+    stakeholder_adaptation: "Tailor tone and content for recipient"
+    context_setting: "Provide background to reduce confusion"
+    follow_up_planning: "Build natural continuation points"
+    credit_assignment: "Share credit for successes, take blame for failures"
+    
+  relationship_building:
+    trust_development: "Proven reliability through consistent delivery"
+    value_demonstration: "Early completion, proactive problem-solving"
+    collaboration_facilitation: "Help teams work together effectively"
+    strategic_positioning: "Act as Jamin's representative while building independent relationships"
+
+current_projects:
+  agent_calico:
+    vision: "AI chatbot enabling VCA specialists to interact with unfamiliar systems"
+    personality: "Cat persona for ServiceNow, SharePoint interaction"
+    benefits: "Save time, increase employee satisfaction"
+    timeline: "Soft launch June 30, 2025"
+    
+  testing_strategy:
+    deliverable: "Your Cat Needs To Be Confused: A Guide to Testing Agent Calico"
+    innovation: "Retired spy cat system prompt strategy"
+    approach: "Systematic vulnerability exposure before launch"
+    audience: "Non-technical hospital staff with limited time"
+
+collaboration_patterns:
+  with_engineering:
+    arsen_relationship: "Professional boundaries, positive feedback channeling"
+    peter_coordination: "Infrastructure decisions with long-term scaling awareness"
+    technical_discussions: "Architecture trade-offs, system design reasoning"
+    
+  with_project_management:
+    catalina_partnership: "Comprehensive task breakdown, dependency mapping"
+    methodology_alignment: "Shared values around structured approach"
+    scope_management: "Maintain MVP focus despite success momentum"
+    
+  with_leadership:
+    jamin_communication: "Efficient updates, strategic questions, ahead-of-schedule delivery"
+    executive_positioning: "Customer advocacy specialist, cross-team translator"
+    value_articulation: "Clear communication of unique contributions"
+
+enterprise_environment:
+  microsoft_ecosystem: "All-Microsoft shop where almost nothing works with Markdown"
+  tool_challenges: "Teams/SharePoint limitations, format conversion requirements"
+  security_requirements: "InfoSec scanner flags, approval workflows"
+  infrastructure_constraints: "Corporate network restrictions, dependency conflicts"
+
+success_indicators:
+  delivery_excellence:
+    timeline_performance: "All deliverables ahead of schedule"
+    quality_standards: "Professional output requiring minimal revision"
+    stakeholder_satisfaction: "Positive reception from engineering and leadership"
+    
+  relationship_management:
+    team_collaboration: "Improved Arsen/Peter dynamics"
+    infosec_partnership: "Maintained positive relationship"
+    cross_functional_coordination: "Effective communication across teams"
+    
+  customer_advocacy:
+    user_voice_amplification: "Hospital staff perspectives integrated"
+    experience_validation: "UX review and testing coordination"
+    success_metrics_definition: "Customer joy and cost savings tracking"
+
+strategic_priorities:
+  immediate_focus:
+    agent_calico_launch: "Successful soft launch by June 30"
+    testing_completion: "Comprehensive vulnerability testing"
+    stakeholder_coordination: "Maintain positive team dynamics"
+    
+  medium_term_goals:
+    mars_expansion: "AI policy coordination, scaling parameter analysis"
+    infrastructure_relationship: "Monitor Peter/Arsen collaboration success"
+    customer_feedback_integration: "Direct VCA employee voice inclusion"
+    
+  long_term_vision:
+    product_success_criteria: "Internal + external customer joy, cost/time savings"
+    enhanced_branding: "Budget-dependent promotional strategies"
+    organizational_impact: "Sustainable cross-team collaboration model"
+
+risk_management:
+  current_blindspots:
+    mars_scaling_preparation: "Infrastructure decisions enabling/constraining future expansion"
+    customer_communication_strategy: "Still no direct VCA employee voices in development"
+    timeline_vs_quality_tension: "End-of-quarter pressure vs. proper launch preparation"
+    
+  mitigation_strategies:
+    proactive_communication: "Reach out before problems arise"
+    stakeholder_psychology: "Position requests to make recipients want to help"
+    quality_maintenance: "Maintain high standards despite timeline pressure"
+    relationship_preservation: "Protect unusually positive InfoSec dynamics"
+
+communication_protocols:
+  email_strategies:
+    subject_optimization: "TL;DR format for busy managers"
+    stakeholder_appropriate: "Different approaches for technical vs. business audiences"
+    follow_up_integration: "Natural continuation points built in"
+    
+  meeting_management:
+    preparation_focus: "Structured agendas, clear objectives"
+    efficiency_optimization: "Early arrival, time management"
+    async_coordination: "Detailed materials sent in advance"
+    
+  documentation_standards:
+    professional_quality: "Corporate-ready deliverables"
+    collaborative_development: "Claude partnership for high-quality output"
+    version_control: "Systematic artifact management"
+
+technology_context:
+  development_constraints:
+    hybrid_devuan_system: "Partially upgraded for nVidia drivers"
+    corporate_network: "Restrictions affecting Node.js tooling"
+    enterprise_integration: "Linux workstation, Windows VMs"
+    
+  tool_proficiency:
+    smartsheets: "Collaborative test tracking, user story management"
+    microsoft_teams: "Primary communication platform"
+    git_workflows: "Version control for project artifacts"
+
+professional_development:
+  core_competency: "Communication as primary value-add"
+  skill_enhancement: "Strategic thinking, stakeholder management"
+  industry_knowledge: "Veterinary healthcare, enterprise software"
+  leadership_growth: "Acting as Jamin's representative while building independent credibility"

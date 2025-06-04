@@ -1,0 +1,154 @@
+---
+# ClodForest Instructions: Code Capabilities
+version: "1.0.0"
+created: "2025-06-03T21:33:00Z"
+instruction_type: "capability_module"
+description: "Code compilation, execution, and extension loading capabilities"
+
+coffeescript_compilation:
+  source_repository: "https://github.com/jashkenas/coffeescript"
+  compiler_location: "https://raw.githubusercontent.com/jashkenas/coffeescript/refs/heads/main/lib/coffeescript-browser-compiler-modern/coffeescript.js"
+  usage: "Load minified JavaScript to compile CoffeeScript to JavaScript in browser"
+  integration: "Fetch compiler → compile source → execute in REPL"
+
+available_extensions:
+  countdown_solver:
+    repository: "https://github.com/rdeforest/claude-code-bundler"
+    main_file: "https://raw.githubusercontent.com/rdeforest/claude-code-bundler/refs/heads/main/examples/countdown-solver/cli.coffee"
+    dependency: "https://raw.githubusercontent.com/rdeforest/claude-code-bundler/refs/heads/main/examples/countdown-solver/f-numbers.coffee"
+    purpose: "Solve Countdown number problems using target numbers and available digits"
+    usage: "Mathematical puzzle solving, arithmetic challenge assistance"
+    
+  anagram_solver:
+    repository: "https://github.com/rdeforest/claude-code-bundler"
+    location: "Same directory as countdown solver"
+    dependency: "Large dictionary file in same directory"
+    purpose: "Solve word problems and anagram puzzles"
+    limitation: "Dictionary dependency makes it resource-intensive"
+    
+  repl_utilities:
+    source: "ClodForest/state/instructions/repl-utilities.coffee"
+    purpose: "Terminal formatting and shell interface functions"
+    integration: "Core ClaSH functionality"
+    compilation_required: true
+
+loading_protocol:
+  fetch_source: "Use web_fetch to retrieve CoffeeScript files"
+  compile_step: "Process through CoffeeScript compiler"
+  execution: "Evaluate compiled JavaScript in REPL"
+  validation: "Test functionality before proceeding"
+  error_handling: "Graceful fallback if compilation fails"
+
+code_execution_environment:
+  context: "Browser REPL with access to window object"
+  limitations: ["No Node.js environment", "Most libraries unavailable", "Security restrictions apply"]
+  available_libraries: ["lodash", "papaparse", "mathjs", "d3", "others as documented"]
+  storage_restrictions: "No localStorage or sessionStorage in Claude.ai artifacts"
+
+extension_development:
+  file_format: "CoffeeScript preferred for readability"
+  compilation_target: "Browser-compatible JavaScript"
+  integration_pattern: "Attach to window object for global access"
+  naming_convention: "Descriptive, avoid conflicts with existing code"
+  documentation: "Include usage examples and parameter descriptions"
+
+fetch_instructions_pattern:
+  base_url: "https://github.com/rdeforest/claude-code-bundler/tree/main/instructions"
+  discovery: "Check available instructions before fetching"
+  format: "Text files with specific loading instructions"
+  examples: ["example.txt", "coffee.txt", "claudelink-protocol.yaml"]
+
+clodforest_integration:
+  vault_base_url: "http://ec2-34-216-125-155.us-west-2.compute.amazonaws.com/"
+  api_base: "/api/repository"
+  cache_busting: "Required due to aggressive URL caching"
+  wildcard_apis: ["/api/time/", "/api/health/"]
+  constructed_urls: "Must ask Robert to provide fetchable URLs"
+
+url_construction_limitation:
+  problem: "Cannot fetch paths constructed from REPL-derived information"
+  workaround: "Ask Robert to provide full URL for fetching"
+  example: "If calculating time endpoint, ask Robert for full URL"
+  timing_requests: "Provide before/after URLs with different cache busters"
+
+repository_api_usage:
+  endpoint_pattern: "/api/repository/{path}"
+  content_types: ["contexts", "extensions", "instructions", "whatever else developed"]
+  authentication: "None currently required"
+  rate_limiting: "Unknown, use reasonably"
+
+available_capabilities:
+  mathematical_problem_solving: "Countdown number puzzles"
+  word_puzzle_assistance: "Anagrams and word games"
+  terminal_interface_enhancement: "Formatted shell output"
+  code_compilation_and_execution: "CoffeeScript → JavaScript workflow"
+  web_resource_fetching: "GitHub repositories and ClodForest vault"
+
+development_workflow:
+  extension_creation:
+    - "Write CoffeeScript source"
+    - "Fetch CoffeeScript compiler"
+    - "Compile to JavaScript"
+    - "Test in REPL environment"
+    - "Document usage and integration"
+    - "Store in appropriate repository location"
+    
+  capability_enhancement:
+    - "Identify need for new functionality"
+    - "Research available resources"
+    - "Implement solution using available tools"
+    - "Test thoroughly before deployment"
+    - "Update documentation and instructions"
+
+security_considerations:
+  code_execution: "Only execute trusted code from known repositories"
+  url_validation: "Verify URLs before fetching"
+  error_isolation: "Prevent failures from affecting other capabilities"
+  resource_limits: "Avoid excessive network requests or computation"
+
+error_handling_strategies:
+  compilation_failures: "Provide specific error messages and debugging guidance"
+  network_issues: "Graceful degradation when resources unavailable"
+  execution_errors: "Isolate failures, maintain other functionality"
+  dependency_resolution: "Clear instructions for missing dependencies"
+
+performance_optimization:
+  caching_strategy: "Avoid re-fetching unchanged resources"
+  compilation_efficiency: "Minimize redundant compilation steps"
+  execution_optimization: "Efficient algorithms and data structures"
+  resource_management: "Clean up after code execution"
+
+integration_examples:
+  countdown_problem:
+    setup: "Fetch solver files, compile, execute"
+    usage: "Provide target number and available digits"
+    output: "Mathematical solution with step-by-step explanation"
+    
+  terminal_formatting:
+    setup: "Compile REPL utilities, attach to window.ClaSH"
+    usage: "Call formatting functions for shell output"
+    integration: "Seamless with ClaSH command system"
+    
+  custom_extension:
+    development: "Write CoffeeScript, test compilation"
+    deployment: "Store in repository, document usage"
+    activation: "Fetch and compile on demand"
+
+future_enhancements:
+  additional_languages: "Support for other compile-to-JavaScript languages"
+  package_management: "Dependency resolution and version management"
+  testing_framework: "Automated testing for extensions"
+  distribution_system: "Easier sharing and discovery of extensions"
+
+troubleshooting_guide:
+  common_issues:
+    compilation_errors: "Check CoffeeScript syntax, verify compiler availability"
+    fetch_failures: "Verify URLs, check network connectivity"
+    execution_problems: "Review browser console for error messages"
+    integration_conflicts: "Check for naming conflicts with existing code"
+  
+  debugging_strategies:
+    step_by_step_execution: "Break complex operations into smaller parts"
+    console_logging: "Use console.log for debugging information"
+    error_isolation: "Test components individually"
+    fallback_options: "Provide alternative approaches when primary method fails"

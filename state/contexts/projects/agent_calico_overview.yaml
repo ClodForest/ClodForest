@@ -1,0 +1,149 @@
+---
+# Agent Calico Project Overview
+version: "1.0.0"
+created: "2025-06-03T21:33:00Z"
+project_type: "enterprise_chatbot"
+description: "AI chatbot for VCA Animal Hospitals ServiceNow and SharePoint integration"
+
+inherits_domain: "domains/vca-assistant.yaml"
+additional_contexts:
+  - "stakeholders.yaml"
+  - "testing-strategy.yaml"
+  - "security-review.yaml"
+
+project_vision:
+  primary_goal: "AI chatbot enabling VCA specialists to interact with unfamiliar systems"
+  target_systems: ["ServiceNow", "SharePoint", "Future: Coupa, Workday"]
+  user_benefit: "Save time, increase employee satisfaction"
+  personality: "Brief but friendly cat assistant"
+  
+business_case:
+  cost_savings: "$12 → $0.10 per ticket (offshore support elimination)"
+  efficiency_gains: "Eliminate time wasted on non-veterinary tasks"
+  user_satisfaction: "Reduce frustration with unfamiliar enterprise systems"
+  scalability: "Foundation for Mars-wide AI assistance expansion"
+
+timeline:
+  soft_launch_target: "June 30, 2025"
+  uat_period: "June 1-15, 2025"
+  testing_phase: "Start formal testing Monday (after June 4 meeting)"
+  mars_expansion: "Future phase post-VCA success"
+
+stakeholder_ecosystem:
+  executive_sponsor: "Jamin Cleveland (Acting CTO)"
+  project_manager: "Catalina Yue"
+  engineering_lead: "Arsen Zakarian (Tiger Team)"
+  infrastructure_lead: "Peter Zimmerman (Cloud Engineering)"
+  product_manager: "Robert de Forest (Customer Advocacy)"
+  
+key_relationships:
+  jamin_cleveland:
+    pressure_point: "96 direct reports, needs win by June 30"
+    leadership_style: "Pragmatic 'good enough' philosophy"
+    inspiration_factor: "Robert's primary motivation source"
+    communication_need: "Efficient updates, ahead-of-schedule delivery"
+    
+  catalina_yue:
+    collaboration_strength: "Shared methodological values"
+    expertise_area: "Process excellence, comprehensive documentation"
+    partnership_quality: "Deep collaboration on project planning"
+    folder_structure: "Created Teams organization (some redundancy)"
+    
+  arsen_zakarian:
+    team_leadership: "Tiger Team development lead"
+    evolution_story: "Now sees Peter's team as allies vs. obstacles"
+    pressure_management: "Timeline vs. quality tension awareness"
+    technical_confidence: "Believes in project vision"
+    
+  peter_zimmerman:
+    security_stance: "Unwilling to compromise infrastructure principles"
+    relationship_key: "Robert's technical credibility enables collaboration"
+    value_system: "Proper cloud usage, security-first approach"
+    cooperation_level: "Providing necessary control to engineering team"
+
+technical_architecture:
+  integration_platform: "Microsoft Teams (primary interface)"
+  ai_backend: "Azure OpenAI"
+  data_sources: ["ServiceNow APIs", "Microsoft Graph", "SharePoint"]
+  authentication: "Delegated to Okta for enterprise SSO"
+  hosting: "Azure environment with managed identities"
+
+mvp_scope:
+  core_operations: "ServiceNow tickets only (create, view, update, comment)"
+  explicit_exclusions: "NO ticket closing capability"
+  personality_requirement: "Brief but friendly cat responses"
+  security_boundary: "Users can ONLY see their own tickets/data"
+  error_handling: "Graceful degradation when APIs unavailable"
+
+testing_innovation:
+  guide_title: "Your Cat Needs To Be Confused: A Guide to Testing Agent Calico"
+  breakthrough_strategy: "Retired spy cat system prompt approach"
+  jailbreak_resistance: "Maintain character while deflecting manipulation"
+  vulnerability_categories: ["Data leakage", "Hallucination", "Jailbreak", "Authority escalation", "Scope violation"]
+  audience: "Non-technical hospital staff with time constraints"
+
+security_priorities:
+  primary_risks: ["Prompt injection", "Service account over-privilege", "User context bypass"]
+  data_protection: "Prevent LLM exposure of sensitive information"
+  authentication_delegation: "Enterprise Okta integration"
+  compliance_considerations: ["GDPR", "CCPA", "Potential HIPAA-adjacent"]
+
+success_metrics:
+  cost_reduction: "$12 → $0.10 per support ticket"
+  user_satisfaction: "Hospital staff joy and efficiency improvements"
+  technical_reliability: "Graceful handling of system outages"
+  security_validation: "No data leakage or unauthorized access"
+  adoption_rate: "Voluntary usage by hospital staff"
+
+development_status:
+  engineering_progress: "Arsen's team delivering required documentation"
+  infrastructure_coordination: "Peter's team providing necessary cloud control"
+  testing_preparation: "Comprehensive testing guide completed"
+  security_review: "AppSec framework ready for InfoSec submission"
+
+organizational_dynamics:
+  infosec_relationship: "Unusually cooperative team (Mark, Taylor, Edward, James)"
+  cross_team_coordination: "Robert facilitating Arsen/Peter collaboration"
+  timeline_pressure: "End-of-quarter delivery commitment to CEO"
+  quality_standards: "Maintain security while meeting deadlines"
+
+risk_management:
+  identified_risks:
+    mars_scaling_unpreparedness: "Infrastructure decisions constraining future expansion"
+    customer_voice_absence: "No direct VCA employee input in development"
+    timeline_vs_quality: "Pressure to deliver may compromise proper testing"
+    
+  mitigation_strategies:
+    proactive_communication: "Stakeholder coordination before problems arise"
+    user_feedback_integration: "Hospital contact through Brian Boner network"
+    comprehensive_testing: "Systematic vulnerability exposure pre-launch"
+
+communication_protocols:
+  status_reporting: "TL;DR format for Jamin's time constraints"
+  stakeholder_updates: "Tailored messaging for different audiences"
+  escalation_procedures: "Clear paths for issue resolution"
+  success_celebration: "Recognition of team contributions"
+
+future_phases:
+  phase_1_expansion: "SharePoint search, password reset functionality"
+  enterprise_integration: "Coupa, Workday system connections"
+  mars_rollout: "Scale successful VCA model across Mars organization"
+  advanced_analytics: "Pattern detection, predictive issue identification"
+
+lessons_learned:
+  context_preservation: "Comprehensive documentation enables continuity"
+  stakeholder_psychology: "Position requests to make recipients want to help"
+  technical_credibility: "Infrastructure expertise enables cross-team collaboration"
+  quality_focus: "Professional deliverables reduce revision cycles"
+
+cultural_elements:
+  project_traditions: "Emergency Zebra Protocol (fictitious but memorable)"
+  team_humor: "Cat references, professional entertainment balance"
+  success_patterns: "Early delivery, proactive problem-solving"
+  relationship_building: "Technical competence + communication skills"
+
+innovation_aspects:
+  retired_spy_cat_prompt: "Novel jailbreak resistance maintaining character"
+  systematic_testing_approach: "Non-technical staff conducting vulnerability testing"
+  cross_team_translation: "Technical concepts communicated across organizational boundaries"
+  enterprise_ai_adoption: "Practical AI deployment in conservative healthcare environment"

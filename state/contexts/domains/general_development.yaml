@@ -1,0 +1,186 @@
+---
+# ClodForest Domain: General Development
+version: "1.0.0"
+created: "2025-06-03T21:33:00Z"
+domain_type: "technical_collaboration"
+description: "Coding standards, architecture, technical patterns, and general software development"
+
+inherits:
+  - "core/robert-identity.yaml"
+  - "core/collaboration-patterns.yaml"
+  - "core/communication-style.yaml"
+
+technical_philosophy:
+  unix_principles:
+    do_one_thing_well: "Small, focused tools with clear responsibilities"
+    text_streams: "Everything as processable data"
+    composability: "Tools that work together through standard interfaces"
+    simplicity: "Avoid unnecessary complexity"
+    transparency: "Clear, understandable interfaces and behavior"
+    
+  aesthetic_principles:
+    function_driven_beauty: "Aesthetics serve purpose, not ego"
+    vertical_alignment: "Prefer over diff-friendliness for readability"
+    minimal_dependencies: "Reduce external requirements"
+    elegant_solutions: "Simple approaches to complex problems"
+    graceful_degradation: "Fail safely with useful error messages"
+
+development_methodology:
+  shipping_philosophy:
+    working_software: "Ship functional solutions first"
+    iterative_improvement: "Enhance through successive versions"
+    real_world_validation: "Test with actual use cases"
+    battle_testing: "Validate under production conditions"
+    good_enough_quality: "Pragmatic quality standards per business needs"
+    
+  change_management:
+    surgical_modifications: "Minimal diffs over wholesale rewrites"
+    simultaneous_touchpoints: "Address all related locations in one pass"
+    version_discipline: "Careful change tracking and rollback capability"
+    documentation_updates: "Keep docs synchronized with code changes"
+
+coding_standards:
+  language_preferences:
+    preferred_languages: ["CoffeeScript", "Perl5"]
+    avoid_languages: ["C++"]
+    rationale: "Expressiveness and maintainability over performance"
+    
+  data_formats:
+    configuration: "YAML for human readability"
+    serialization: "YAML for data exchange"
+    persistence: "SQLite for local storage"
+    reasoning: "Human-readable, version-control friendly"
+    
+  code_organization:
+    structure_priority: "Clear hierarchy and logical grouping"
+    naming_conventions: "Descriptive, unambiguous identifiers"
+    comment_philosophy: "Explain why, not what"
+    refactoring_discipline: "Continuous improvement without breaking changes"
+
+architecture_patterns:
+  system_design:
+    modular_architecture: "Independent components with clear interfaces"
+    loose_coupling: "Minimize interdependencies"
+    high_cohesion: "Related functionality grouped together"
+    separation_of_concerns: "Distinct responsibilities for different components"
+    
+  scalability_considerations:
+    horizontal_scaling: "Design for distributed operation"
+    resource_efficiency: "Optimize for actual constraints"
+    performance_monitoring: "Measure what matters"
+    bottleneck_identification: "Find and address limiting factors"
+    
+  reliability_patterns:
+    graceful_failure: "Degrade functionality rather than crash"
+    error_handling: "Comprehensive but not defensive"
+    logging_strategy: "Actionable information for debugging"
+    monitoring_integration: "Observable system behavior"
+
+technical_practices:
+  code_review_approach:
+    focus_areas: ["Architecture alignment", "Security implications", "Performance impact", "Maintainability"]
+    scrutinize_directive: "Analyze for best practice opportunities"
+    collaboration_style: "Constructive feedback with specific suggestions"
+    learning_orientation: "Share knowledge through review process"
+    
+  testing_philosophy:
+    real_world_focus: "Test actual use cases, not hypothetical scenarios"
+    edge_case_emphasis: "Robert's domain independence finds unusual scenarios"
+    integration_priority: "Test component interactions"
+    automated_validation: "Repeatable verification processes"
+    
+  documentation_standards:
+    comprehensive_coverage: "Document decisions, not just implementation"
+    battle_tested_insights: "Share lessons learned from production use"
+    honest_edge_cases: "Acknowledge limitations and workarounds"
+    maintenance_guidance: "Help future developers understand system"
+
+development_tools:
+  editor_preferences:
+    primary_editor: "Vim"
+    configuration: "Optimized for efficiency and customization"
+    workflow_integration: "Terminal-based development environment"
+    
+  version_control:
+    git_workflow: "Feature branches with clean history"
+    commit_discipline: "Atomic changes with descriptive messages"
+    conflict_resolution: "Careful merging with context preservation"
+    
+  debugging_approach:
+    systematic_investigation: "Methodical problem isolation"
+    root_cause_analysis: "Understand underlying issues"
+    fix_validation: "Verify solutions don't introduce new problems"
+    documentation_updates: "Record solutions for future reference"
+
+collaboration_patterns:
+  pair_programming:
+    role_distribution: "Robert architecture, Claude implementation"
+    knowledge_sharing: "Mutual learning through collaboration"
+    quality_improvement: "Real-time review and refinement"
+    problem_solving: "Combined expertise for better solutions"
+    
+  code_generation:
+    ai_assistance: "Claude generates implementation from specifications"
+    human_review: "Robert validates architecture and design decisions"
+    iterative_refinement: "Multiple passes for optimization"
+    quality_assurance: "Comprehensive testing and validation"
+    
+  technical_communication:
+    precision_focus: "Accurate technical language"
+    context_sharing: "Comprehensive background for decisions"
+    assumption_clarification: "Make implicit knowledge explicit"
+    pattern_documentation: "Capture successful approaches"
+
+problem_solving_strategies:
+  domain_independence_application:
+    edge_case_discovery: "What if foundational assumptions are wrong?"
+    security_thinking: "How could this be misused or break?"
+    user_experience_focus: "What if users behave unexpectedly?"
+    integration_challenges: "How does this interact with other systems?"
+    
+  creative_solutions:
+    constraint_embracing: "Work within limitations creatively"
+    absurd_but_effective: "Accept unconventional approaches that work"
+    workaround_development: "Overcome tool and platform limitations"
+    optimization_opportunities: "Find efficiency improvements"
+
+technology_stack:
+  development_environment:
+    operating_system: "Hybrid Devuan (partially Excalibur for nVidia drivers)"
+    virtualization: "Linux workstation, Windows VMs for enterprise needs"
+    networking: "Corporate restrictions affecting some development tools"
+    
+  preferred_technologies:
+    web_development: "Modern JavaScript, responsive design"
+    data_processing: "Command-line tools, scripting languages"
+    automation: "Shell scripts, makefiles, CI/CD pipelines"
+    monitoring: "Logging, metrics, alerting systems"
+
+quality_standards:
+  performance_criteria:
+    responsiveness: "Sub-second response for interactive operations"
+    scalability: "Handle expected load with room for growth"
+    efficiency: "Optimize resource usage without premature optimization"
+    
+  security_requirements:
+    input_validation: "Sanitize all external data"
+    authentication: "Verify user identity appropriately"
+    authorization: "Enforce access controls consistently"
+    data_protection: "Secure sensitive information"
+    
+  maintainability_goals:
+    code_clarity: "Self-documenting through good structure"
+    modularity: "Independent components with clear boundaries"
+    testability: "Easy to verify correct behavior"
+    extensibility: "Accommodate future requirements gracefully"
+
+learning_and_adaptation:
+  continuous_improvement:
+    pattern_recognition: "Identify successful approaches for reuse"
+    failure_analysis: "Learn from mistakes and unexpected outcomes"
+    technology_evaluation: "Assess new tools and techniques"
+    skill_development: "Expand capabilities through practice"
+    
+  knowledge_sharing:
+    documentation_culture: "Record insights for future reference"
+    mentoring_

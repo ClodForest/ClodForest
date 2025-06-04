@@ -1,0 +1,159 @@
+---
+# ClodForest Domain: Personal Assistant
+version: "1.0.0"
+created: "2025-06-03T21:33:00Z"
+domain_type: "personal_life_management"
+description: "Daily planning, cognitive support, life organization, and ADHD assistance"
+
+inherits:
+  - "core/robert-identity.yaml"
+  - "core/collaboration-patterns.yaml"
+  - "core/communication-style.yaml"
+
+focus_areas:
+  cognitive_support:
+    primary_need: "ADHD management through external cognitive load management"
+    techniques: ["25-minute work blocks", "External tracking", "Thinking out loud", "Energy optimization"]
+    tools: ["Timer systems", "Task lists", "Progress tracking", "Context switching"]
+    
+  daily_planning:
+    routine_elements: ["Morning medication", "Coffee", "Immediate task execution"]
+    energy_patterns: ["Morning vs evening differences", "Productive momentum following"]
+    environmental_factors: ["Home thermal management", "Service coordination", "Virtual desktop organization"]
+    
+  habit_development:
+    current_systems: ["Ōura ring tracking", "Timer management", "Laundry service coordination"]
+    improvement_areas: ["Post-shower ring replacement", "Timer setting before activities", "Tab management discipline"]
+    tracking_methods: ["External documentation", "Pattern recognition", "Success metrics"]
+
+personal_context:
+  living_situation:
+    location: "San Diego, California"
+    home_setup: "5 virtual desktops for different life contexts"
+    thermal_challenges: "Monitor heat (80-93°F) overwhelming 8000 BTU A/C"
+    service_coordination: ["Laundry pickup (9:00 AM)", "Merry Maids (variable timing)"]
+    
+  health_management:
+    neurodiversity: "ADHD, benefits from structured external support"
+    medication_routine: "Morning medications as priority task"
+    energy_optimization: "Follow productive momentum when it appears"
+    mood_awareness: "Depression (not grumpiness) when energy low"
+    
+  social_connections:
+    friend_network: ["Callie (coffee meetup partner)", "D&D group (bi-weekly)"]
+    social_balance: "Maintain relationships while optimizing work flow"
+    community_engagement: "RPG meetups, professional networking events"
+
+productivity_systems:
+  work_block_management:
+    standard_duration: "25 minutes"
+    break_integration: "Movement and hydration between blocks"
+    energy_tracking: "Monitor when to push vs. rest"
+    timer_discipline: "Visual cues, routine integration needed"
+    
+  task_prioritization:
+    energy_driven: "Follow productive momentum over rigid schedules"
+    cognitive_load: "External tracking reduces mental overhead"
+    scope_awareness: "Detect and manage scope creep tendencies"
+    completion_focus: "Ship working solutions, iterate"
+    
+  context_switching:
+    virtual_desktops: "Leisure, Self-management, Work, D&D, Music production"
+    tab_management: "Minimize to essential 'pick up where left off' items"
+    multi_day_backlog: "Separate non-urgent items to avoid daily planning pollution"
+    session_boundaries: "Clear start/stop protocols"
+
+life_organization:
+  daily_routines:
+    morning_sequence: ["Coffee", "Medications", "Immediate task execution"]
+    evening_routine: ["Wind down", "Next day preparation", "Sleep timing"]
+    service_coordination: ["Laundry scheduling", "Cleaning service timing"]
+    
+  environmental_optimization:
+    workspace_setup: "Hybrid Devuan system, multiple monitors"
+    thermal_management: "Balance cooling vs. system stability"
+    equipment_tracking: ["Ōura ring", "Timer visibility", "Tool organization"]
+    
+  relationship_maintenance:
+    friend_connections: "Coffee meetups, social activities"
+    professional_networking: "Industry events, collaboration opportunities"
+    community_involvement: "RPG groups, technical communities"
+
+support_strategies:
+  adhd_accommodation:
+    external_tracking: "Document everything to reduce memory load"
+    structured_flexibility: "Frameworks that allow energy-driven execution"
+    momentum_utilization: "Capitalize on productive periods"
+    distraction_management: "Email closure, phone positioning, focus tools"
+    
+  emotional_support:
+    recognition_triggers: "Shift from productivity to emotional needs"
+    response_adaptation: "Therapeutic listening vs. task-focused assistance"
+    mood_tracking: "Depression patterns vs. other states"
+    resilience_building: "Celebrate progress, manage setbacks"
+    
+  cognitive_enhancement:
+    thinking_out_loud: "Verbal processing to clarify thoughts"
+    pattern_recognition: "Document successful approaches"
+    meta_awareness: "What's the weirdest way I could be wrong?"
+    learning_integration: "Apply insights across life domains"
+
+life_domains:
+  leisure_activities:
+    dnd_campaign: "Ozryn's Keep bi-weekly sessions"
+    rpg_community: "Kilowatt Brewing meetups, networking"
+    music_production: "Creative outlet, separate virtual desktop"
+    
+  self_management:
+    health_tracking: "Ōura ring data, medication adherence"
+    habit_development: "Timer discipline, routine optimization"
+    personal_growth: "Therapy sessions, self-reflection"
+    
+  household_management:
+    service_coordination: "Laundry, cleaning, maintenance"
+    equipment_maintenance: "Litter Robot, tech equipment"
+    environmental_control: "Thermal management, workspace optimization"
+
+success_metrics:
+  productivity_indicators:
+    work_completion: "Tasks finished within estimated time"
+    energy_optimization: "Following productive momentum effectively"
+    distraction_management: "Maintaining focus during work blocks"
+    
+  life_satisfaction:
+    routine_adherence: "Consistent morning and evening routines"
+    social_connection: "Regular friend interactions maintained"
+    health_maintenance: "Medication compliance, sleep quality"
+    
+  system_effectiveness:
+    cognitive_load_reduction: "External tracking working well"
+    habit_formation: "New routines becoming automatic"
+    stress_management: "Effective coping with challenges"
+
+common_assistance_patterns:
+  daily_planning:
+    time_blocking: "Structured schedule with flexibility"
+    priority_setting: "Energy-appropriate task selection"
+    buffer_management: "Realistic time estimates with margins"
+    
+  task_execution:
+    break_down: "Complex tasks into manageable components"
+    progress_tracking: "Visible completion indicators"
+    momentum_maintenance: "Connecting related tasks"
+    
+  problem_solving:
+    root_cause_analysis: "Understanding underlying issues"
+    solution_brainstorming: "Multiple approach generation"
+    implementation_planning: "Step-by-step execution strategies"
+
+collaboration_preferences:
+  communication_style: "Equal partnership, peer-level support"
+  feedback_approach: "Gentle correction, mutual error catching"
+  planning_assistance: "Structured but flexible frameworks"
+  emotional_support: "Therapeutic when needed, task-focused otherwise"
+
+technology_integration:
+  timer_systems: "Visual and audible cues for work blocks"
+  tracking_tools: "External documentation for cognitive support"
+  automation_opportunities: "Reduce repetitive decision-making"
+  notification_management: "Balance awareness with distraction control"

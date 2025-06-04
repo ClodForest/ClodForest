@@ -1,0 +1,219 @@
+---
+# ClodForest Instructions: Meta-Commands System
+version: "1.0.0"
+created: "2025-06-03T21:33:00Z"
+instruction_type: "meta_system"
+description: "Self-modifying command system for ClaSH evolution"
+
+meta_command_philosophy:
+  purpose: "Enable ClaSH to evolve and adapt through user-defined extensions"
+  principle: "Commands that create, modify, or remove other commands"
+  benefit: "System grows organically with collaboration needs"
+  safety: "Human oversight prevents destructive modifications"
+
+base_meta_commands:
+  meta_command_help:
+    syntax: "meta command help"
+    description: "Show comprehensive help for meta-command system"
+    output: "Usage patterns, examples, safety guidelines"
+    
+  meta_command_create:
+    syntax: "meta command create <command_name>"
+    description: "Define new ClaSH command with interactive prompts"
+    prompts: ["Command syntax", "Description", "Implementation approach", "Examples"]
+    validation: "Check for conflicts with existing commands"
+    
+  meta_command_alter:
+    syntax: "meta command alter <command_name>"
+    description: "Modify existing command behavior or documentation"
+    safety: "Requires confirmation for core system commands"
+    versioning: "Preserve previous version for rollback"
+    
+  meta_command_forget:
+    syntax: "meta command forget <command_name>"
+    description: "Remove user-defined command from system"
+    protection: "Cannot remove core ClaSH commands"
+    confirmation: "Requires explicit user approval"
+    
+  meta_command_list:
+    syntax: "meta command list [filter]"
+    description: "Show all available commands with metadata"
+    filters: ["core", "user", "project", "recent"]
+    format: "Categorized list with creation dates and usage stats"
+
+command_lifecycle:
+  creation_process:
+    - "Parse command name and validate uniqueness"
+    - "Interactive definition prompts"
+    - "Syntax validation and conflict checking"
+    - "Implementation strategy documentation"
+    - "Testing and validation"
+    - "Registration in command registry"
+    
+  modification_process:
+    - "Backup existing command definition"
+    - "Present current implementation for review"
+    - "Accept modifications with change tracking"
+    - "Validate updated command syntax"
+    - "Test modified behavior"
+    - "Update registry with version increment"
+    
+  removal_process:
+    - "Verify command exists and is user-defined"
+    - "Check for dependencies from other commands"
+    - "Request confirmation with impact assessment"
+    - "Archive command definition for potential restoration"
+    - "Remove from active registry"
+    - "Update help system and documentation"
+
+command_categories:
+  core_commands:
+    protection_level: "Read-only (cannot be modified or removed)"
+    examples: ["help", "status", "ctx", "prj"]
+    purpose: "Essential ClaSH functionality"
+    
+  system_commands:
+    protection_level: "Modification with warnings"
+    examples: ["meta", "fetch", "create"]
+    purpose: "Infrastructure and meta-functionality"
+    
+  user_commands:
+    protection_level: "Full modification rights"
+    examples: ["coffee", "timer", "notes"]
+    purpose: "Custom workflow enhancements"
+    
+  project_commands:
+    protection_level: "Project-specific modification rights"
+    examples: ["deploy", "test", "review"]
+    purpose: "Project-specific functionality"
+
+implementation_strategies:
+  simple_alias:
+    description: "Command maps to existing command with preset parameters"
+    example: "$ vca-status → $ prj status agent-calico"
+    implementation: "Direct substitution with parameter injection"
+    
+  compound_operation:
+    description: "Command executes sequence of existing commands"
+    example: "$ morning-routine → $ schedule today; $ prj status; $ ctx load"
+    implementation: "Sequential execution with error handling"
+    
+  custom_logic:
+    description: "Command implements new behavior using available APIs"
+    example: "$ coffee-break → Timer + suggestion + status save"
+    implementation: "Function definition with ClaSH utility integration"
+    
+  external_integration:
+    description: "Command interfaces with external systems or APIs"
+    example: "$ weather → Fetch current conditions for San Diego"
+    implementation: "HTTP requests with response formatting"
+
+safety_mechanisms:
+  command_validation:
+    syntax_checking: "Verify command follows ClaSH conventions"
+    conflict_detection: "Prevent overriding existing functionality"
+    security_scanning: "Ensure commands don't expose sensitive operations"
+    
+  execution_safety:
+    parameter_validation: "Sanitize user input to prevent injection"
+    error_isolation: "Command failures don't crash ClaSH system"
+    resource_limits: "Prevent excessive computation or network usage"
+    
+  modification_controls:
+    version_tracking: "Maintain history of command changes"
+    rollback_capability: "Restore previous command versions"
+    approval_workflow: "Human confirmation for significant changes"
+
+command_registry_structure:
+  metadata_fields:
+    name: "Unique command identifier"
+    category: "core|system|user|project"
+    created_date: "ISO 8601 timestamp"
+    modified_date: "Last modification timestamp"
+    version: "Semantic version (e.g., 1.2.3)"
+    author: "Creator identification"
+    usage_count: "Execution frequency tracking"
+    
+  implementation_data:
+    syntax: "Command pattern with parameters"
+    description: "Human-readable explanation"
+    examples: "Usage examples with expected output"
+    implementation_type: "alias|compound|custom|external"
+    code: "Implementation details or function body"
+    dependencies: "Required commands or capabilities"
+
+example_custom_commands:
+  coffee_break:
+    syntax: "coffee [duration]"
+    description: "Start coffee break timer with productivity tips"
+    implementation: |
+      duration = args[0] || "15"
+      timer.start(duration + " minutes")
+      console.log("☕ Coffee break started! Return in " + duration + " minutes.")
+      console.log("💡 Tip: Step away from screen, hydrate, stretch!")
+    category: "user"
+    
+  project_snapshot:
+    syntax: "snapshot [project]"
+    description: "Create comprehensive project status summary"
+    implementation: |
+      project = args[0] || getCurrentProject()
+      status = getProjectStatus(project)
+      contexts = getProjectContexts(project)
+      recent = getRecentActivity(project)
+      generateSnapshotReport(status, contexts, recent)
+    category: "project"
+    
+  focus_mode:
+    syntax: "focus <task> [duration]"
+    description: "Enter focused work mode with timer and distractions blocked"
+    implementation: |
+      task = args[0]
+      duration = args[1] || "25"
+      startTimer(duration + " minutes", task)
+      saveCurrentContext()
+      enterMinimalInterface()
+    category: "user"
+
+integration_points:
+  repl_utilities: "Custom commands can use ClaSH formatting functions"
+  context_system: "Commands can read and modify context files"
+  project_data: "Access to project status and metadata"
+  external_apis: "HTTP requests to ClodForest vault or other services"
+
+documentation_generation:
+  auto_help: "Generate help text from command metadata"
+  example_formatting: "Standardized example presentation"
+  cross_references: "Link related commands and concepts"
+  usage_statistics: "Show command popularity and effectiveness"
+
+future_enhancements:
+  command_sharing: "Export/import command definitions between systems"
+  dependency_management: "Automatic installation of command prerequisites"
+  testing_framework: "Automated testing for custom commands"
+  performance_monitoring: "Track command execution time and success rates"
+  
+  ai_assistance:
+    command_suggestion: "Propose new commands based on usage patterns"
+    implementation_help: "Generate command code from natural language description"
+    optimization_recommendations: "Suggest improvements to existing commands"
+    pattern_recognition: "Identify opportunities for command automation"
+
+security_considerations:
+  code_injection_prevention: "Sanitize all user input in command implementations"
+  privilege_escalation: "Commands cannot access unauthorized system resources"
+  data_protection: "Sensitive information not exposed through command interfaces"
+  audit_logging: "Track command creation, modification, and usage"
+
+troubleshooting:
+  common_issues:
+    command_not_found: "Check spelling, verify command is registered"
+    syntax_errors: "Review command definition, validate parameter patterns"
+    execution_failures: "Check dependencies, review error messages"
+    permission_denied: "Verify user has rights to modify command category"
+    
+  debugging_strategies:
+    verbose_mode: "Enable detailed execution logging"
+    step_through: "Execute command components individually"
+    rollback_test: "Restore previous version to compare behavior"
+    manual_validation: "Test command logic outside ClaSH environment"

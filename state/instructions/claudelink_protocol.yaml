@@ -1,0 +1,167 @@
+---
+# ClodForest Instructions: ClaudeLink Protocol
+version: "1.0.0"
+created: "2025-06-03T21:33:00Z"
+instruction_type: "coordination_protocol"
+description: "Context coordination system for multiple Claude instances"
+
+protocol_overview:
+  purpose: "Enable Claude instances to share context updates through structured requests"
+  mechanism: "YAML-encoded diff requests processed by ClodForest automation"
+  benefits: ["Reduced context switching", "Persistent collaboration state", "Cross-session knowledge"]
+  
+trigger_system:
+  activation_phrase: "I have a context update"
+  response_required: "go ahead" 
+  security: "Human approval prevents unauthorized context modifications"
+  timeout: "Request expires if no approval within session"
+
+request_structure:
+  format: "YAML document with standardized schema"
+  encoding: "Base64 unified diff for token efficiency" 
+  metadata: "Requestor ID, timestamp, version tracking"
+  validation: "Schema compliance before processing"
+
+requestor_identification:
+  pattern: "{project}-{role}-{sequence}"
+  examples:
+    development: "claudelink-dev-001"
+    work_support: "vca-assistant-002" 
+    personal: "daily-planning-003"
+  uniqueness: "Prevents context update conflicts"
+
+timestamp_handling:
+  format: "ISO 8601 UTC (YYYY-MM-DDTHH:mm:ssZ)"
+  source: "Best available time reference until time service deployed"
+  conflict_resolution: "Later timestamps take precedence"
+  timezone: "Always UTC for consistency"
+
+context_update_types:
+  retire_completed:
+    description: "Mark tasks/projects as finished"
+    target: "Project status files, session handoffs"
+    example: "Agent Calico testing guide completed"
+    
+  update_changed:
+    description: "Modify existing context information"
+    target: "Any YAML file in context tree"
+    versioning: "Base version specified for conflict detection"
+    
+  add_new:
+    description: "Create new context entries"
+    target: "New files or sections within existing files"
+    validation: "Schema compliance, naming conventions"
+
+change_encoding:
+  current_format: "base64_unified_diff"
+  benefits: ["Token efficiency", "Standard diff tooling", "Human readable when decoded"]
+  future_format: "base64_gzip_unified_diff (when compression implemented)"
+  decoding: "Base64 decode → apply unified diff → update target file"
+
+version_control:
+  base_version_tracking: "Specify version being modified"
+  conflict_detection: "Compare base vs. current version before applying"
+  merge_strategies: "Manual resolution for conflicts, automatic for non-overlapping"
+  rollback_capability: "Keep previous versions for recovery"
+
+automation_processing:
+  steps:
+    - "Validate YAML schema compliance"
+    - "Decode base64 change data"
+    - "Check version conflicts" 
+    - "Apply unified diff to target file"
+    - "Update relevant index files"
+    - "Clean up processed request"
+  error_handling: "Graceful failure with human notification"
+
+target_path_specifications:
+  logical_context: "Human-readable path (ClaudeLink/development/status)"
+  physical_path: "Actual file location (/projects/claudelink-development.yaml)"
+  validation: "Ensure target exists and is writable"
+  creation: "Auto-create missing directories as needed"
+
+token_efficiency_strategies:
+  minimal_diffs: "Only send changed portions, not entire files"
+  compression: "Base64 encoding reduces context token consumption"
+  batching: "Multiple updates in single request when possible"
+  abbreviation: "Shortened field names where clarity maintained"
+
+future_enhancements:
+  time_service:
+    endpoint: "/server/query/time?whoIsAsking={token}"
+    purpose: "Accurate timestamps for distributed coordination"
+    authentication: "Token-based request validation"
+    
+  token_service:
+    endpoint: "/server/requestToken?project={project}&role={role}"
+    purpose: "Automated session management and identity"
+    lifecycle: "Request → validate → issue → track usage"
+    
+  crud_service:
+    purpose: "Automated request processing without human intervention"
+    endpoints: ["create", "read", "update", "delete"]
+    validation: "Schema and permission checking"
+    
+  compression_system:
+    trigger: "Diff size threshold"
+    algorithm: "Gzip compression after base64 encoding"
+    benefit: "Handle larger context updates efficiently"
+    
+  indexing_system:
+    purpose: "Context discovery and relationship mapping"
+    features: ["Cross-reference tracking", "Dependency analysis", "Search capabilities"]
+    integration: "Graph database for relationship persistence"
+
+security_considerations:
+  human_approval: "Required for all context modifications"
+  validation_layers: ["Schema compliance", "Permission checking", "Content sanitization"]
+  audit_trail: "Log all context updates with metadata"
+  rollback_protection: "Preserve previous versions for recovery"
+
+error_scenarios:
+  version_conflicts:
+    detection: "Base version differs from current version"
+    resolution: "Human review and manual merge"
+    prevention: "Frequent small updates over large batches"
+    
+  schema_violations:
+    detection: "YAML structure doesn't match expected format"
+    handling: "Reject request with specific error message"
+    recovery: "Provide corrected example"
+    
+  target_not_found:
+    detection: "Physical path doesn't exist"
+    options: ["Auto-create", "Request clarification", "Suggest alternatives"]
+    fallback: "Create in appropriate default location"
+
+integration_points:
+  chat_archival: "Extract insights → context updates"
+  session_handoffs: "Generate handoff artifacts → context preservation"
+  multi_session_coordination: "Share state across Claude instances"
+  external_automation: "Non-LLM tools process context updates"
+
+usage_examples:
+  simple_status_update:
+    trigger: "I have a context update"
+    approval: "go ahead"
+    content: |
+      requestor: "vca-assistant-001"
+      timestamp: "2025-06-03T21:33:00Z"
+      requests:
+        - context: "Agent Calico/testing/status"
+          target_path: "/projects/agent-calico/testing-strategy.yaml"
+          base_version: "1.0.0"
+          changes:
+            format: "base64_unified_diff"
+            data: "LS0tIGEKKysrIGIKQEAgLTEsMyArMSw0IEAKIHN0YXR1czogImluX3Byb2dyZXNzIgotY29tcGxldGVkOiBmYWxzZQorY29tcGxldGVkOiB0cnVlCitmaW5pc2hlZF9hdDogIjIwMjUtMDYtMDMi"
+
+benefits_summary:
+  for_robert: ["Reduced context switching overhead", "Persistent collaboration state", "Systematic knowledge accumulation"]
+  for_claude: ["Cross-session continuity", "Shared learning", "Collaborative improvement"]
+  for_collaboration: ["Reduced startup time", "Maintained relationship quality", "Innovation tracking"]
+
+deployment_status:
+  current_state: "Protocol defined, awaiting implementation"
+  dependencies: ["ClodForest automation system", "YAML processing capabilities", "File system access"]
+  testing_plan: "Start with simple status updates, expand to complex context modifications"
+  rollout_strategy: "Gradual deployment with human oversight"
