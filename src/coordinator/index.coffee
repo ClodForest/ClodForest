@@ -9,27 +9,29 @@ config     = require './lib/config'
 URL_PREFIX = "https://#{config.VAULT_SERVER}"
 
 
-app = express()
+module.exports.app =
+  app = express()
 
 middleware.setup(app)
 routing   .setup(app)
 
 
-server = app.listen config.PORT, ->
-  console.log """
-    🔗 ClodForest Coordinator Started
+module.exports.server =
+  server = app.listen config.PORT, ->
+    console.log """
+      🔗 ClodForest Coordinator Started
 
-    Port:            #{config.PORT}
-    Environment:     #{config.NODE_ENV or 'development'}
-    Repository Path: #{config.REPO_PATH}
-    Vault Server:    #{config.VAULT_SERVER}
+      Port:            #{config.PORT}
+      Environment:     #{config.NODE_ENV or 'development'}
+      Repository Path: #{config.REPO_PATH}
+      Vault Server:    #{config.VAULT_SERVER}
 
-    API Endpoints:
-      Health:        #{URL_PREFIX}/api/health/
-      Time:          #{URL_PREFIX}/api/time/
-      Repositories:  #{URL_PREFIX}/api/repo
-      Admin:         #{URL_PREFIX}/admin
-  """
+      API Endpoints:
+        Health:        #{URL_PREFIX}/api/health/
+        Time:          #{URL_PREFIX}/api/time/
+        Repositories:  #{URL_PREFIX}/api/repo
+        Admin:         #{URL_PREFIX}/admin
+    """
 
 
 shutdownGracefully = ->
@@ -41,6 +43,3 @@ shutdownGracefully = ->
 
 process.on 'SIGTERM', shutdownGracefully
 process.on 'SIGINT',  shutdownGracefully
-
-
-module.exports = { app, server }
