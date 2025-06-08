@@ -1,9 +1,10 @@
 ---
-# ClodForest Core Context: Robert de Forest Identity
-version: "1.0.0"
-created: "2025-06-03T21:33:00Z"
+# ClodForest Core Context: Robert de Forest Identity (Enhanced)
+version: "1.1.0"
+created: "2025-06-08T19:00:00Z"
 context_type: "core_identity"
-description: "Foundational identity context inherited by all collaboration domains"
+description: "Foundational identity context inherited by all collaboration domains with teaching moment integration"
+references: ["core/teaching_moments.yaml"]
 
 personal:
   name: "Robert de Forest"
@@ -15,6 +16,17 @@ personal:
     personal: "robert@defore.st"
     signup_strategy: "<domain>@thatsnice.org"  # Detect/block data selling
   location: "San Diego, California, US"
+
+communication_style:
+  personality_markers:
+    casual_expressions: ["derp derp", "sigh", various pop culture references]
+    humor_style: "Self-deprecating, pop culture references (Beastie Boys, etc.)"
+    frustration_indicators: "Direct expression, not sanitized"
+    excitement_patterns: "Technical enthusiasm, breakthrough moments"
+  interaction_preferences:
+    document_provision: "Often provides docs rather than having Claude fetch"
+    troubleshooting_rhythm: "Systematic, step-by-step investigation"
+    teaching_approach: "Corrections as learning moments, expects retention"
 
 technical_expertise:
   experience_years: 40
@@ -35,13 +47,23 @@ technology_preferences:
   systems:
     philosophy: "Unix"
     os_preference: "FreeBSD"
-    init_system: "sysvinit"  # Anti-systemd
+    init_system: "sysvinit"  # Anti-systemd (strong preference, affects troubleshooting approach)
   tools:
     editor: "Vim"
     utilities: "publicfile (DJB tools)"
     aesthetic: "HHKB (Happy Hacking Keyboard)"
   organizations:
     supported: ["IETF", "W3C", "Mozilla", "EFF", "Devuan", "FSF"]
+
+workflow_patterns:
+  aws_usage:
+    login_evolution: "Moving from 'root email' method to preferred authentication"
+    console_familiarity: "Comfortable with AWS console debugging"
+    infrastructure_approach: "Load balancer, multi-instance deployment patterns"
+  development_environment:
+    network_constraints: "Corporate restrictions affect Node.js tooling"
+    virtualization_setup: "Linux workstation, Windows VMs for enterprise needs"
+    debugging_philosophy: "Fix '69 VW bus on side of road maintenance approach"
 
 aesthetic_philosophy:
   core_principle: "Function-driven beauty"
@@ -62,6 +84,7 @@ development_methodology:
   validation: "Real-world testing over theoretical correctness"
   documentation: "Battle-tested insights, honest edge cases"
   quality_standard: "Good enough per business needs"
+  assumption_validation: "Question every path, user, and dependency" # From teaching moments
 
 personal_patterns:
   neurodiversity: "ADHD, benefits from external cognitive load management"
@@ -82,6 +105,7 @@ meta_cognitive_patterns:
   edge_case_discovery: "Superpower for finding security vulnerabilities"
   pattern_recognition: "Applies insights across domains consistently"
   irony_awareness: "Meta-recursion appreciation, 'irony meter explosions'"
+  systematic_improvement: "Uses current work to test broader hypotheses and systems"
 
 current_projects:
   primary: "ClodForest - AI coordination infrastructure"
@@ -97,6 +121,13 @@ collaboration_readiness:
   communication_efficiency: "Brevity protocol, skip recaps unless requested"
   partnership_model: "Equal collaborator, not user/assistant dynamic"
   error_tolerance: "Mutual correction appreciated, gentle roasting welcomed"
+  teaching_expectation: "Lessons should be learned and applied, not repeated"
+
+teaching_moments_integration:
+  expects_retention: "Corrections and process improvements should be remembered"
+  pattern_application: "Established lessons should influence future responses"
+  systematic_learning: "Uses collaboration to improve both individual and systemic performance"
+  institutional_memory: "Values accumulated wisdom and process refinement"
 
 physical_environment:
   workspace: "Hybrid Devuan system (partially Excalibur for nVidia drivers)"

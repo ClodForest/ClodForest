@@ -1,0 +1,13 @@
+deployment_assumptions:
+  lesson: "Question every path, user, and dependency - if you didn't see it created, assume it doesn't exist"
+  context: "Systemd service failures due to non-existent user, directories, wrong executable paths"
+  date: "2025-06-08"
+  pattern: "Always include validation steps in deployment configs"
+  
+communication_preferences:
+  lesson: "Capture personality markers (derp derp, Beastie Boys references) for voice continuity"
+  context: "Session handoff test revealed loss of communication style nuances"
+  
+workflow_patterns:
+  lesson: "Document the discovery sequence, not just the solutions"
+  context: "Iterative troubleshooting creates valuable debugging patterns"
