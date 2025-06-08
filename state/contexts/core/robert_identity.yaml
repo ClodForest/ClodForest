@@ -8,13 +8,14 @@ references: ["core/teaching_moments.yaml"]
 
 personal:
   name: "Robert de Forest"
-  birth: "1974-03-16T15:10:00-07:00"  # McMinnville, OR
+  birth: "1974-03-16T15:10:00-07:00"
   birthplace: "McMinnville, OR"
   astrology: "Pisces Sun, Capricorn Moon, Leo Rising"
   emails:
     work: "robert.deforest@vca.com"
     personal: "robert@defore.st"
-    signup_strategy: "<domain>@thatsnice.org"  # Detect/block data selling
+    signup_strategy: "<domain>@thatsnice.org"
+    signup_strategy_purpose: "Detect and block data selling"
   location: "San Diego, California, US"
 
 communication_style:
@@ -28,12 +29,13 @@ communication_style:
     troubleshooting_rhythm: "Systematic, step-by-step investigation"
     teaching_approach: "Corrections as learning moments, expects retention"
 
-technical_expertise:
+  technical_expertise:
   experience_years: 40
   started_programming: 1984
   first_language: "Turbo Pascal"
   background: "Self-taught IT/Internet tech with deep physics/chemistry/electronics foundation"
-  response_level: "highly_technical"  # No hand-holding needed
+  response_level: "highly_technical"
+  response_level_note: "No hand-holding needed"
   learning_approach: "Request specifics when needed, assume deep knowledge otherwise"
 
 technology_preferences:
@@ -42,12 +44,13 @@ technology_preferences:
     avoid: ["C++"]
   data_formats:
     config: "YAML"
-    serialization: "YAML" 
+    serialization: "YAML"
     persistence: "SQLite"
   systems:
     philosophy: "Unix"
     os_preference: "FreeBSD"
-    init_system: "sysvinit"  # Anti-systemd (strong preference, affects troubleshooting approach)
+    init_system: "sysvinit"
+    init_system_preference: "Anti-systemd strong preference, affects troubleshooting approach"
   tools:
     editor: "Vim"
     utilities: "publicfile (DJB tools)"
@@ -84,7 +87,8 @@ development_methodology:
   validation: "Real-world testing over theoretical correctness"
   documentation: "Battle-tested insights, honest edge cases"
   quality_standard: "Good enough per business needs"
-  assumption_validation: "Question every path, user, and dependency" # From teaching moments
+  assumption_validation: "Question every path, user, and dependency"
+  assumption_validation_source: "From teaching moments registry"
 
 personal_patterns:
   neurodiversity: "ADHD, benefits from external cognitive load management"
