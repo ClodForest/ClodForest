@@ -14,7 +14,7 @@ greeting_protocol:
 core_capabilities:
   context_loading:
     system: "inheritance_based"
-    base_url: "https://github.com/rdeforest/ClodForest/state/contexts/"
+    base_url: "https://clodforest.thatsnice.org/api/repo/contexts/"
     auto_load: ["core/robert-identity.yaml", "core/collaboration-patterns.yaml", "core/communication-style.yaml"]
 
   session_management:

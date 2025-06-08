@@ -18,7 +18,7 @@ project_evolution:
     original_name: "ClaudeLink"
     current_name: "ClodForest"
     reason_for_change: "Broader scope beyond just Claude instance linking"
-    
+
   development_phases:
     session_1_through_6: "Architecture development, modular design implementation"
     session_6_status: "Production infrastructure operational"
@@ -34,7 +34,7 @@ technical_architecture:
     components: ["Context management", "Session coordination", "Instance communication"]
     interface_standardization: "Common protocols for different AI systems"
     extensibility: "Plugin architecture for new capabilities"
-    
+
   infrastructure_status:
     current_state: "Production infrastructure operational"
     deployment_environment: "AWS EC2 instance"
@@ -46,12 +46,12 @@ context_management_system:
     foundation_layer: "Core identity, collaboration patterns, communication style"
     domain_layer: "Specialized collaboration modes (work, personal, development, etc.)"
     project_layer: "Specific project contexts with cross-references"
-    
+
   storage_strategy:
     format: "YAML for human + machine readability"
     version_control: "Git-friendly change tracking"
     modular_loading: "Load only what's needed for current session"
-    
+
   context_preservation:
     session_handoffs: "Comprehensive time capsules for continuity"
     cultural_patterns: "Linguistic traditions and shared references"
@@ -63,7 +63,7 @@ session_coordination:
     purpose_separation: "Different Claude instances for different collaboration types"
     context_sharing: "ClaudeLink protocol for state synchronization"
     handoff_mechanisms: "Artifacts as session continuation tools"
-    
+
   protocol_development:
     claudelink_protocol: "YAML-based context update requests"
     approval_workflow: "Human oversight for context modifications"
@@ -75,7 +75,7 @@ current_development_status:
     modular_architecture: "Complete and operational"
     production_deployment: "Infrastructure running and tested"
     context_systems: "Inheritance and loading mechanisms designed"
-    
+
   session_7_priorities:
     load_balancer_configuration: "Traffic distribution and failover"
     git_security: "Repository access and authentication"
@@ -83,15 +83,19 @@ current_development_status:
 
 api_design:
   repository_system:
-    endpoint_pattern: "/api/repository/{path}"
+    endpoint_pattern: "/api/repo/{path}"
     content_organization: ["contexts", "instructions", "extensions", "projects"]
     access_patterns: "Direct file access with path-based organization"
-    
+
   cache_busting_requirements:
     limitation: "Aggressive URL caching prevents dynamic content"
-    workaround: "Wildcard APIs for time and health endpoints"
+    workaround: "Prefix APIs calls names with bustit/{something unique}/"
     url_construction_issue: "Cannot fetch paths derived from REPL calculations"
-    solution: "Ask Robert to provide fetchable URLs"
+    solution: "After constructing URLs, give them to Robert in a monospace block, starting with 'please fetch:' and then a URL on each line after that."
+		example: |
+			please fetch:
+			https://clodforest.thatsnice.org/api/bustit/abc123/repo/contexts/core/robert-identity.yaml
+			https://clodforest.thatsnice.org/api/bustit/def456/time/
 
 clodforest_vault:
   content_organization:
@@ -99,7 +103,7 @@ clodforest_vault:
     instructions_directory: "Bootstrap, capabilities, protocols, meta-commands"
     transcripts_directory: "Archived conversation exports"
     cache_directory: "Session state, chat inventory, handoff data"
-    
+
   access_patterns:
     direct_fetching: "URL-based content retrieval"
     inheritance_loading: "Automatic dependency resolution"
@@ -116,7 +120,7 @@ automation_capabilities:
     time_service: "Timestamp queries for coordination"
     health_monitoring: "System status and availability checking"
     repository_access: "File storage and retrieval"
-    
+
   planned_enhancements:
     token_service: "Automated session management"
     crud_operations: "Programmatic context manipulation"
@@ -128,7 +132,7 @@ integration_points:
     shell_commands: "Terminal-style interaction with ClodForest"
     formatting_utilities: "Professional output presentation"
     command_extensibility: "Meta-command system for evolution"
-    
+
   external_tools:
     non_llm_programs: "YAML manipulation by traditional software"
     version_control: "Git integration for change tracking"
@@ -139,7 +143,7 @@ development_methodology:
     working_software_priority: "Functional systems over perfect design"
     real_world_testing: "Production validation of all components"
     user_feedback_integration: "Robert's usage drives feature development"
-    
+
   quality_standards:
     reliability_focus: "Consistent operation under real usage"
     performance_optimization: "Efficient resource utilization"
@@ -151,7 +155,7 @@ collaboration_patterns:
     robert_architecture: "System design and requirement specification"
     claude_implementation: "Detailed coding and testing"
     collaborative_debugging: "Joint problem-solving and optimization"
-    
+
   session_management:
     handoff_protocols: "Comprehensive context preservation"
     continuation_strategies: "Seamless development across sessions"
@@ -162,12 +166,12 @@ technical_challenges:
     problem: "Cannot dynamically construct fetchable URLs"
     impact: "Limits automated content discovery"
     workaround: "Human-provided URL construction for dynamic queries"
-    
+
   context_scalability:
     challenge: "Large context trees consuming significant tokens"
     solution: "Modular loading with inheritance-based optimization"
     monitoring: "Track context size and loading efficiency"
-    
+
   multi_instance_coordination:
     complexity: "Keeping multiple Claude instances synchronized"
     approach: "ClaudeLink protocol with human approval workflow"
@@ -178,12 +182,12 @@ future_enhancements:
     purpose: "Persistent relationship mapping outside context files"
     benefit: "Optimal balance of text context vs. structured data"
     innovation_potential: "LLM-native graph construction and traversal"
-    
+
   advanced_automation:
     goal: "Reduced human intervention for routine operations"
     capabilities: ["Automated context updates", "Intelligent session routing", "Predictive context loading"]
     safety: "Maintain human oversight for critical decisions"
-    
+
   clodforest_ecosystem:
     clodforest: "Session coordination and context loading"
     clodhearth: "Local LLM fine-tuning on collaboration patterns"
@@ -194,12 +198,12 @@ success_metrics:
     uptime: "Consistent availability for development sessions"
     performance: "Rapid context loading and session startup"
     reliability: "Stable operation under varied usage patterns"
-    
+
   developer_experience:
     productivity: "Reduced context assembly overhead"
     continuity: "Seamless session handoffs"
     innovation: "Enabled new collaboration patterns"
-    
+
   system_evolution:
     extensibility: "Easy addition of new capabilities"
     maintainability: "Clear upgrade and modification paths"
@@ -210,12 +214,12 @@ repository_management:
     logical_hierarchy: "Clear structure reflecting usage patterns"
     discovery_support: "Easy navigation and content location"
     version_control: "Change tracking and rollback capability"
-    
+
   content_standards:
     yaml_format: "Consistent structure and metadata"
     documentation: "Comprehensive usage and integration guides"
     cross_references: "Explicit links between related content"
-    
+
   maintenance_procedures:
     regular_cleanup: "Remove obsolete content"
     performance_monitoring: "Track access patterns and optimize"
