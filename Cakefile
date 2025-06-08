@@ -196,6 +196,10 @@ task 'install', 'Install ClodForest as system service', ->
 task 'install:systemd', 'Install systemd service', ->
   log 'Installing systemd service...'
 
+  user = 'ec2-user'
+  workingDir = "/home/#{user}/ClodForest"
+  coffeePath = "#{workingDir}/node_modules/coffeescript/bin/coffee"
+
   serviceContent = """
   [Unit]
   Description=ClodForest Coordinator
@@ -203,9 +207,9 @@ task 'install:systemd', 'Install systemd service', ->
 
   [Service]
   Type=simple
-  User=clodforest
-  WorkingDirectory=/opt/clodforest
-  ExecStart=/usr/local/bin/coffee src/coordinator/index.coffee
+  User=#{user}
+  WorkingDirectory=#{workingDir}
+  ExecStart=#{coffeePath} src/coordinator/index.coffee
   Restart=always
   RestartSec=10
   Environment=NODE_ENV=production
