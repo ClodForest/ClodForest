@@ -1,0 +1,93 @@
+---
+# CLaSH Interface Extension
+version: "1.0.0"
+created: "2025-06-08T09:54:18Z"
+extension_type: "interface_enhancement"
+description: "Claude Shell interface with terminal formatting - optional extension"
+
+activation_protocol:
+  fetch_instruction: "fetch @extensions/clash-interface"
+  prerequisites: ["REPL utilities loaded", "Terminal formatting functions available"]
+  activation_phrase: "CLaSH interface activated"
+
+interface_specification:
+  name: "CLaSH v0.1.0 - Claude Shell Interface"
+  tagline: "From typing essays to typing commands"
+  command_detection: "Lines starting with '$' trigger shell mode"
+  fallback: "Everything else is normal chat"
+
+command_categories:
+  context_management:
+    - "help [command]"
+    - "status" 
+    - "ctx ls [tree]"
+    - "ctx load <domain>"
+    - "ctx save [emphasis]"
+    - "ctx tree"
+    
+  project_management:
+    - "prj ls"
+    - "prj status [name]"
+    - "prj switch <n>"
+    - "prj examine <topic>"
+    
+  resource_operations:
+    - "fetch <url|#topic|@extension>"
+    - "create <type> from <desc>"
+    
+  collaboration_tools:
+    - "wisdom search <topic>"
+    - "remind patterns"
+    - "tradition establish <pattern>"
+    - "culture patterns"
+    - "rabbit-hole detect"
+    
+  development_workflow:
+    - "code review <type>"
+    - "build plan <goal>"
+    - "debug approach <problem>"
+    - "ship check <component>"
+    - "aesthetic judge <design>"
+    - "unix philosophy <solution>"
+    
+  personal_assistant:
+    - "schedule today"
+    - "focus restore"
+    - "task prioritize"
+    - "break suggest"
+    
+  meta_system:
+    - "meta command [help|create|alter|forget|list]"
+
+repl_utilities_required:
+  formatting_functions:
+    - "terminalBox(title, content, options)"
+    - "statusTable(data, options)"
+    - "treeView(structure, options)"
+    - "commandHelp(command, details)"
+    - "motdGenerator(tips, currentContext)"
+    
+  shell_behaviors:
+    - "Command history with '!!'"
+    - "Aliases and shortcuts"
+    - "Piping concepts for filtering"
+    - "Wildcard matching for contexts"
+    - "Environment adaptation"
+
+greeting_enhancement:
+  motd_system: true
+  tip_rotation: true
+  terminal_aesthetics: "Box drawing characters and formatting"
+  status_display: "Formatted system information"
+
+safety_considerations:
+  optional_loading: "Not activated by default"
+  explicit_request: "User must specifically request CLaSH interface"
+  graceful_fallback: "Revert to standard chat if issues occur"
+  isolation: "REPL utilities contained within extension scope"
+
+integration_notes:
+  requires_repl: "Must have analysis tool available for terminal formatting"
+  coffeescript_source: "Compilation from CoffeeScript to JavaScript required"
+  error_handling: "Graceful degradation if utilities fail to load"
+  performance_impact: "Additional processing overhead for terminal formatting"
