@@ -7,7 +7,7 @@ config  = require './config'
 
 # Setup function to apply all routes to app
 setup = (app) ->
-  
+
   # Welcome page - serves as API documentation and status
   app.get '/', (req, res) ->
     welcomeData = apis.getWelcomeData()
@@ -65,11 +65,22 @@ setup = (app) ->
     repoData = apis.getRepositoryData()
     app.formatResponse req, res, repoData
 
+  # Cache busting work-around
+  app.get config.API_PATHS.BUSTIT, (req, res) ->
+    realPath = req.params[0]
+    cacheBustingData =
+      busted: true
+      originalPath: realPath
+      timestamp: new Date().toISOString()
+      message: "Busted that cache"
+
+    app.formatResponse req, res, bustData
+
   # Browse repository contents
   app.get config.API_PATHS.REPO + '/:repo', (req, res) ->
     {repo} = req.params
     browsePath = req.query.path or ''
-    
+
     browseData = apis.browseRepository(repo, browsePath)
     app.formatResponse req, res, browseData
 
@@ -77,7 +88,7 @@ setup = (app) ->
   app.get config.API_PATHS.REPO + '/:repo/file/*', (req, res) ->
     {repo} = req.params
     filePath = req.params[0]  # Everything after /file/
-    
+
     fileData = apis.readRepositoryFile(repo, filePath)
     app.formatResponse req, res, fileData
 

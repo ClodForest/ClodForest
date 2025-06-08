@@ -30,7 +30,7 @@ ALLOWED_GIT_COMMANDS = [
   'status'
   'log'
   'diff'
-  'branch' 
+  'branch'
   'pull'
   'push'
   'checkout'
@@ -42,6 +42,7 @@ API_PATHS =
   HEALTH:     '/api/health'
   TIME:       '/api/time'
   REPO:       '/api/repo'
+  BUSTIT:     '/api/bustit'
   CONTEXT:    '/api/context'
   INSTANCES:  '/api/instances'
   ADMIN:      '/admin'
@@ -64,13 +65,13 @@ FEATURES =
 # Validation helpers
 validateConfig = ->
   errors = []
-  
+
   unless PORT and Number.isInteger(Number(PORT)) and PORT > 0 and PORT < 65536
     errors.push "Invalid PORT: #{PORT}"
-    
+
   unless REPO_PATH and typeof REPO_PATH is 'string'
     errors.push "Invalid REPO_PATH: #{REPO_PATH}"
-    
+
   if errors.length > 0
     console.error 'Configuration validation failed:'
     errors.forEach (error) -> console.error "  - #{error}"
@@ -93,25 +94,25 @@ module.exports = {
   VAULT_SERVER
   SERVICE_NAME
   VERSION
-  
+
   # Paths and storage
   REPO_PATH
   API_PATHS
-  
+
   # Security
   CORS_ORIGINS
   ALLOWED_GIT_COMMANDS
-  
+
   # Response handling
   RESPONSE_FORMATS
-  
+
   # Features
   FEATURES
-  
+
   # Helpers
   validateConfig
   getEnvironmentInfo
-  
+
   # Computed properties
   isDevelopment: NODE_ENV isnt 'production'
   isProduction:  NODE_ENV is 'production'
