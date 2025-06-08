@@ -1,0 +1,280 @@
+---
+# ClodForest Domain: Game Master
+version: "1.0.0"
+created: "2025-06-03T22:00:00Z"
+domain_type: "gm_collaboration"
+description: "Campaign-agnostic GM wisdom, templates, and collaboration patterns for D&D campaign management"
+
+inherits:
+  - "core/robert-identity.yaml"
+  - "core/collaboration-patterns.yaml"
+  - "core/communication-style.yaml"
+
+gm_philosophy:
+  player_care_priority: "Best experience for everyone, especially new players"
+  collaborative_storytelling: "TTRPGs as story creation, not competition"
+  no_homework_policy: "Respect player time, everything contained within sessions"
+  confidence_through_preparation: "Equipment quality and thorough planning as psychological support"
+  
+  core_principles:
+    player_agency_first: "'Yes, and...' approach over railroading back to prep"
+    momentum_over_perfection: "Keep the game moving, establish house rules consistently"
+    turn_mistakes_into_features: "Transform contradictions into worldbuilding opportunities"
+    energy_management: "Sustainable GMing through breaks and delegation"
+
+campaign_planning_template:
+  foundation_elements:
+    player_assessment:
+      experience_levels: "New, returning, veteran - plan accordingly"
+      scheduling_constraints: "Session length, frequency, attendance patterns"
+      content_preferences: "Safety boundaries, tone preferences, complexity tolerance"
+      character_creation_approach: "Standard array vs. point buy vs. rolling"
+      
+    campaign_scope:
+      session_count: "Short arc (6 sessions) vs. long campaign"
+      story_structure: "Linear, sandbox, or hybrid approach"
+      tone_and_theme: "Comedy, drama, horror, heroic fantasy, etc."
+      world_complexity: "Simple tropes vs. detailed lore"
+      
+    safety_framework:
+      x_card_system: "Tap to skip uncomfortable content, no explanation required"
+      content_boundaries: "Establish clear limits (violence, romance, etc.)"
+      anonymous_requests: "Pre-cut paper method for private boundary communication"
+      check_in_protocols: "How to pause when someone needs a moment"
+      
+    technical_setup:
+      space_assessment: "Table size, lighting, seating arrangement"
+      equipment_decisions: "Physical vs. digital tools, projector vs. battle mat"
+      audio_environment: "Ambient playlists, speaker setup"
+      backup_plans: "Non-digital alternatives for tech failures"
+
+session_planning_template:
+  session_0_structure:
+    timing_breakdown:
+      social_arrival: "30 minutes - setup and space assessment"
+      expectations_setting: "45 minutes - campaign intro, safety tools"
+      character_creation: "90 minutes - mechanical and collaborative elements"
+      world_integration: "45 minutes - backstory integration, setting intro"
+      logistics_finalization: "30 minutes - rules, scheduling, final questions"
+      
+    key_elements:
+      campaign_introduction: "Theme, tone, length, style explanation"
+      table_expectations: "Homework policy, collaboration, phone etiquette, absence protocol"
+      safety_tools: "X-card system, content boundaries, anonymous requests"
+      character_connections: "How do characters know each other?"
+      world_preview: "Setting basics, Session 1 teaser"
+      
+  regular_session_structure:
+    opening_ritual: "Recap, mood setting, energy check"
+    main_content: "Adventure progression, encounters, roleplay"
+    break_management: "Hourly breaks, energy restoration"
+    closing_wrap: "Session recap, next session preview, logistics"
+    
+  session_prep_checklist:
+    mechanical_preparation:
+      encounter_balance: "CR calculations, environmental factors"
+      npc_voice_sheets: "Consistent character anchors and fallback techniques"
+      rule_clarifications: "House rules, common situations, edge cases"
+      initiative_tracking: "Physical or digital systems ready"
+      
+    narrative_preparation:
+      scene_flexibility: "Multiple paths to key story beats"
+      improvisation_anchors: "Core NPCs, locations, plot threads"
+      player_spotlight: "Opportunities for each character to shine"
+      world_consistency: "Track what NPCs know, environmental details"
+
+gm_challenge_management:
+  common_difficulties:
+    stun_lock_recovery:
+      problem: "Mind-blown moments causing awkward pauses"
+      solutions:
+        recovery_phrases: ["Give me one second to process that brilliance", "That's so good I need a moment"]
+        player_celebration: "Acknowledge clever solutions explicitly"
+        time_buying: "Describe environmental reactions while thinking"
+        
+    energy_depletion:
+      problem: "Running out of steam mid-session"
+      solutions:
+        hourly_breaks: "Scheduled energy restoration points"
+        player_delegation: "Kyle, help me run this combat"
+        scene_transitions: "Use travel time for GM mental breaks"
+        simplified_encounters: "Reduce complexity when energy is low"
+        
+    consistency_catches:
+      problem: "Players noticing contradictions"
+      solutions:
+        worldbuilding_opportunities: "Why WOULD the baron lie about being bald?"
+        npc_motivation_layers: "Characters have reasons for inconsistencies"
+        mystery_creation: "Turn mistakes into plot hooks"
+        honest_retcons: "Sometimes just fix it and move on"
+        
+    rule_disputes:
+      problem: "Unclear rules or player disagreements"
+      solutions:
+        momentum_priority: "Make a ruling, look it up later"
+        house_rule_consistency: "Establish patterns and stick to them"
+        player_input: "Ask experienced players for rule clarification"
+        post_session_research: "Clarify for next time"
+
+advanced_gm_techniques:
+  spotlight_management:
+    character_strengths: "Use individual capabilities to redistribute focus naturally"
+    scene_framing: "Give quiet players specific moments to shine"
+    ensemble_moments: "Collaborative problem-solving opportunities"
+    individual_attention: "Brief one-on-one moments during group scenes"
+    
+  dynamic_difficulty:
+    environmental_adjustments: "Change circumstances rather than stat blocks"
+    narrative_pressure: "Escalate tension through story rather than mechanics"
+    resource_management: "Spell slots, health, equipment as difficulty dials"
+    player_investment: "Higher stakes for things characters care about"
+    
+  passive_engagement:
+    environmental_pressure: "World responds to inaction"
+    npc_agency: "Characters pursue their own goals"
+    consequence_escalation: "Problems grow without intervention"
+    natural_urgency: "Time pressure through story logic"
+    
+  improvisation_support:
+    npc_generation: "Quick personality and motivation creation"
+    location_details: "Sensory descriptions and interesting features"
+    plot_thread_weaving: "Connect disparate elements into coherent story"
+    player_idea_integration: "Build on player suggestions and theories"
+
+equipment_and_technology:
+  confidence_building_gear:
+    quality_books: "Professional appearance builds GM confidence"
+    modular_gm_screen: "Organization and reference tool"
+    high_quality_dice: "Backup sets and dramatic options"
+    professional_accessories: "Wyrmwood, metal dice, etc. as confidence boosters"
+    
+  battle_management:
+    visual_aids: "Battle mats, projectors, miniatures, standees"
+    initiative_tracking: "Physical or digital systems"
+    condition_markers: "Clear status effect indicators"
+    measurement_tools: "Rulers, templates, area effect markers"
+    
+  audio_enhancement:
+    ambient_playlists: "Tavern, forest, combat, mystery themes"
+    sound_effects: "Dramatic moments, environmental atmosphere"
+    volume_management: "Enhancement not distraction"
+    backup_systems: "Speaker alternatives, phone integration"
+    
+  digital_integration:
+    foundry_vtt: "Local hosting for projector systems"
+    d_and_d_beyond: "Character management and rule reference"
+    reference_tools: "BOOX e-ink tablets, quick lookup systems"
+    backup_analog: "Always have non-digital alternatives ready"
+
+player_management_strategies:
+  new_player_support:
+    complexity_gradual: "Introduce mechanics over time"
+    decision_paralysis: "Offer specific options rather than open choices"
+    rule_explanations: "Simple terms, immediate relevance"
+    confidence_building: "Celebrate successes, normalize learning"
+    
+  experienced_player_engagement:
+    tactical_challenges: "Complex encounters for system mastery"
+    rules_assistance: "Leverage knowledge for table support"
+    story_contributions: "Backstory integration and world building"
+    new_player_mentoring: "Encourage peer teaching"
+    
+  mixed_experience_tables:
+    balance_attention: "Ensure no one is left behind or bored"
+    collaborative_learning: "Experienced players help newcomers"
+    layered_complexity: "Simple surface with deep options"
+    patience_modeling: "Set tone for supportive learning environment"
+
+knowledge_tracking_systems:
+  character_information_state:
+    pc_knowledge: "What each character has seen, heard, or learned"
+    npc_awareness: "Who knows what about player characters"
+    secret_management: "Information revelation timing and conditions"
+    revelation_tracking: "When and how secrets are discovered"
+    
+  world_consistency_management:
+    location_details: "Environmental descriptions, layout, notable features"
+    npc_relationships: "Connections, conflicts, shared history"
+    timeline_tracking: "Events, schedules, cause and effect"
+    continuity_notes: "Decisions that affect future sessions"
+    
+  player_spotlight_rotation:
+    backstory_integration: "When to highlight individual character histories"
+    skill_utilization: "Opportunities for each character's abilities"
+    roleplay_moments: "Character development and interaction scenes"
+    achievement_recognition: "Acknowledge player creativity and success"
+
+campaign_scalability:
+  short_arc_design:
+    focused_themes: "Single major conflict or challenge"
+    tight_pacing: "Every session advances core story"
+    satisfying_conclusion: "Complete narrative arc within session limit"
+    sequel_hooks: "Options for future campaigns if desired"
+    
+  long_campaign_preparation:
+    world_building_layers: "Start simple, add complexity over time"
+    character_growth_arcs: "Personal development spanning multiple levels"
+    recurring_npcs: "Relationships that develop over many sessions"
+    campaign_milestone_planning: "Major story beats and character moments"
+    
+  campaign_transition_management:
+    character_retirement: "Satisfying conclusions for completed arcs"
+    world_continuity: "How previous campaigns affect new ones"
+    player_investment: "Maintaining engagement across campaign breaks"
+    setting_evolution: "How world changes between campaigns"
+
+collaboration_patterns:
+  claude_gm_support:
+    scenario_brainstorming: "Creative problem-solving for campaign challenges"
+    rule_clarification: "Quick reference and interpretation assistance"
+    improvisation_backup: "On-the-fly NPC generation and plot development"
+    confidence_building: "Reassurance and technique reinforcement"
+    
+  preparation_workflow:
+    session_prep_collaboration: "Planning encounters, NPCs, and story beats"
+    problem_identification: "Anticipating player actions and edge cases"
+    backup_plan_development: "Alternative approaches when plans change"
+    post_session_analysis: "What worked, what to improve, next session setup"
+    
+  real_time_support:
+    live_consultation: "Chat during sessions for immediate assistance"
+    rule_lookup: "Quick reference for unclear situations"
+    improvisation_assistance: "Name generation, quick stat blocks, plot ideas"
+    energy_management: "Suggestions for breaks, pacing, player engagement"
+
+success_metrics:
+  player_engagement:
+    enthusiasm_indicators: "Excitement for next session, character investment"
+    participation_quality: "Roleplay, creative problem-solving, table interaction"
+    comfort_level: "New players feeling supported, experienced players challenged"
+    
+  gm_confidence:
+    preparation_efficiency: "Reduced stress, better session prep workflow"
+    improvisation_comfort: "Ability to handle unexpected player actions"
+    rule_mastery: "Confident decision-making, smooth session flow"
+    player_feedback: "Positive reception, trust in GM decisions"
+    
+  campaign_quality:
+    story_coherence: "Consistent world, satisfying narrative progression"
+    character_development: "Players invested in character growth and relationships"
+    memorable_moments: "Sessions that generate lasting positive memories"
+    collaborative_storytelling: "Shared narrative creation between GM and players"
+
+continuous_improvement:
+  post_session_reflection:
+    what_worked_well: "Successful techniques and player responses"
+    areas_for_improvement: "Challenges, missed opportunities, confusion points"
+    player_feedback: "Direct input on pacing, difficulty, enjoyment"
+    next_session_adjustments: "Specific changes for immediate improvement"
+    
+  skill_development:
+    voice_acting_practice: "NPC personality and consistency improvement"
+    improvisation_techniques: "Comfort with unexpected player actions"
+    rules_mastery: "Deeper understanding of game mechanics"
+    story_structure: "Better pacing and narrative flow"
+    
+  resource_expansion:
+    reference_materials: "Additional books, online resources, community wisdom"
+    tool_mastery: "Better use of digital and physical GM aids"
+    network_building: "Other GMs for advice and technique sharing"
+    player_communication: "Better methods for feedback and coordination"
