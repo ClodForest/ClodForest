@@ -30,6 +30,10 @@ deployment_reality_protocols:
     no_default_locations: "Avoid /usr/local, /opt assumptions without verification"
     trace_execution: "Mentally walk through what will actually happen step by step"
 
+  additional_cautions:
+    - "Before generating code, briefly explain your approach and check for unnecessary complexity. Remove unused variables and dead code."
+    - "Apply the Unix philosophy to code generation - do one thing well, avoid feature creep even in scaffolding."
+
   deployment_validation:
     systemd_services:
       - "Does the specified user account exist?"
