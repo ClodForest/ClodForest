@@ -6,15 +6,19 @@ apis    = require './apis'
 config  = require './config'
 
 # Setup function to apply all routes to app
+
 setup = (app) ->
 
   # Welcome page - serves as API documentation and status
   app.get '/', (req, res) ->
+
     welcomeData = apis.getWelcomeData()
 
     if req.get('Accept')?.includes('text/html')
       # Serve HTML welcome page
+
       html = """
+
       <!DOCTYPE html>
       <html>
       <head>
@@ -52,44 +56,53 @@ setup = (app) ->
 
   # Health check endpoint
   app.get config.API_PATHS.HEALTH + '/*', (req, res) ->
+
     healthData = apis.getHealthData()
+
     app.formatResponse req, res, healthData
 
   # Time service for instance synchronization
   app.get config.API_PATHS.TIME + '/*', (req, res) ->
     timeData = apis.getTimeData(req)
+
     app.formatResponse req, res, timeData
 
   # Repository operations
   app.get config.API_PATHS.REPO, (req, res) ->
     repoData = apis.getRepositoryData()
+
     app.formatResponse req, res, repoData
 
   # Cache busting work-around
-  app.get config.API_PATHS.BUSTIT, (req, res) ->
+  app.get config.API_PATHS.BUSTIT + "/:trash/*", (req, res) ->
     realPath = req.params[0]
+    {trash} = req.params
+
     cacheBustingData =
-      busted: true
+
+      busted      : true
       originalPath: realPath
-      timestamp: new Date().toISOString()
-      message: "Busted that cache"
+      timestamp   : new Date().toISOString()
+      message     : "Busted dat cache"
 
     app.formatResponse req, res, bustData
 
   # Browse repository contents
   app.get config.API_PATHS.REPO + '/:repo', (req, res) ->
     {repo} = req.params
-    browsePath = req.query.path or ''
 
+    browsePath = req.query.path or ''
     browseData = apis.browseRepository(repo, browsePath)
+
     app.formatResponse req, res, browseData
 
   # Get file contents
   app.get config.API_PATHS.REPO + '/:repo/file/*', (req, res) ->
     {repo} = req.params
-    filePath = req.params[0]  # Everything after /file/
 
+    filePath = req.params[0]  # Everything after /file/
     fileData = apis.readRepositoryFile(repo, filePath)
+
     app.formatResponse req, res, fileData
 
   # Git operations
@@ -104,13 +117,17 @@ setup = (app) ->
   # Context update endpoint
   if config.FEATURES.CONTEXT_UPDATES
     app.post config.API_PATHS.CONTEXT + '/update', (req, res) ->
+
       updateData = apis.processContextUpdate(req)
+
       app.formatResponse req, res, updateData
 
   # Instance coordination
   if config.FEATURES.INSTANCE_TRACKING
     app.get config.API_PATHS.INSTANCES, (req, res) ->
+
       instanceData = apis.getInstancesData()
+
       app.formatResponse req, res, instanceData
 
     app.post config.API_PATHS.INSTANCES + '/register', (req, res) ->
@@ -125,6 +142,7 @@ setup = (app) ->
       return res.status(401).json error: 'Authentication required'
 
     html = apis.generateAdminHTML()
+
     res.send html
 
   # Static file serving for repository browsing
@@ -133,16 +151,17 @@ setup = (app) ->
   # 404 handler
   app.use (req, res) ->
     res.status(404).json
-      error: 'Not Found'
-      path: req.path
+      error    : 'Not Found'
+      path     : req.path
       timestamp: new Date().toISOString()
 
   # Error handler
   app.use (err, req, res, next) ->
     console.error 'Error:', err.message
     res.status(500).json
-      error: 'Internal Server Error'
-      message: err.message if config.isDevelopment
+      error    : 'Internal Server Error'
+      message  : err.message if config.isDevelopment
       timestamp: new Date().toISOString()
 
 module.exports = { setup }
+
