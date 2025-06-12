@@ -1,0 +1,511 @@
+#!/usr/bin/env coffee
+
+# CoffeeScript Formatter & JavaScript Converter
+# Follows Robert's personal style with vertical alignment emphasis
+
+fs           = require 'fs'
+path         = require 'path'
+CoffeeScript = require 'coffeescript'
+
+class CoffeeFormatter
+
+  constructor: (@options = {}) ->
+    @indent      = @options.indent      or '  '
+    @alignMode   = @options.alignMode   ? 'vertical'
+    @maxLineLen  = @options.maxLineLen  or 80
+    @blankLines  = @options.blankLines  ? true
+
+    # Track current context for formatting decisions
+    @lines       = []
+    @currentLine = 0
+
+  # Main entry point for formatting CoffeeScript
+  format: (coffeeCode) ->
+    # Split into lines for processing
+
+    lines = coffeeCode.split '\n'
+
+    # Process line by line, maintaining context
+
+    output       = []
+    alignGroups  = []
+    currentGroup = null
+
+    for line, i in lines
+
+      trimmed = line.trim()
+
+      # Skip empty lines but preserve them if blankLines is true
+      if trimmed.length is 0
+        output.push '' if @blankLines
+
+        currentGroup = null
+
+        continue
+
+      # Detect alignment groups
+      if @shouldAlign line
+        if currentGroup and @isSameGroupType line, currentGroup.type
+          currentGroup.lines.push
+            index   : output.length
+            original: line
+        else
+
+          currentGroup =
+
+            type : @getGroupType line
+            lines: [{index: output.length, original: line}]
+          alignGroups.push currentGroup
+      else
+
+        currentGroup = null
+
+      output.push line
+
+    # Apply vertical alignment to groups
+    if @alignMode is 'vertical'
+      for group in alignGroups when group.lines.length > 1
+        @alignGroup group, output
+
+    # Clean up formatting
+    @postProcess output
+
+    output.join '\n'
+
+  # Convert JavaScript to CoffeeScript
+  js2coffee: (jsCode) ->
+    try
+      # Use CoffeeScript's built-in JS to Coffee converter if available
+      # Otherwise fall back to manual conversion
+
+      nodes = CoffeeScript.nodes jsCode
+
+      nodes.compile bare: true
+    catch error
+      # Manual conversion as fallback
+      @manualJS2Coffee jsCode
+
+  # Manual JavaScript to CoffeeScript conversion
+  manualJS2Coffee: (jsCode) ->
+
+    lines  = jsCode.split '\n'
+    output = []
+
+    for line in lines
+
+      converted = @convertJSLine line
+
+      output.push converted if converted?
+
+    # Format the converted code
+    @format output.join '\n'
+
+  # Convert individual JavaScript line to CoffeeScript
+  convertJSLine: (line) ->
+
+    trimmed = line.trim()
+
+    # Skip empty lines
+    return '' if trimmed.length is 0
+
+    # Handle comments
+    if trimmed.startsWith '//'
+      return line.replace '//', '#'
+
+    # Handle common patterns
+
+    patterns = [
+
+      # const/let/var declarations
+      [/^(const|let|var)\s+(\w+)\s*=\s*(.+);?$/, '$2 = $3']
+
+      # require statements
+      [/^(const|let|var)\s+(\w+)\s*=\s*require\s*\(\s*['"](.+)['"]\s*\);?$/, '$2 = require \'$3\'']
+
+      # function declarations
+      [/^function\s+(\w+)\s*\((.*?)\)\s*\{$/, '$1 = ($2) ->']
+
+      # anonymous functions
+      [/(\w+)\s*:\s*function\s*\((.*?)\)\s*\{/, '$1: ($2) ->']
+
+      # if statements
+      [/^if\s*\((.*?)\)\s*\{$/, 'if $1']
+
+      # else statements
+      [/^\}\s*else\s*\{$/, 'else']
+
+      # for loops
+      [/^for\s*\(\s*(?:let|var|const)\s+(\w+)\s*=\s*(\d+)\s*;\s*\1\s*<\s*(.+?)\s*;\s*\1\+\+\s*\)\s*\{$/, 'for $1 in [$2...$3]']
+
+      # Remove semicolons
+      [/;$/, '']
+
+      # Remove opening braces
+      [/\{$/, '']
+
+      # Remove closing braces
+      [/^\}$/, '']
+    ]
+
+    # Apply patterns
+
+    result = trimmed
+
+    for [pattern, replacement] in patterns
+      if pattern.test result
+
+        result = result.replace pattern, replacement
+
+        break
+
+    # Handle indentation
+
+    indent = line.match(/^\s*/)[0]
+
+    # Adjust indentation for CoffeeScript
+    if result isnt trimmed
+      # Reduce indentation for closing braces
+      if trimmed is '}'
+        return null  # Remove line
+      # Maintain indentation for converted lines
+      indent + result
+    else
+      line  # Return unchanged if no conversion
+
+  # Check if line should be part of an alignment group
+  shouldAlign: (line) ->
+    # Assignment with =
+    return true if /^\s*\w+\s*=/.test line
+
+    # Object properties
+    return true if /^\s*\w+\s*:/.test line
+
+    # Require statements
+    return true if /require\s+['"]/.test line
+
+    false
+
+  # Determine the type of alignment group
+  getGroupType: (line) ->
+    return 'require'     if /require\s+['"]/.test line
+    return 'assignment'  if /=/.test line
+    return 'property'    if /:/.test line
+    'unknown'
+
+  # Check if line belongs to same group type
+  isSameGroupType: (line, groupType) ->
+    @getGroupType(line) is groupType
+
+  # Apply vertical alignment to a group of lines
+  alignGroup: (group, output) ->
+    return unless group.lines.length > 1
+
+    # Parse lines based on group type
+    switch group.type
+      when 'require'
+        @alignRequireGroup group, output
+      when 'assignment'
+        @alignAssignmentGroup group, output
+      when 'property'
+        @alignPropertyGroup group, output
+
+  # Align require statements
+  alignRequireGroup: (group, output) ->
+
+    parsed = []
+
+    for item in group.lines
+
+      line = item.original
+
+      # Match require pattern
+
+      match = line.match /^(\s*)(\w+)(\s*)(=)(\s*)(require\s+)(.+)$/
+
+      continue unless match
+
+      parsed.push
+        index   : item.index
+        indent  : match[1]
+        name    : match[2]
+        beforeEq: match[3]
+        eq      : match[4]
+        afterEq : match[5]
+        require : match[6]
+        module  : match[7]
+
+    return unless parsed.length > 1
+
+    # Find maximum name width
+
+    maxNameWidth = Math.max ...(parsed.map (p) -> p.name.length)
+
+    # Reconstruct aligned lines
+    for item in parsed
+
+      spaces  = ' '.repeat(maxNameWidth - item.name.length)
+      aligned = "#{item.indent}#{item.name}#{spaces} #{item.eq} #{item.require}#{item.module}"
+
+      output[item.index] = aligned
+
+  # Align assignment statements
+  alignAssignmentGroup: (group, output) ->
+
+    parsed = []
+
+    for item in group.lines
+
+      line = item.original
+
+      # Match assignment pattern
+
+      match = line.match /^(\s*)([^=]+?)\s*(=)\s*(.+)$/
+
+      continue unless match
+
+      parsed.push
+        index : item.index
+        indent: match[1]
+        name  : match[2].trim()
+        eq    : match[3]
+        value : match[4]
+
+    return unless parsed.length > 1
+
+    # Find maximum name width
+
+    maxNameWidth = Math.max ...(parsed.map (p) -> p.name.length)
+
+    # Reconstruct aligned lines
+    for item in parsed
+
+      spaces  = ' '.repeat(maxNameWidth - item.name.length)
+      aligned = "#{item.indent}#{item.name}#{spaces} #{item.eq} #{item.value}"
+
+      output[item.index] = aligned
+
+  # Align property declarations
+  alignPropertyGroup: (group, output) ->
+
+    parsed = []
+
+    for item in group.lines
+
+      line = item.original
+
+      # Match property pattern
+
+      match = line.match /^(\s*)(\w+)(\s*)(:)(\s*)(.+)$/
+
+      continue unless match
+
+      parsed.push
+        index      : item.index
+        indent     : match[1]
+        name       : match[2]
+        beforeColon: match[3]
+        colon      : match[4]
+        afterColon : match[5]
+        value      : match[6]
+
+    return unless parsed.length > 1
+
+    # Find maximum name width
+
+    maxNameWidth = Math.max ...(parsed.map (p) -> p.name.length)
+
+    # Reconstruct aligned lines
+    for item in parsed
+
+      spaces  = ' '.repeat(maxNameWidth - item.name.length)
+      aligned = "#{item.indent}#{item.name}#{spaces}#{item.colon} #{item.value}"
+
+      output[item.index] = aligned
+
+  # Post-process the output for final cleanup
+  postProcess: (lines) ->
+
+    result    = []
+    prevBlank = false
+
+    for line, i in lines
+
+      isBlank = line.trim().length is 0
+
+      # Skip multiple consecutive blank lines
+      if isBlank and prevBlank and @blankLines
+        continue
+
+      # Add blank lines between major sections
+      if @blankLines and i > 0 and not isBlank and not prevBlank
+        # Check if this starts a new section
+        if @isNewSection line, lines[i-1]
+          result.push ''
+
+      result.push line
+
+      prevBlank = isBlank
+
+    # Update lines array in place
+    lines.length = 0
+    lines.push result...
+
+  # Check if line starts a new section
+  isNewSection: (currentLine, previousLine) ->
+
+    curr = currentLine.trim()
+    prev = previousLine.trim()
+
+    # Different types of statements
+
+    currType = @getStatementType curr
+    prevType = @getStatementType prev
+
+    # Group imports/requires together
+    return false if currType is 'require' and prevType is 'require'
+
+    # Group variable declarations together
+    return false if currType is 'assignment' and prevType is 'assignment'
+
+    # Otherwise different types mean new section
+    currType isnt prevType
+
+  # Get the type of statement
+  getStatementType: (line) ->
+    return 'require'    if /require\s+['"]/.test line
+    return 'import'     if /^import\s+/.test line
+    return 'class'      if /^class\s+/.test line
+    return 'function'   if /^\w+\s*=.*->/.test line
+    return 'assignment' if /^\w+\s*=/.test line
+    return 'export'     if /^export/.test line
+    return 'module.exports' if /^module\.exports/.test line
+    'other'
+
+# CLI interface
+if require.main is module
+  # Simple argument parsing (no external dependencies!)
+
+  args =
+
+    input     : null
+    output    : null
+    javascript: false
+    align     : 'vertical'
+    width     : 80
+    indent    : '  '
+    blankLines: true
+    help      : false
+
+  # Parse arguments
+
+  i = 2
+
+  while i < process.argv.length
+
+    arg = process.argv[i]
+
+    switch arg
+      when '-i', '--input'
+        args.input = process.argv[++i]
+      when '-o', '--output'
+        args.output = process.argv[++i]
+      when '-j', '--javascript'
+        args.javascript = true
+      when '-a', '--align'
+        args.align = process.argv[++i]
+      when '-w', '--width'
+        args.width = parseInt process.argv[++i]
+      when '-t', '--indent'
+        args.indent = process.argv[++i]
+      when '--no-blank-lines'
+        args.blankLines = false
+      when '-h', '--help'
+        args.help = true
+      else
+        if arg.startsWith '-'
+          console.error "Unknown option: #{arg}"
+          args.help = true
+        else
+          # Treat as input file if no input specified
+          args.input = arg unless args.input
+    i++
+
+  # Show help if needed
+  if args.help
+    console.log """
+      CoffeeScript formatter and JS converter following Robert's style
+
+      Usage: coffee-formatter [options] [file]
+
+      Options:
+        -i, --input <file>       Input file
+        -o, --output <file>      Output file (default: stdout)
+        -j, --javascript         Input is JavaScript (convert to Coffee)
+        -a, --align <mode>       Alignment mode: vertical, none (default: vertical)
+        -w, --width <n>          Maximum line width (default: 80)
+        -t, --indent <string>    Indent string (default: '  ')
+        --no-blank-lines         Remove blank lines between sections
+        -h, --help               Show help
+
+      Examples:
+        coffee-formatter input.coffee
+        coffee-formatter -i input.coffee -o output.coffee
+        coffee-formatter -j script.js > script.coffee
+        cat file.coffee | coffee-formatter
+    """
+    process.exit 0
+
+  # Process input function
+
+  processInput = (input) ->
+
+    # Configure formatter
+
+    formatter = new CoffeeFormatter
+
+      alignMode : args.align
+      maxLineLen: args.width
+      indent    : args.indent
+      blankLines: args.blankLines
+
+    # Process
+    try
+
+      output = if args.javascript
+
+        formatter.js2coffee input
+      else
+        formatter.format input
+
+      # Write output
+      if args.output
+        fs.writeFileSync args.output, output
+        console.log "Formatted output written to #{args.output}"
+      else
+        console.log output
+    catch error
+      console.error "Error: #{error.message}"
+      console.error error.stack if process.env.DEBUG
+      process.exit 1
+
+  # Read input
+  if args.input
+
+    input = fs.readFileSync args.input, 'utf8'
+
+    processInput input
+  else if not process.stdin.isTTY
+    # Read from stdin
+
+    buffer = ''
+
+    process.stdin.setEncoding 'utf8'
+    process.stdin.on 'data', (chunk) -> buffer += chunk
+    process.stdin.on 'end', ->
+      # Process after all input is read
+      processInput buffer
+  else
+    console.error 'No input provided. Use -i <file> or pipe to stdin.'
+    process.exit 1
+
+module.exports = CoffeeFormatter
