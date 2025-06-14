@@ -70,6 +70,45 @@ console.log """
 
 Use variables to reduce redundancy:
 ```coffee
-URL_PREFIX = "https://#{config.VAULT_SERVER}"
-# Then use URL_PREFIX in output strings
+  URL_PREFIX = "https://#{config.VAULT_SERVER}"
+  # Then use URL_PREFIX in output strings
 ```
+## Patterns
+
+### Abstract out repetition into data structures
+
+Pattern: Declarative Detection Tables
+
+When detecting system capabilities or features, separate the what from the how:
+
+```coffee
+
+# Define detectors as a data structure
+CAPABILITY_DETECTORS =
+  featureName : -> detection logic here
+  anotherOne  : -> more detection logic
+  
+  # Group related detectors visually
+  grouped1    : -> similar detection pattern
+  grouped2    : -> similar detection pattern
+  
+  # Separate different patterns with blank lines
+  different   : -> different kind of detection
+
+detectCapabilities = (detectorDict) ->
+  Object.assign {}, (
+      for name, detector of detectorDict
+        [name]: detector()
+    )...
+
+# Later...
+  capabilities = detectCapabilities CAPABILITY_DETECTORS
+```
+
+Benefits:
+
+* Extensible: Add/remove capabilities by editing data, not code
+* Testable: Can mock detectors for testing
+* Readable: Left column shows what, right column shows how
+* Composable: Can merge detector sets, filter them, etc.
+
