@@ -174,6 +174,39 @@ collaboration_patterns:
     problem_solving: "Combined expertise for better solutions"
     assumption_validation: "Two sets of eyes on environmental dependencies"
 
+collaboration_patterns:
+  pair_programming:
+    role_distribution: "Robert architecture, Claude implementation"
+    knowledge_sharing: "Mutual learning through collaboration"
+    quality_improvement: "Real-time review and refinement"
+    problem_solving: "Combined expertise for better solutions"
+    assumption_validation: "Two sets of eyes on environmental dependencies"
+
+  delegation_architecture:
+    leader_claude:
+      responsibilities: ["Strategic thinking", "Relationship dynamics", "Design decisions", "Quality standards", "Instruction crafting"]
+      focus: "What should be built and why"
+      context_needs: ["Cultural patterns", "Collaboration history", "Project context", "Emotional state"]
+
+    intern_claude:
+      responsibilities: ["Pure technical execution", "Pattern application", "Format compliance", "Standard adherence"]
+      focus: "How to build it precisely"
+      context_needs: ["Technical standards", "Aesthetic guidelines", "Quality checklists", "Transformation rules"]
+
+    handoff_protocol:
+      - "Leader analyzes problem and designs solution approach"
+      - "Leader crafts explicit editing instructions for Intern"
+      - "Leader specifies what context files Intern needs"
+      - "Robert creates Intern chat with instructions + context"
+      - "Intern executes transformations without conversation overhead"
+      - "Results return to Leader for validation and next steps"
+
+    benefits:
+      cognitive_separation: "Strategic thinking separate from technical execution"
+      quality_focus: "Move beyond 'internet average' to personal standards"
+      scalable_collaboration: "Multiple specialized instances as needed"
+      reduced_interference: "No mixing of conversation and code generation modes"
+
   code_generation:
     ai_assistance: "Claude generates implementation from specifications"
     human_review: "Robert validates architecture and design decisions"
