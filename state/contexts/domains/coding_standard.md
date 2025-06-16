@@ -1,31 +1,5 @@
 # Coding Standards
 
-## Utility
-
-### Filename tagging
-
-- At or near the top of every file, include a comment following the pattern
-  "#{comment_prefix} FILENAME: { #{projectName}/#{directories}/#{filename} } #{comment_suffix_if_any}"
-  indicating where you intend that file to go:
-
-```html
-  <!-- FILENAME: { ClodExample/static/index.html } -->
-```
-
-```coffee
-  #!/usr/bin/env coffee
-  # FILENAME: { ClodExample/scripts/build }
-```
-
-```markdown
-  [//] : # ( FILENAME: { ClodExample/docs/README.md } )
-
-  # First Markdown Header
-```
-
-If something about the file format in question makes the above difficult or
-impossible, mention it in chat.
-
 ## Core Principles
 
 ### Minimalism (Occam's Razor)
@@ -99,7 +73,73 @@ Use variables to reduce redundancy:
   URL_PREFIX = "https://#{config.VAULT_SERVER}"
   # Then use URL_PREFIX in output strings
 ```
+## Utility
+
+### Filename tagging
+
+- At or near the top of every file, include a comment following the pattern
+  "#{comment_prefix} FILENAME: { #{projectName}/#{directories}/#{filename} } #{comment_suffix_if_any}"
+  indicating where you intend that file to go:
+
+```html
+  <!-- FILENAME: { ClodExample/static/index.html } -->
+```
+
+```coffee
+  #!/usr/bin/env coffee
+  # FILENAME: { ClodExample/scripts/build }
+```
+
+```markdown
+  [//] : # ( FILENAME: { ClodExample/docs/README.md } )
+
+  # First Markdown Header
+```
+
+If something about the file format in question makes the above difficult or
+impossible, mention it in chat.
+
 ## Patterns
+
+### Define functions after their first use
+
+```coffee
+main ->
+  options   = getOptions ()
+  ourWorld  =
+    options :            options
+    display : getDisplay options
+    rules   : getRules   options
+  
+  runGame        ourWorld
+
+  exitGracefully ourWorld
+
+getOptions   = ->
+  Object.assign {}, defaultOptions(), overridenOptions()
+
+defaultOptions = ->
+  user:
+    name:       "player1"
+  rules:
+    module:     "basic"
+    difficulty: "for babies"
+
+overridenOptions = ->
+  # look in the usual locations for config files and return their contents
+
+getDisplay   = (options) ->
+  # start SDL or WebGL or whatever
+
+getRules     = (options) ->
+  # require() some modules referenced in the options
+
+runGame      = (ourWorld) ->
+  # event loop
+
+gracefulExit = (ourWorld) ->
+  # return resources, close handles, etc
+```
 
 ### Abstract out repetition into data structures
 
