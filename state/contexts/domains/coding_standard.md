@@ -2,25 +2,29 @@
 
 ## Utility
 
+### Filename tagging
+
 - At or near the top of every file, include a comment following the pattern
   "#{comment_prefix} FILENAME: { #{projectName}/#{directories}/#{filename} } #{comment_suffix_if_any}"
   indicating where you intend that file to go:
 
 ```html
-<!-- FILENAME: { ClodExample/static/index.html } -->
+  <!-- FILENAME: { ClodExample/static/index.html } -->
 ```
 
 ```coffee
-#!/usr/bin/env coffee
-# FILENAME: { ClodExample/scripts/build }
+  #!/usr/bin/env coffee
+  # FILENAME: { ClodExample/scripts/build }
 ```
 
 ```markdown
+  [//] : # ( FILENAME: { ClodExample/docs/README.md } )
 
-[//] : # ( FILENAME: { ClodExample/docs/README.md } )
-
-# First Markdown Header
+  # First Markdown Header
 ```
+
+If something about the file format in question makes the above difficult or
+impossible, mention it in chat.
 
 ## Core Principles
 

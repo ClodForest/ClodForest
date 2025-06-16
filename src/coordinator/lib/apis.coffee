@@ -38,7 +38,7 @@ getWelcomeData = ->
 
 # Health check implementation
 getHealthData = ->
-  uptime = process.uptime()
+  uptime   = process.uptime()
   memUsage = process.memoryUsage()
 
   status:    'healthy'
