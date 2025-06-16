@@ -17,7 +17,7 @@
 
 ```markdown
 
-[//] : #( FILENAME: { ClodExample/docs/README.md } )
+[//] : # ( FILENAME: { ClodExample/docs/README.md } )
 
 # First Markdown Header
 ```
