@@ -320,3 +320,22 @@ meta_development_practices:
     cascading_failure_analysis: "How could one problem cause others?"
     recovery_planning: "How would we fix this if it breaks?"
     monitoring_design: "How would we know if this is working or broken?"
+
+language_assumptions:
+  lesson: "Never assume language features without verification - each language has specific behaviors that may differ from expectations"
+  context: "Incorrectly claimed CoffeeScript automatically handles super() calls in constructors"
+  date: "2025-06-16"
+  pattern: "When unsure about language-specific behavior, explicitly state uncertainty rather than guessing"
+
+  coffeescript_specifics:
+    - "super must be called explicitly in constructors - not automatic"
+    - "super arguments... required to pass arguments to parent constructor"
+    - "@ parameter assignment IS automatic"
+    - "implicit returns ARE automatic"
+    - "comprehensions return arrays automatically"
+
+  better_approach:
+    - "Say 'I believe X but let me verify' instead of stating as fact"
+    - "For CoffeeScript specifically: check the compiled JavaScript when unsure"
+    - "Distinguish between what the language does automatically vs explicitly"
+    - "When reviewing code, test assumptions against actual behavior"
