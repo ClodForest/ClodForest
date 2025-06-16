@@ -1,7 +1,3 @@
-
-[]( FILENAME: ClodExample/docs/README.md
-  )
-
 # Coding Standards
 
 ## Utility
@@ -20,10 +16,10 @@
 # FILENAME: ClodExample/scripts/build
 ```
 
+[//]: # ( FILENAME: ClodExample )
+
 ```markdown
 
-[]( FILENAME: ClodExample/docs/README.md
-  )
 
 # First Markdown Header
 ```
