@@ -1,5 +1,29 @@
 # Coding Standards
 
+## Utility
+
+- At or near the top of every file, include a comment following the pattern
+  "#{comment_prefix} FILENAME: #{projectName}/#{directories}/#{filename}"
+  indicating where you intend that file to go:
+
+```html
+<!-- FILENAME: ClodExample/static/index.html
+-->
+```
+
+```coffee
+#!/usr/bin/env coffee
+# FILENAME: ClodExample/scripts/build
+```
+
+```markdown
+
+[]( FILENAME: ClodExample/docs/README.md
+  )
+
+# First Markdown Header
+```
+
 ## Core Principles
 
 ### Minimalism (Occam's Razor)
@@ -84,6 +108,7 @@ When detecting system capabilities or features, separate the what from the how:
 ```coffee
 
 # Define detectors as a data structure
+
 CAPABILITY_DETECTORS =
   featureName : -> detection logic here
   anotherOne  : -> more detection logic
@@ -101,7 +126,7 @@ detectCapabilities = (detectorDict) ->
         [name]: detector()
     )...
 
-# Later...
+  # Later...
   capabilities = detectCapabilities CAPABILITY_DETECTORS
 ```
 
