@@ -8,12 +8,8 @@ config  = require './config'
 # Setup function to apply all routes to app
 
 setup = (app) ->
-  setupPath = (path, handler) ->
-    #console.log "Setting up path #{path}"
-    app.get path, handler
-
   # Welcome page - serves as API documentation and status
-  setupPath '/', (req, res) ->
+  app.get '/', (req, res) ->
     welcomeData = apis.getWelcomeData()
 
     if req.get('Accept')?.includes('text/html')
@@ -63,22 +59,22 @@ setup = (app) ->
       app.formatResponse req, res, welcomeData
 
   # Time service for instance synchronization
-  setupPath config.API_PATHS.TIME + '/{*splat}', require('./handlers/time')
+  app.get config.API_PATHS.TIME + '/{*splat}', require('./handlers/time')
 
   # Repository operations
-  setupPath config.API_PATHS.REPO, require('./handlers/repo')
+  app.get config.API_PATHS.REPO, require('./handlers/repo')
 
   # Cache busting work-around
-  setupPath config.API_PATHS.BUSTIT + "/:trash/{*splat}", require('./handlers/bustit')
+  app.get config.API_PATHS.BUSTIT + "/:trash/{*splat}", require('./handlers/bustit')
 
   # Health check endpoint
-  setupPath config.API_PATHS.HEALTH + '/{*splat}', require('./handlers/health')
+  app.get config.API_PATHS.HEALTH + '/{*splat}', require('./handlers/health')
 
   # Browse repository contents
-  setupPath config.API_PATHS.REPO + '/:repo', require('./handlers/browse-repo')
+  app.get config.API_PATHS.REPO + '/:repo', require('./handlers/browse-repo')
 
   # Get file contents
-  setupPath config.API_PATHS.REPO + '/:repo/file/{*splat}', require('./handlers/read-repo-file')
+  app.get config.API_PATHS.REPO + '/:repo/file/{*splat}', require('./handlers/read-repo-file')
 
   # Git operations
   if config.FEATURES.GIT_OPERATIONS
@@ -90,12 +86,12 @@ setup = (app) ->
 
   # Instance coordination
   if config.FEATURES.INSTANCE_TRACKING
-    setupPath config.API_PATHS.INSTANCES, require('./handlers/instances')
+    app.get config.API_PATHS.INSTANCES, require('./handlers/instances')
 
     app.post config.API_PATHS.INSTANCES + '/register', require('./handlers/register-instance')
 
   # Admin interface
-  setupPath config.API_PATHS.ADMIN, require('./handlers/admin')
+  app.get config.API_PATHS.ADMIN, require('./handlers/admin')
 
   # Static file serving for repository browsing
   app.use '/static', express.static(config.REPO_PATH)
