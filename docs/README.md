@@ -6,12 +6,15 @@
 
 ## Tools for giving Claude.ai a means of extending itself almost arbitrarily
 
-ClodForest is a production-ready context management system that enables Claude sessions to inherit, compose, and preserve complex contextual knowledge across instances. It transforms how AI assistants maintain continuity, relationships, and specialized knowledge.
+ClodForest is a context management system that enables LLM sessions to
+inherit, compose, and preserve complex contextual knowledge across instances.
+It transforms how AI assistants maintain continuity, relationships, and
+specialized knowledge.
 
 ## Current Status (June 2025)
 
 - **Production URL**: https://clodforest.thatsnice.org
-- **Status**: ✅ Operational with 8+ days uptime
+- **Status**: We have bugs!
 - **Recent Achievement**: Cache busting implementation solved aggressive CDN caching
 - **Next Focus**: Write operations for complete mind upload/download capability
 - **Version Goal**: Approaching 1.0 with round-trip context validation
