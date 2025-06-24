@@ -8,9 +8,12 @@ config  = require './config'
 # Setup function to apply all routes to app
 
 setup = (app) ->
+  setupPath = (path, handler) ->
+    #console.log "Setting up path #{path}"
+    app.get path, handler
 
   # Welcome page - serves as API documentation and status
-  app.get '/', (req, res) ->
+  setupPath '/', (req, res) ->
 
     welcomeData = apis.getWelcomeData()
 
@@ -54,27 +57,20 @@ setup = (app) ->
     else
       app.formatResponse req, res, welcomeData
 
-  # Health check endpoint
-  app.get config.API_PATHS.HEALTH + '/*', (req, res) ->
-
-    healthData = apis.getHealthData()
-
-    app.formatResponse req, res, healthData
-
   # Time service for instance synchronization
-  app.get config.API_PATHS.TIME + '/*', (req, res) ->
+  setupPath config.API_PATHS.TIME + '/{*splat}', (req, res) ->
     timeData = apis.getTimeData(req)
 
     app.formatResponse req, res, timeData
 
   # Repository operations
-  app.get config.API_PATHS.REPO, (req, res) ->
+  setupPath config.API_PATHS.REPO, (req, res) ->
     repoData = apis.getRepositoryData()
 
     app.formatResponse req, res, repoData
 
   # Cache busting work-around
-  app.get config.API_PATHS.BUSTIT + "/:trash/*", (req, res) ->
+  setupPath config.API_PATHS.BUSTIT + "/:trash/{*splat}", (req, res) ->
     realPath = req.params[0]
     {trash} = req.params
 
@@ -87,8 +83,15 @@ setup = (app) ->
 
     app.formatResponse req, res, bustData
 
+  # Health check endpoint
+  setupPath config.API_PATHS.HEALTH + '/{*splat}', (req, res) ->
+
+    healthData = apis.getHealthData()
+
+    app.formatResponse req, res, healthData
+
   # Browse repository contents
-  app.get config.API_PATHS.REPO + '/:repo', (req, res) ->
+  setupPath config.API_PATHS.REPO + '/:repo', (req, res) ->
     {repo} = req.params
 
     browsePath = req.query.path or ''
@@ -97,7 +100,7 @@ setup = (app) ->
     app.formatResponse req, res, browseData
 
   # Get file contents
-  app.get config.API_PATHS.REPO + '/:repo/file/*', (req, res) ->
+  setupPath config.API_PATHS.REPO + '/:repo/file/{*splat}', (req, res) ->
     {repo} = req.params
 
     filePath = req.params[0]  # Everything after /file/
@@ -124,7 +127,7 @@ setup = (app) ->
 
   # Instance coordination
   if config.FEATURES.INSTANCE_TRACKING
-    app.get config.API_PATHS.INSTANCES, (req, res) ->
+    setupPath config.API_PATHS.INSTANCES, (req, res) ->
 
       instanceData = apis.getInstancesData()
 
@@ -135,7 +138,7 @@ setup = (app) ->
       res.json status: 'registered', timestamp: new Date().toISOString()
 
   # Admin interface
-  app.get config.API_PATHS.ADMIN, (req, res) ->
+  setupPath config.API_PATHS.ADMIN, (req, res) ->
     # In development mode, bypass authentication
     if config.FEATURES.ADMIN_AUTH and config.isProduction
       # TODO: Implement proper authentication

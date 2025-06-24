@@ -6,7 +6,12 @@
   "scripts": {
     "start": "coffee src/coordinator",
     "dev": "nodemon coffee src/coordinator",
-    "test": "coffee t/",
+    "test": "coffee t/index.coffee",
+    "test:watch": "nodemon --exec 'coffee t/index.coffee' --ext coffee",
+    "test:config": "coffee t/config.test.coffee",
+    "test:apis": "coffee t/apis.test.coffee",
+    "test:routing": "coffee t/routing.test.coffee",
+    "test:integration": "coffee t/integration.test.coffee",
     "install-service": "sudo cp clodforest-coordinator.service /etc/systemd/system/ && sudo systemctl daemon-reload",
     "enable-service": "sudo systemctl enable clodforest-coordinator",
     "start-service": "sudo systemctl start clodforest-coordinator",
@@ -28,7 +33,7 @@
   "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.18.2",
+    "express": "^5.1.0",
     "js-yaml": "^4.1.0"
   },
   "bugs": {
@@ -37,6 +42,7 @@
   "homepage": "https://github.com/rdeforest/ClodForest#readme",
   "devDependencies": {
     "coffeescript": "^2.7.0",
+    "kava": "^7.9.0",
     "nodemon": "^3.0.1"
   },
   "engines": {
