@@ -1,7 +1,0 @@
-The repository at https://github.com/jashkenas/coffeescript
-
-has a file at https://raw.githubusercontent.com/jashkenas/coffeescript/refs/heads/main/lib/coffeescript-browser-compiler-modern/coffeescript.js
-
-which contains minified JavaScript which Claude can use to CoffeeScript to
-JavaScript using the exact mechanisms published by the CoffeeScript project.
-
