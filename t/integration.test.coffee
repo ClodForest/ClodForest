@@ -11,32 +11,30 @@ kava.suite 'Integration Tests', (suite, test) ->
   test 'should start application without errors', (done) ->
     try
       # Import the main application
-      app = require '../src/coordinator/index'
+      coordinator = require '../src/coordinator/index'
       
-      # Check that app and server are exported
-      if not app.app or not app.server
-        return done(new Error('Application should export app and server'))
+      # Check that app and server control functions are exported
+      if not coordinator.app or not coordinator.server or not coordinator.startServer
+        return done(new Error('Application should export app, server, and startServer'))
       
-      # Check that server is listening
-      if not app.server.listening
-        return done(new Error('Server should be listening'))
+      # Server should not be started automatically when module is imported
+      if coordinator.server()
+        return done(new Error('Server should not be started automatically on import'))
       
       done()
     catch error
       done(error)
 
-  test 'should handle graceful shutdown signals', (done) ->
-    # This test verifies that the shutdown handlers are registered
-    # We can't easily test the actual shutdown without stopping the server
+  test 'should export shutdown handler function', (done) ->
+    # This test verifies that the shutdown handler function is exported
+    # Signal handlers are only registered when the server is started directly
     
     try
-      app = require '../src/coordinator/index'
+      coordinator = require '../src/coordinator/index'
       
-      # Check that process has event listeners for shutdown signals
-      listeners = process.listeners('SIGTERM').length + process.listeners('SIGINT').length
-      
-      if listeners < 2
-        return done(new Error('Should have SIGTERM and SIGINT listeners'))
+      # Check that shutdownGracefully function is exported
+      if typeof coordinator.shutdownGracefully isnt 'function'
+        return done(new Error('Should export shutdownGracefully function'))
       
       done()
     catch error

@@ -8,6 +8,7 @@ require './config.test'
 require './routing.test'
 require './apis.test'
 require './integration.test'
+require './mcp.test'
 
 # Run the test suite
 kava.suite 'ClodForest Coordinator', (suite, test) ->
@@ -23,10 +24,10 @@ kava.suite 'ClodForest Coordinator', (suite, test) ->
 
   test 'should load main application module', (done) ->
     try
-      app = require '../src/coordinator/index'
-      if app.app and app.server
+      coordinator = require '../src/coordinator/index'
+      if coordinator.app and coordinator.server and coordinator.startServer
         done()
       else
-        done(new Error('App or server not properly exported'))
+        done(new Error('App, server, or startServer not properly exported'))
     catch error
       done(error)

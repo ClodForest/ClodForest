@@ -46,6 +46,8 @@ API_PATHS =
   CONTEXT:    '/api/context'
   INSTANCES:  '/api/instances'
   ADMIN:      '/admin'
+  MCP:        '/api/mcp'
+  OAUTH:      '/oauth'
 
 # Response format configuration
 RESPONSE_FORMATS =
@@ -61,6 +63,8 @@ FEATURES =
   INSTANCE_TRACKING:  true
   GIT_OPERATIONS:     true
   ADMIN_AUTH:         NODE_ENV is 'production'
+  MCP_PROTOCOL:       true
+  OAUTH2_AUTH:        process.env.ENABLE_OAUTH2 is 'true' or false
 
 # Validation helpers
 validateConfig = ->

@@ -133,6 +133,34 @@ setup = (app) ->
       apis.registerInstance(req.body)
       res.json status: 'registered', timestamp: new Date().toISOString()
 
+  # MCP Protocol endpoint
+  if config.FEATURES.MCP_PROTOCOL
+    mcp = require '../handlers/mcp'
+    
+    # Apply OAuth2 protection if enabled
+    if config.FEATURES.OAUTH2_AUTH
+      {requireAuth} = require './oauth2/middleware'
+      app.post config.API_PATHS.MCP, requireAuth('mcp'), (req, res) ->
+        mcp.handleRequest req, res
+    else
+      app.post config.API_PATHS.MCP, (req, res) ->
+        mcp.handleRequest req, res
+
+  # OAuth2 endpoints
+  if config.FEATURES.OAUTH2_AUTH
+    oauth = require '../handlers/oauth'
+    
+    # OAuth2 authorization endpoints
+    app.get  config.API_PATHS.OAUTH + '/authorize', oauth.authorize
+    app.post config.API_PATHS.OAUTH + '/authorize', oauth.authorizeSubmit
+    
+    # OAuth2 token endpoint
+    app.post config.API_PATHS.OAUTH + '/token', oauth.token
+    
+    # Client registration endpoint (in development only)
+    if config.isDevelopment
+      app.post config.API_PATHS.OAUTH + '/clients', oauth.registerClient
+
   # Admin interface
   app.get config.API_PATHS.ADMIN, (req, res) ->
     # In development mode, bypass authentication
@@ -163,4 +191,3 @@ setup = (app) ->
       timestamp: new Date().toISOString()
 
 module.exports = { setup }
-

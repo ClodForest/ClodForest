@@ -24,6 +24,7 @@ getWelcomeData = ->
     context:    config.API_PATHS.CONTEXT + '/update'
     instances:  config.API_PATHS.INSTANCES
     admin:      config.API_PATHS.ADMIN
+    mcp:        config.API_PATHS.MCP if config.FEATURES.MCP_PROTOCOL
 
   features: [
     'Time synchronization service'
@@ -31,7 +32,8 @@ getWelcomeData = ->
     'Context update coordination'
     'Instance registration and discovery'
     'Administrative interface'
-  ]
+    'Model Context Protocol (MCP) support' if config.FEATURES.MCP_PROTOCOL
+  ].filter Boolean
 
   documentation: 'https://clodforest.thatsnice.org/docs'
   support:       'robert@defore.st'
