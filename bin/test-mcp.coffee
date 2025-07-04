@@ -470,8 +470,30 @@ runMcpTests = ->
             complianceResults.toolsCall = true
             logVerbose "✅ Tool call successful"
           
-          # All tests passed - report compliance
-          reportCompliance()
+          # Test 5: Explicit error handling test
+          makeRequest 'nonexistent/method', {}, 4, (err, res) ->
+            if err
+              logError "Error handling test failed: #{err.message}"
+              process.exit exitCode
+            
+            if res.error
+              # This should be an error response - validate format
+              unless res.error.code and typeof res.error.code is 'number'
+                logError "Error response missing or invalid error code"
+                process.exit exitCode
+              
+              unless res.error.message and typeof res.error.message is 'string'
+                logError "Error response missing or invalid error message"
+                process.exit exitCode
+              
+              complianceResults.errorHandling = true
+              logVerbose "✅ Error handling: Method not found properly handled"
+            else
+              logError "Server MUST return error for non-existent methods"
+              process.exit exitCode
+            
+            # All tests passed - report compliance
+            reportCompliance()
       else
         logError "Server advertises tools capability but provides no tools"
         process.exit exitCode

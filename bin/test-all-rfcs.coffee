@@ -31,6 +31,7 @@ testSuites = [
     script: 'bin/test-mcp.coffee'
     description: 'Tests MCP protocol compliance'
     rfc: 'JSON-RPC 2.0, MCP 2025-06-18'
+    extraArgs: ['--auth']  # MCP requires OAuth2 authentication
   }
   {
     name: 'OAuth2 + MCP Integration'
@@ -127,6 +128,10 @@ runTest = (testSuite) ->
     # Build command arguments
     cmdArgs = ['--env', environment]
     cmdArgs.push('--verbose') if verbose
+    
+    # Add any extra arguments specific to this test
+    if testSuite.extraArgs
+      cmdArgs = cmdArgs.concat(testSuite.extraArgs)
 
     # Spawn the test process
     testProcess = spawn 'coffee', [testSuite.script].concat(cmdArgs), {
