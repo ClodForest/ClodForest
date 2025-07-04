@@ -18,15 +18,21 @@ getCapabilities = ->
   capabilities:
     # Resources - expose ClodForest data
     resources:
+      subscribe: false    # We don't support subscriptions
       listChanged: false  # We don't push updates
     
-    # Tools - expose ClodForest operations
+    # Tools - expose ClodForest operations (THIS IS KEY!)
     tools:
+      subscribe: false    # We don't support subscriptions
       listChanged: false  # We don't push updates
     
     # Prompts - provide workflow templates
     prompts:
+      subscribe: false    # We don't support subscriptions
       listChanged: false  # We don't push updates
+    
+    # Logging capability for debugging
+    logging: {}
     
     # We don't support client features yet
     # sampling: false
