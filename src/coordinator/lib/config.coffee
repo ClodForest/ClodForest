@@ -48,6 +48,7 @@ API_PATHS =
   ADMIN:      '/admin'
   MCP:        '/api/mcp'
   OAUTH:      '/oauth'
+  CONFIG:     '/api/config'
 
 # Response format configuration
 RESPONSE_FORMATS =
@@ -89,6 +90,36 @@ getEnvironmentInfo = ->
   env:      NODE_ENV
   uptime:   process.uptime()
 
+# Get public configuration (safe to expose)
+getPublicConfig = ->
+  server:
+    port:         PORT
+    environment:  NODE_ENV
+    log_level:    LOG_LEVEL
+    service_name: SERVICE_NAME
+    version:      VERSION
+    vault_server: VAULT_SERVER
+  
+  paths:
+    repo_path:  REPO_PATH
+    api_paths:  API_PATHS
+  
+  features:     FEATURES
+  
+  security:
+    cors_origins:         CORS_ORIGINS
+    allowed_git_commands: ALLOWED_GIT_COMMANDS
+  
+  response_formats: RESPONSE_FORMATS
+  
+  environment:
+    is_development: NODE_ENV isnt 'production'
+    is_production:  NODE_ENV is 'production'
+    debug_mode:     LOG_LEVEL is 'debug'
+    runtime:        getEnvironmentInfo()
+  
+  timestamp: new Date().toISOString()
+
 # Export all configuration
 module.exports = {
   # Core server config
@@ -116,6 +147,7 @@ module.exports = {
   # Helpers
   validateConfig
   getEnvironmentInfo
+  getPublicConfig
 
   # Computed properties
   isDevelopment: NODE_ENV isnt 'production'

@@ -39,6 +39,7 @@ setup = (app) ->
         <div>API Endpoints:</div>
         <div class="endpoint">• <a href="#{config.API_PATHS.HEALTH}/">#{config.API_PATHS.HEALTH}/</a> - Service health check</div>
         <div class="endpoint">• <a href="#{config.API_PATHS.TIME}/">#{config.API_PATHS.TIME}/</a> - Time synchronization</div>
+        <div class="endpoint">• <a href="#{config.API_PATHS.CONFIG}/">#{config.API_PATHS.CONFIG}/</a> - Configuration information</div>
         <div class="endpoint">• <a href="#{config.API_PATHS.REPO}">#{config.API_PATHS.REPO}</a> - Repository listing</div>
         <div class="endpoint">• <a href="#{config.API_PATHS.ADMIN}">#{config.API_PATHS.ADMIN}</a> - Administrative interface</div>
         <br>
@@ -85,6 +86,13 @@ setup = (app) ->
     healthData = apis.getHealthData()
 
     app.formatResponse req, res, healthData
+
+  # Configuration endpoint
+  app.get config.API_PATHS.CONFIG + '/{*splat}', (req, res) ->
+
+    configData = apis.getConfigData()
+
+    app.formatResponse req, res, configData
 
   # Browse repository contents
   app.get config.API_PATHS.REPO + '/:repo', (req, res) ->

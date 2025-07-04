@@ -20,6 +20,7 @@ getWelcomeData = ->
   endpoints:
     health:     config.API_PATHS.HEALTH + '/'
     time:       config.API_PATHS.TIME + '/'
+    config:     config.API_PATHS.CONFIG + '/'
     repository: config.API_PATHS.REPO
     context:    config.API_PATHS.CONTEXT + '/update'
     instances:  config.API_PATHS.INSTANCES
@@ -193,6 +194,10 @@ registerInstance = (instanceData) ->
     lastSeen: new Date().toISOString()
   })
 
+# Configuration data implementation
+getConfigData = ->
+  config.getPublicConfig()
+
 # Admin interface HTML generation
 generateAdminHTML = ->
   isDev = config.isDevelopment
@@ -280,5 +285,6 @@ module.exports = {
   processContextUpdate
   getInstancesData
   registerInstance
+  getConfigData
   generateAdminHTML
 }
