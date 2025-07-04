@@ -1,11 +1,14 @@
 #!/usr/bin/env coffee
-# ClodForest MCP Server Compliance Test Script
-# Tests full MCP 2025-06-18 specification compliance
+# FILENAME: { ClodForest/bin/test-mcp.coffee }
+# MCP 2025-06-18 Specification Compliance Test Script
+# Tests comprehensive MCP compliance according to JSON-RPC 2.0 and HTTP transport requirements
 # Only reports success on true compliance, no fallbacks
 
-http = require 'http'
-https = require 'https'
-crypto = require 'crypto'
+http   = require 'node:http'
+https  = require 'node:https'
+crypto = require 'node:crypto'
+{spawn} = require 'node:child_process'
+path   = require 'node:path'
 
 # Parse command line arguments
 args = process.argv.slice(2)
@@ -507,15 +510,68 @@ process.on 'unhandledRejection', (reason, promise) ->
   logError "Unhandled rejection: #{reason}"
   process.exit 1
 
+# OAuth2 prerequisite test runner
+runOAuth2PrerequisiteTest = (callback) ->
+  logVerbose "🔐 Running OAuth2 prerequisite test..."
+  
+  # Build arguments for OAuth2 test script
+  oauth2Args = []
+  
+  # Pass through environment settings
+  if config.environment isnt 'local'
+    oauth2Args.push '--env', config.environment
+  else if config.host isnt 'localhost' or config.port isnt 8080
+    # Pass custom host/port settings
+    oauth2Args.push '--host', config.host if config.host isnt 'localhost'
+    oauth2Args.push '--port', config.port.toString() if config.port isnt 8080
+  
+  # Pass through HTTPS setting
+  if config.useHttps
+    oauth2Args.push '--https'
+  
+  # Pass through verbose setting
+  if verbose
+    oauth2Args.push '--verbose'
+  
+  # Get the path to the OAuth2 test script
+  scriptDir = path.dirname(__filename)
+  oauth2Script = path.join(scriptDir, 'test-oauth2.coffee')
+  
+  logVerbose "  Executing: coffee #{oauth2Script} #{oauth2Args.join(' ')}"
+  
+  # Spawn the OAuth2 test process
+  oauth2Process = spawn 'coffee', [oauth2Script].concat(oauth2Args), {
+    stdio: 'inherit'  # Pass through stdout/stderr to see OAuth2 test output
+  }
+  
+  oauth2Process.on 'close', (code) ->
+    if code is 0
+      logVerbose "✅ OAuth2 prerequisite test passed"
+      callback null
+    else
+      logError "❌ OAuth2 prerequisite test failed (exit code: #{code})"
+      logError "   Cannot proceed with authenticated MCP testing"
+      logError "   Fix OAuth2 implementation before testing MCP with --auth"
+      callback new Error("OAuth2 prerequisite test failed")
+  
+  oauth2Process.on 'error', (err) ->
+    logError "💥 Failed to run OAuth2 prerequisite test: #{err.message}"
+    callback err
+
 # Main execution logic
 if useAuth
-  # Setup OAuth2 authentication first, then run MCP tests
-  setupOAuth2 (err) ->
+  # First run OAuth2 prerequisite test, then setup OAuth2 and run MCP tests
+  runOAuth2PrerequisiteTest (err) ->
     if err
-      logError "OAuth2 setup failed, cannot proceed with authenticated MCP testing"
       process.exit 1
     else
-      runMcpTests()
+      # OAuth2 prerequisite passed, now setup OAuth2 authentication for MCP tests
+      setupOAuth2 (err) ->
+        if err
+          logError "OAuth2 setup failed, cannot proceed with authenticated MCP testing"
+          process.exit 1
+        else
+          runMcpTests()
 else
   # Run MCP tests without authentication
   runMcpTests()

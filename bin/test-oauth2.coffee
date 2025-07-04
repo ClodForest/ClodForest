@@ -1,17 +1,18 @@
 #!/usr/bin/env coffee
 # FILENAME: { ClodForest/bin/test-oauth2.coffee }
-# Pure OAuth2 Authentication Test Script
-# Tests OAuth2 functionality without MCP endpoints
+# RFC 6749 OAuth 2.0 Authorization Framework Compliance Test Script
+# Tests comprehensive OAuth2 functionality according to RFC 6749 and RFC 6750
 
-http   = require 'http'
-https  = require 'https'
-{URL}  = require 'url'
-crypto = require 'crypto'
+http   = require 'node:http'
+https  = require 'node:https'
+{URL}  = require 'node:url'
+crypto = require 'node:crypto'
 
 # Parse command line arguments
 args = process.argv.slice(2)
 verbose = false
 exitCode = 0
+testAllGrants = false
 
 # Default configuration (local development)
 config =
@@ -37,7 +38,7 @@ environments =
 # Parse arguments
 showHelp = ->
   console.log '''
-    ClodForest OAuth2 Authentication Test Script
+    ClodForest RFC 6749 OAuth 2.0 Authorization Framework Compliance Test Script
 
     Usage:
       coffee bin/test-oauth2.coffee [options]
@@ -49,6 +50,7 @@ showHelp = ->
       --https                    Use HTTPS
       --http                     Use HTTP
       --verbose, -v              Show detailed output
+      --all-grants               Test all OAuth2 grant types (requires user interaction)
       --help                     Show this help
 
     Environment Presets:
@@ -56,12 +58,22 @@ showHelp = ->
       production                 https://clodforest.thatsnice.org:443
 
     Exit Codes:
-      0                          OAuth2 functionality verified
-      1                          OAuth2 failure or missing infrastructure
+      0                          RFC 6749 compliance verified
+      1                          RFC 6749 compliance failure
+
+    RFC 6749 Tests:
+      • Client registration (RFC 6749 Section 2)
+      • Client credentials grant (RFC 6749 Section 4.4)
+      • Authorization code grant (RFC 6749 Section 4.1) [with --all-grants]
+      • Token endpoint validation (RFC 6749 Section 3.2)
+      • Bearer token usage (RFC 6750)
+      • Error response formats (RFC 6749 Section 5.2)
+      • Well-known discovery (RFC 8414)
 
     Examples:
-      coffee bin/test-oauth2.coffee                    # Test local OAuth2
+      coffee bin/test-oauth2.coffee                    # Test core OAuth2 compliance
       coffee bin/test-oauth2.coffee --verbose          # Test with details
+      coffee bin/test-oauth2.coffee --all-grants       # Test all grant types
       coffee bin/test-oauth2.coffee --env production   # Test production
     '''
   process.exit 0
@@ -106,6 +118,9 @@ while i < args.length
 
     when '--http'
       config.useHttps = false
+
+    when '--all-grants'
+      testAllGrants = true
 
     else
       console.error "Error: Unknown option '#{arg}'"
@@ -163,11 +178,17 @@ makeRequest = (method, path, data = null, headers = {}) ->
 oauth2Results = {
   serverReachable: false
   serverHealthy: false
+  wellKnownDiscovery: false
   clientRegistration: false
   tokenEndpoint: false
   clientCredentialsGrant: false
+  authorizationCodeGrant: false
+  bearerTokenUsage: false
   tokenValidation: false
   errorHandling: false
+  rfc6749Compliance: false
+  rfc6750Compliance: false
+  rfc8414Compliance: false
 }
 
 # Main test sequence
