@@ -1,12 +1,21 @@
 #!/usr/bin/env coffee
-# ClodForest MCP Server Test Script
-# Supports testing both local development and production environments
+# ClodForest MCP Server Compliance Test Script
+# Tests full MCP 2025-06-18 specification compliance
+# Only reports success on true compliance, no fallbacks
 
 http = require 'http'
 https = require 'https'
+crypto = require 'crypto'
 
 # Parse command line arguments
 args = process.argv.slice(2)
+verbose = false
+useAuth = false
+exitCode = 0
+
+# OAuth2 authentication state
+authToken = null
+authClient = null
 
 # Default configuration (local development)
 config =
@@ -35,7 +44,7 @@ environments =
 # Parse arguments
 showHelp = ->
   console.log '''
-    ClodForest MCP Server Test Script
+    ClodForest MCP Server Compliance Test Script
     
     Usage:
       coffee bin/test-mcp.coffee [options]
@@ -46,16 +55,23 @@ showHelp = ->
       --port, -p <port>          Server port
       --https                    Use HTTPS
       --http                     Use HTTP
+      --auth                     Use OAuth2 authentication
+      --verbose, -v              Show detailed output on success
       --help                     Show this help
     
     Environment Presets:
       local                      http://localhost:8080/api/mcp (default)
       production                 https://clodforest.thatsnice.org:443/api/mcp
     
+    Exit Codes:
+      0                          Full MCP compliance verified
+      1                          Compliance failure or error
+    
     Examples:
-      coffee bin/test-mcp.coffee                           # Test local development
-      coffee bin/test-mcp.coffee --env production          # Test production
-      coffee bin/test-mcp.coffee --host example.com --port 3000 --https
+      coffee bin/test-mcp.coffee                           # Test local (silent unless error)
+      coffee bin/test-mcp.coffee --verbose                 # Test local with details
+      coffee bin/test-mcp.coffee --auth                    # Test with OAuth2 authentication
+      coffee bin/test-mcp.coffee --env production -v       # Test production with details
     '''
   process.exit 0
 
@@ -66,6 +82,9 @@ while i < args.length
   switch arg
     when '--help'
       showHelp()
+    
+    when '--verbose', '-v'
+      verbose = true
     
     when '--env', '-e'
       envName = args[++i]
@@ -97,6 +116,9 @@ while i < args.length
     when '--http'
       config.useHttps = false
     
+    when '--auth'
+      useAuth = true
+    
     else
       console.error "Error: Unknown option '#{arg}'"
       console.error "Use --help for usage information"
@@ -104,235 +126,402 @@ while i < args.length
   
   i++
 
-# Configuration
-HOST = config.host
-PORT = config.port
-PATH = config.path
-USE_HTTPS = config.useHttps
+# Compliance tracking
+complianceResults = {
+  protocolVersion: false
+  jsonRpcFormat: false
+  httpTransport: false
+  initializeMethod: false
+  capabilityNegotiation: false
+  toolsCapability: false
+  toolsList: false
+  toolsCall: false
+  serverInfo: false
+  errorHandling: false
+}
 
-# Helper to make JSON-RPC request
+# Logging functions
+logVerbose = (message) ->
+  if verbose
+    console.log message
+
+logError = (message) ->
+  console.error message
+  exitCode = 1
+
+logSuccess = (message) ->
+  if verbose
+    console.log message
+
+# OAuth2 helper functions
+makeHttpRequest = (method, path, data = null, headers = {}) ->
+  new Promise (resolve, reject) ->
+    options =
+      hostname: config.host
+      port: config.port
+      path: path
+      method: method
+      headers: Object.assign({
+        'Content-Type': 'application/json'
+      }, headers)
+    
+    if data and method isnt 'GET'
+      dataStr = if typeof data is 'string' then data else JSON.stringify(data)
+      options.headers['Content-Length'] = Buffer.byteLength(dataStr)
+    
+    httpModule = if config.useHttps then https else http
+    
+    req = httpModule.request options, (res) ->
+      body = ''
+      res.on 'data', (chunk) -> body += chunk
+      res.on 'end', ->
+        try
+          result = if body then JSON.parse(body) else null
+          resolve { status: res.statusCode, headers: res.headers, body: result }
+        catch e
+          resolve { status: res.statusCode, headers: res.headers, body: body }
+    
+    req.on 'error', reject
+    req.write(dataStr) if data and method isnt 'GET'
+    req.end()
+
+# OAuth2 authentication setup
+setupOAuth2 = (callback) ->
+  logVerbose "🔐 Setting up OAuth2 authentication..."
+  
+  try
+    # Step 1: Register OAuth2 client
+    logVerbose "  1. Registering OAuth2 client..."
+    clientReg = await makeHttpRequest 'POST', '/oauth/clients',
+      name: 'MCP Compliance Test Client'
+      redirect_uris: ['http://localhost:3000/callback']
+      scope: 'mcp read write'
+    
+    if clientReg.status isnt 201
+      if clientReg.status is 404
+        logError "❌ OAuth2 client registration endpoint not found"
+        logError "   OAuth2 infrastructure not implemented"
+      else if clientReg.status is 500
+        logError "❌ OAuth2 client registration failed - server error"
+        logError "   OAuth2 infrastructure incomplete"
+      else
+        logError "❌ OAuth2 client registration failed (HTTP #{clientReg.status})"
+      
+      logError "   Run without --auth flag to test MCP without authentication"
+      return callback new Error("OAuth2 setup failed")
+    
+    authClient = clientReg.body
+    logVerbose "  ✅ Client registered: #{authClient.client_id}"
+    
+    # Step 2: Get access token via client credentials grant
+    logVerbose "  2. Getting access token..."
+    credentials = Buffer.from("#{authClient.client_id}:#{authClient.client_secret}").toString('base64')
+    
+    tokenRes = await makeHttpRequest 'POST', '/oauth/token',
+      grant_type: 'client_credentials'
+      scope: 'mcp'
+    ,
+      'Authorization': "Basic #{credentials}"
+    
+    if tokenRes.status isnt 200
+      if tokenRes.status is 404
+        logError "❌ OAuth2 token endpoint not found"
+        logError "   OAuth2 token infrastructure not implemented"
+      else if tokenRes.status is 500
+        logError "❌ OAuth2 token generation failed - server error"
+        logError "   OAuth2 token infrastructure incomplete"
+      else
+        logError "❌ OAuth2 token request failed (HTTP #{tokenRes.status})"
+      
+      return callback new Error("OAuth2 token setup failed")
+    
+    authToken = tokenRes.body.access_token
+    logVerbose "  ✅ Access token obtained: #{authToken.substring(0, 16)}..."
+    logVerbose "🔐 OAuth2 authentication ready"
+    
+    callback null
+  
+  catch error
+    logError "💥 OAuth2 setup error: #{error.message}"
+    callback error
+
+# Validate JSON-RPC 2.0 message format
+validateJsonRpcRequest = (obj) ->
+  return false unless obj.jsonrpc is '2.0'
+  return false unless typeof obj.method is 'string'
+  return false unless obj.id? and (typeof obj.id is 'string' or typeof obj.id is 'number')
+  return false if obj.id is null  # MCP explicitly forbids null IDs
+  true
+
+validateJsonRpcResponse = (obj) ->
+  return false unless obj.jsonrpc is '2.0'
+  return false unless obj.id? and (typeof obj.id is 'string' or typeof obj.id is 'number')
+  return false unless obj.result? or obj.error?
+  return false if obj.result? and obj.error?  # Cannot have both
+  if obj.error?
+    return false unless typeof obj.error.code is 'number'
+    return false unless typeof obj.error.message is 'string'
+  true
+
+# Helper to make JSON-RPC request with strict validation
 makeRequest = (method, params, id, callback) ->
-  requestData = JSON.stringify
+  # Validate request format before sending
+  requestObj = 
     jsonrpc: '2.0'
     method: method
     params: params
     id: id
   
+  unless validateJsonRpcRequest(requestObj)
+    return callback new Error("Invalid JSON-RPC request format")
+  
+  requestData = JSON.stringify(requestObj)
+  
   options =
-    hostname: HOST
-    port: PORT
-    path: PATH
+    hostname: config.host
+    port: config.port
+    path: config.path
     method: 'POST'
     headers:
       'Content-Type': 'application/json'
       'Content-Length': Buffer.byteLength(requestData)
+      'MCP-Protocol-Version': '2025-06-18'  # Required for HTTP transport
   
-  httpModule = if USE_HTTPS then https else http
+  # Add OAuth2 authentication if enabled
+  if useAuth and authToken
+    options.headers['Authorization'] = "Bearer #{authToken}"
+  
+  httpModule = if config.useHttps then https else http
   
   req = httpModule.request options, (res) ->
+    # Strict HTTP status validation
+    if res.statusCode isnt 200
+      complianceResults.httpTransport = false
+      return callback new Error("HTTP #{res.statusCode}: MCP servers MUST respond with 200 OK for valid requests")
+    
+    complianceResults.httpTransport = true
+    
     data = ''
     res.on 'data', (chunk) -> data += chunk
     res.on 'end', ->
       try
         response = JSON.parse(data)
-        callback null, response
       catch e
-        callback new Error("Parse error: #{data}")
+        complianceResults.jsonRpcFormat = false
+        return callback new Error("Invalid JSON response: #{e.message}")
+      
+      # Validate JSON-RPC response format
+      unless validateJsonRpcResponse(response)
+        complianceResults.jsonRpcFormat = false
+        return callback new Error("Response violates JSON-RPC 2.0 specification")
+      
+      complianceResults.jsonRpcFormat = true
+      callback null, response
   
-  req.on 'error', callback
+  req.on 'error', (err) ->
+    complianceResults.httpTransport = false
+    callback err
+  
   req.write requestData
   req.end()
 
-# Test sequence
-protocol = if USE_HTTPS then 'https' else 'http'
-console.log "🌐 Testing ClodForest MCP Server (#{config.environment})"
-console.log "   Target: #{protocol}://#{HOST}:#{PORT}#{PATH}\n"
+# Main test execution function
+runMcpTests = ->
+  # Test sequence with strict compliance validation
+  protocol = if config.useHttps then 'https' else 'http'
+  authStatus = if useAuth then " (with OAuth2)" else ""
+  logVerbose "🔍 Testing MCP 2025-06-18 Compliance: #{protocol}://#{config.host}:#{config.port}#{config.path}#{authStatus}"
 
-# Test 1: Initialize
-console.log '1. Testing initialize...'
-makeRequest 'initialize', 
-  clientInfo:
-    name: "mcp-test-client-#{config.environment}"
-    version: '1.0.0'
-, 1, (err, res) ->
-  if err
-    console.error '   ❌ Error:', err.message
-    return
-  
-  if res.error
-    console.error '   ❌ JSON-RPC Error:', res.error
-    return
-  
-  console.log '   ✅ Initialized successfully'
-  console.log '   Protocol version:', res.result?.protocolVersion
-  console.log '   Server:', res.result?.serverInfo?.name
-  console.log '   Version:', res.result?.serverInfo?.version
-  
-  # Test 2: List tools
-  console.log '\n2. Testing tools/list...'
-  makeRequest 'tools/list', {}, 2, (err, res) ->
+  # Test 1: Initialize with strict protocol validation
+  makeRequest 'initialize', 
+    protocolVersion: '2025-06-18'
+    capabilities:
+      roots: { listChanged: true }
+      sampling: {}
+      elicitation: {}
+    clientInfo:
+      name: "mcp-compliance-test"
+      version: '1.0.0'
+  , 1, (err, res) ->
     if err
-      console.error '   ❌ Error:', err.message
-      return
+      logError "Initialize failed: #{err.message}"
+      process.exit exitCode
     
     if res.error
-      console.error '   ❌ JSON-RPC Error:', res.error
-      return
+      logError "Initialize error: #{res.error.message} (code: #{res.error.code})"
+      complianceResults.errorHandling = true  # At least error format is correct
+      process.exit exitCode
     
-    console.log '   ✅ Listed tools successfully'
-    console.log "   Total tools: #{res.result?.tools?.length or 0}"
-    console.log '   Available tools:'
-    for tool in res.result?.tools or []
-      console.log "     - #{tool.name}: #{tool.description}"
+    # Validate initialize response structure
+    result = res.result
+    unless result?
+      logError "Initialize response missing result field"
+      process.exit exitCode
     
-    # Test 3: Test context listing (ClodForest's unique feature)
-    console.log '\n3. Testing context operations (listContexts)...'
-    makeRequest 'tools/call',
-      name: 'clodforest.listContexts'
-      arguments: {}
-    , 3, (err, res) ->
+    # Protocol version validation
+    unless result.protocolVersion is '2025-06-18'
+      logError "Protocol version mismatch. Expected: 2025-06-18, Got: #{result.protocolVersion}"
+      process.exit exitCode
+    
+    complianceResults.protocolVersion = true
+    complianceResults.initializeMethod = true
+    logVerbose "✅ Protocol version: #{result.protocolVersion}"
+    
+    # Server info validation
+    unless result.serverInfo?.name and result.serverInfo?.version
+      logError "Server info incomplete - missing required name or version"
+      process.exit exitCode
+    
+    complianceResults.serverInfo = true
+    logVerbose "✅ Server: #{result.serverInfo.name} v#{result.serverInfo.version}"
+    
+    # Capability validation - MUST have capabilities object
+    unless result.capabilities?
+      logError "Server MUST advertise capabilities in initialize response"
+      process.exit exitCode
+    
+    complianceResults.capabilityNegotiation = true
+    
+    # Tools capability validation - MUST be present for tool servers
+    unless result.capabilities.tools?
+      logError "Server MUST advertise tools capability if it provides tools"
+      process.exit exitCode
+    
+    complianceResults.toolsCapability = true
+    logVerbose "✅ Tools capability advertised"
+    
+    # Validate listChanged property
+    unless typeof result.capabilities.tools.listChanged is 'boolean'
+      logError "Tools capability MUST include listChanged boolean property"
+      process.exit exitCode
+    
+    logVerbose "✅ Tools listChanged: #{result.capabilities.tools.listChanged}"
+    
+    # Test 2: Send initialized notification (required by spec)
+    makeRequest 'notifications/initialized', {}, null, (err, res) ->
+      # This should not get a response (it's a notification)
+      if res?
+        logError "Server MUST NOT respond to notifications"
+        process.exit exitCode
+    
+    # Test 3: List tools with strict validation
+    makeRequest 'tools/list', {}, 2, (err, res) ->
       if err
-        console.error '   ❌ Error:', err.message
-        return
+        logError "tools/list failed: #{err.message}"
+        process.exit exitCode
       
       if res.error
-        console.error '   ❌ JSON-RPC Error:', res.error
-        return
+        logError "tools/list error: #{res.error.message}"
+        process.exit exitCode
       
-      console.log '   ✅ Listed contexts successfully'
-      contextText = res.result?.content?[0]?.text or ''
-      lines = contextText.split('\n').filter((line) -> line.trim().startsWith('-'))
-      console.log "   Found #{lines.length} contexts"
-      console.log '   Sample contexts:'
-      for line, i in lines when i < 5
-        console.log "     #{line.trim()}"
-      if lines.length > 5
-        console.log "     ... and #{lines.length - 5} more"
+      # Validate tools/list response structure
+      unless res.result?.tools? and Array.isArray(res.result.tools)
+        logError "tools/list MUST return tools array"
+        process.exit exitCode
       
-      # Test 4: Get a specific context
-      console.log '\n4. Testing getContext (robert_identity)...'
-      makeRequest 'tools/call',
-        name: 'clodforest.getContext'
-        arguments:
-          name: 'robert_identity'
-          resolveInheritance: true
-      , 4, (err, res) ->
-        if err
-          console.error '   ❌ Error:', err.message
-          return
+      complianceResults.toolsList = true
+      tools = res.result.tools
+      logVerbose "✅ Listed #{tools.length} tools"
+      
+      # Validate each tool definition
+      for tool in tools
+        unless tool.name and typeof tool.name is 'string'
+          logError "Tool missing required name field"
+          process.exit exitCode
         
-        if res.error
-          console.error '   ❌ JSON-RPC Error:', res.error
-          return
+        unless tool.description and typeof tool.description is 'string'
+          logError "Tool '#{tool.name}' missing required description"
+          process.exit exitCode
         
-        console.log '   ✅ Retrieved context successfully'
-        contextContent = res.result?.content?[0]?.text or ''
-        console.log "   Context length: #{contextContent.length} characters"
-        console.log '   Content preview:'
-        preview = contextContent.substring(0, 200).replace(/\n/g, ' ')
-        console.log "     #{preview}..."
+        unless tool.inputSchema?.type is 'object'
+          logError "Tool '#{tool.name}' missing valid inputSchema"
+          process.exit exitCode
         
-        # Test 5: Search contexts
-        console.log '\n5. Testing searchContexts...'
+        logVerbose "  ✅ #{tool.name}: #{tool.description}"
+      
+      # Test 4: Call a tool to validate tools/call
+      if tools.length > 0
+        testTool = tools[0]
         makeRequest 'tools/call',
-          name: 'clodforest.searchContexts'
-          arguments:
-            query: 'collaboration'
-            limit: 3
-            includeContent: true
-        , 5, (err, res) ->
+          name: testTool.name
+          arguments: {}
+        , 3, (err, res) ->
           if err
-            console.error '   ❌ Error:', err.message
-            return
+            logError "tools/call failed: #{err.message}"
+            process.exit exitCode
           
           if res.error
-            console.error '   ❌ JSON-RPC Error:', res.error
-            return
+            # Tool errors are acceptable, but response format must be valid
+            complianceResults.errorHandling = true
+            logVerbose "✅ Tool error handling: #{res.error.message}"
+          else
+            # Validate successful tool response
+            unless res.result?.content? and Array.isArray(res.result.content)
+              logError "Tool result MUST include content array"
+              process.exit exitCode
+            
+            unless typeof res.result.isError is 'boolean'
+              logError "Tool result MUST include isError boolean"
+              process.exit exitCode
+            
+            complianceResults.toolsCall = true
+            logVerbose "✅ Tool call successful"
           
-          console.log '   ✅ Search completed successfully'
-          searchResults = res.result?.content?[0]?.text or ''
-          resultLines = searchResults.split('\n').filter((line) -> line.startsWith('## '))
-          console.log "   Found #{resultLines.length} matching contexts"
-          for line in resultLines
-            console.log "     #{line.replace('## ', '- ')}"
-          
-          # Test 6: Check health
-          console.log '\n6. Testing health check...'
-          makeRequest 'tools/call',
-            name: 'clodforest.checkHealth'
-            arguments: {}
-          , 6, (err, res) ->
-            if err
-              console.error '   ❌ Error:', err.message
-              return
-            
-            if res.error
-              console.error '   ❌ JSON-RPC Error:', res.error
-              return
-            
-            console.log '   ✅ Health check successful'
-            try
-              healthData = JSON.parse(res.result?.content?[0]?.text or '{}')
-              console.log '   Status:', healthData.status
-              console.log '   Uptime:', healthData.uptime
-              console.log '   Memory (RSS):', healthData.memory?.rss
-            catch
-              console.log '   Health data received'
-            
-            # Test 7: Get current time
-            console.log '\n7. Testing getTime...'
-            makeRequest 'tools/call',
-              name: 'clodforest.getTime'
-              arguments:
-                format: 'iso8601'
-            , 7, (err, res) ->
-              if err
-                console.error '   ❌ Error:', err.message
-                return
-              
-              if res.error
-                console.error '   ❌ JSON-RPC Error:', res.error
-                return
-              
-              console.log '   ✅ Time retrieved successfully'
-              console.log '   Server time:', res.result?.content?[0]?.text
-              
-              # Test 8: List repositories
-              console.log '\n8. Testing listRepositories...'
-              makeRequest 'tools/call',
-                name: 'clodforest.listRepositories'
-                arguments: {}
-              , 8, (err, res) ->
-                if err
-                  console.error '   ❌ Error:', err.message
-                  return
-                
-                if res.error
-                  console.error '   ❌ JSON-RPC Error:', res.error
-                  return
-                
-                console.log '   ✅ Repositories listed successfully'
-                try
-                  repoData = JSON.parse(res.result?.content?[0]?.text or '{}')
-                  console.log "   Found #{repoData.count or 0} repositories"
-                  if repoData.repositories
-                    for repo, i in repoData.repositories when i < 3
-                      console.log "     - #{repo}"
-                    if repoData.repositories.length > 3
-                      console.log "     ... and #{repoData.repositories.length - 3} more"
-                catch
-                  console.log '   Repository data received'
-                
-                console.log "\n🎉 MCP testing complete (#{config.environment})!"
-                console.log '\n📊 Test Summary:'
-                console.log '   ✅ MCP Protocol: Working'
-                console.log '   ✅ Context Operations: Working'
-                console.log '   ✅ Repository Operations: Working'
-                console.log '   ✅ Health & Time: Working'
-                console.log '   ✅ Search Intelligence: Working'
-                console.log "\n🚀 ClodForest MCP Server (#{config.environment}) is fully operational!"
+          # All tests passed - report compliance
+          reportCompliance()
+      else
+        logError "Server advertises tools capability but provides no tools"
+        process.exit exitCode
+
+# Report final compliance status
+reportCompliance = ->
+  allPassed = Object.values(complianceResults).every((result) -> result is true)
+  
+  if allPassed
+    if verbose
+      console.log "\n🎯 MCP 2025-06-18 COMPLIANCE VERIFIED"
+      console.log "✅ Protocol Version: 2025-06-18"
+      console.log "✅ JSON-RPC 2.0 Format: Valid"
+      console.log "✅ HTTP Transport: Compliant"
+      console.log "✅ Initialize Method: Compliant"
+      console.log "✅ Capability Negotiation: Compliant"
+      console.log "✅ Tools Capability: Compliant"
+      console.log "✅ Tools List: Compliant"
+      console.log "✅ Tools Call: Compliant"
+      console.log "✅ Server Info: Compliant"
+      console.log "✅ Error Handling: Compliant"
+    process.exit 0
+  else
+    logError "\n❌ MCP COMPLIANCE FAILED"
+    for key, value of complianceResults
+      status = if value then "✅" else "❌"
+      logError "#{status} #{key}"
+    process.exit 1
 
 # Handle process errors
 process.on 'uncaughtException', (err) ->
-  console.error '\n💥 Uncaught exception:', err.message
+  logError "Uncaught exception: #{err.message}"
   process.exit 1
+
+process.on 'unhandledRejection', (reason, promise) ->
+  logError "Unhandled rejection: #{reason}"
+  process.exit 1
+
+# Main execution logic
+if useAuth
+  # Setup OAuth2 authentication first, then run MCP tests
+  setupOAuth2 (err) ->
+    if err
+      logError "OAuth2 setup failed, cannot proceed with authenticated MCP testing"
+      process.exit 1
+    else
+      runMcpTests()
+else
+  # Run MCP tests without authentication
+  runMcpTests()
+
+# Set timeout for entire test suite
+setTimeout ->
+  logError "Test timeout - server not responding within reasonable time"
+  process.exit 1
+, 30000  # 30 second timeout

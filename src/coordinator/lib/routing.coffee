@@ -55,9 +55,12 @@ setup = (app) ->
       app.formatResponse req, res, welcomeData
 
   # Time service for instance synchronization
+  app.get config.API_PATHS.TIME, (req, res) ->
+    timeData = apis.getTimeData(req)
+    app.formatResponse req, res, timeData
+
   app.get config.API_PATHS.TIME + '/{*splat}', (req, res) ->
     timeData = apis.getTimeData(req)
-
     app.formatResponse req, res, timeData
 
   # Repository operations
@@ -81,17 +84,21 @@ setup = (app) ->
     app.formatResponse req, res, bustData
 
   # Health check endpoint
-  app.get config.API_PATHS.HEALTH + '/{*splat}', (req, res) ->
-
+  app.get config.API_PATHS.HEALTH, (req, res) ->
     healthData = apis.getHealthData()
+    app.formatResponse req, res, healthData
 
+  app.get config.API_PATHS.HEALTH + '/{*splat}', (req, res) ->
+    healthData = apis.getHealthData()
     app.formatResponse req, res, healthData
 
   # Configuration endpoint
-  app.get config.API_PATHS.CONFIG + '/{*splat}', (req, res) ->
-
+  app.get config.API_PATHS.CONFIG, (req, res) ->
     configData = apis.getConfigData()
+    app.formatResponse req, res, configData
 
+  app.get config.API_PATHS.CONFIG + '/{*splat}', (req, res) ->
+    configData = apis.getConfigData()
     app.formatResponse req, res, configData
 
   # Browse repository contents
@@ -148,10 +155,21 @@ setup = (app) ->
     # Apply OAuth2 protection if enabled
     if config.FEATURES.OAUTH2_AUTH
       {requireAuth} = require './oauth2/middleware'
+      
+      # Original endpoint for backward compatibility
       app.post config.API_PATHS.MCP, requireAuth('mcp'), (req, res) ->
         mcp.handleRequest req, res
+      
+      # Claude.ai expected endpoint
+      app.post '/mcp/jsonrpc', requireAuth('mcp'), (req, res) ->
+        mcp.handleRequest req, res
     else
+      # Original endpoint for backward compatibility
       app.post config.API_PATHS.MCP, (req, res) ->
+        mcp.handleRequest req, res
+      
+      # Claude.ai expected endpoint
+      app.post '/mcp/jsonrpc', (req, res) ->
         mcp.handleRequest req, res
 
   # OAuth2 endpoints
@@ -165,9 +183,11 @@ setup = (app) ->
     # OAuth2 token endpoint
     app.post config.API_PATHS.OAUTH + '/token', oauth.token
     
-    # Client registration endpoint (in development only)
-    if config.isDevelopment
-      app.post config.API_PATHS.OAUTH + '/clients', oauth.registerClient
+    # Client registration endpoint (enabled for Claude.ai integration)
+    app.post config.API_PATHS.OAUTH + '/clients', oauth.registerClient
+    
+    # Dynamic client registration endpoint (RFC 7591 - for Claude.ai)
+    app.post config.API_PATHS.OAUTH + '/register', oauth.registerClient
 
   # Admin interface
   app.get config.API_PATHS.ADMIN, (req, res) ->

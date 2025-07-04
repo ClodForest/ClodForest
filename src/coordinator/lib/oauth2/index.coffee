@@ -23,7 +23,6 @@ generateToken = ->
 createToken = (clientId, userId, scope) ->
   token =
     accessToken:  generateToken()
-    refreshToken: generateToken()
     tokenType:    'Bearer'
     expiresIn:    ACCESS_TOKEN_TTL
     scope:        scope
@@ -31,18 +30,25 @@ createToken = (clientId, userId, scope) ->
     userId:       userId
     createdAt:    Date.now()
   
-  # Store tokens
+  # Only include refresh token for authorization code grant (when userId is present)
+  # Per RFC 6749 Section 4.4.3, client credentials grant should not include refresh token
+  if userId
+    token.refreshToken = generateToken()
+  
+  # Store access token
   tokens.set token.accessToken, {
     ...token
     type: 'access'
     expiresAt: Date.now() + (ACCESS_TOKEN_TTL * 1000)
   }
   
-  tokens.set token.refreshToken, {
-    ...token
-    type: 'refresh'
-    expiresAt: Date.now() + (REFRESH_TOKEN_TTL * 1000)
-  }
+  # Store refresh token only if it exists
+  if token.refreshToken
+    tokens.set token.refreshToken, {
+      ...token
+      type: 'refresh'
+      expiresAt: Date.now() + (REFRESH_TOKEN_TTL * 1000)
+    }
   
   token
 
@@ -150,6 +156,7 @@ module.exports = {
   exchangeAuthCode
   refreshAccessToken
   validateAccessToken
+  createToken
   
   # For testing
   _stores: { clients, tokens, authCodes }

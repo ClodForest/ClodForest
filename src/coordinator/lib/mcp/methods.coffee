@@ -7,10 +7,23 @@ resources    = require './resources'
 tools        = require './tools'
 prompts      = require './prompts'
 
-# Session state
-session =
-  initialized: false
-  clientInfo: null
+# Session state - per connection tracking
+sessions = new Map()
+
+# Get or create session for a request
+getSession = (req) ->
+  # Use IP address as session identifier for now
+  # In production, this should use a proper connection ID
+  sessionId = req?.ip or 'default'
+  
+  unless sessions.has(sessionId)
+    sessions.set(sessionId, {
+      initialized: false
+      clientInfo: null
+      sessionId: sessionId
+    })
+  
+  sessions.get(sessionId)
 
 # Core Methods
 
@@ -20,6 +33,9 @@ initialize = (params, req, callback) ->
   if typeof req is 'function'
     callback = req
     req = null
+  
+  # Get session for this connection
+  session = getSession(req)
   
   # Store client info
   session.clientInfo = params.clientInfo if params.clientInfo
@@ -52,6 +68,9 @@ resourcesList = (params, req, callback) ->
     callback = req
     req = null
   
+  # Get session for this connection
+  session = getSession(req)
+  
   unless session.initialized
     return callback
       code: -32002
@@ -69,6 +88,9 @@ resourcesGet = (params, req, callback) ->
   if typeof req is 'function'
     callback = req
     req = null
+  
+  # Get session for this connection
+  session = getSession(req)
   
   unless session.initialized
     return callback
@@ -95,6 +117,10 @@ toolsList = (params, req, callback) ->
     callback = req
     req = null
   
+  # Get session for this connection
+  session = getSession(req)
+  
+  # Require initialization for proper session isolation
   unless session.initialized
     return callback
       code: -32002
@@ -108,6 +134,9 @@ toolsList = (params, req, callback) ->
 
 # Call a tool
 toolsCall = (params, req, callback) ->
+  # Get session for this connection
+  session = getSession(req)
+  
   unless session.initialized
     return callback
       code: -32002
@@ -122,7 +151,7 @@ toolsCall = (params, req, callback) ->
     if error
       callback error
     else
-      callback null, content: result.content
+      callback null, result
 
 # Prompt Methods
 
@@ -132,6 +161,9 @@ promptsList = (params, req, callback) ->
   if typeof req is 'function'
     callback = req
     req = null
+  
+  # Get session for this connection
+  session = getSession(req)
   
   unless session.initialized
     return callback
@@ -151,6 +183,9 @@ promptsGet = (params, req, callback) ->
     callback = req
     req = null
   
+  # Get session for this connection
+  session = getSession(req)
+  
   unless session.initialized
     return callback
       code: -32002
@@ -167,15 +202,27 @@ promptsGet = (params, req, callback) ->
     else
       callback null, messages: prompt.messages
 
+# Ping method for connection health checks
+ping = (params, req, callback) ->
+  # Handle both 2 and 3 parameter calls for backward compatibility
+  if typeof req is 'function'
+    callback = req
+    req = null
+  
+  # Ping doesn't require initialization - it's a health check
+  callback null, {}
+
 # Export all methods
 module.exports =
   # Core
   'initialize':              initialize
   'notifications/initialized': notificationsInitialized
+  'ping':                    ping
   
   # Resources
   'resources/list': resourcesList
   'resources/get':  resourcesGet
+  'resources/read': resourcesGet  # Alias for MCP spec compliance
   
   # Tools
   'tools/list': toolsList

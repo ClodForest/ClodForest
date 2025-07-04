@@ -250,6 +250,7 @@ callTool = (toolName, args, req, callback) ->
           type: 'text'
           text: result
         ]
+        isError: false
     
     when 'clodforest.checkHealth'
       healthData = apis.getHealthData()
@@ -259,6 +260,7 @@ callTool = (toolName, args, req, callback) ->
           type: 'text'
           text: JSON.stringify(healthData, null, 2)
         ]
+        isError: false
     
     when 'clodforest.listRepositories'
       repoData = apis.getRepositoryData()
@@ -268,6 +270,7 @@ callTool = (toolName, args, req, callback) ->
           type: 'text'
           text: JSON.stringify(repoData, null, 2)
         ]
+        isError: false
     
     when 'clodforest.browseRepository'
       unless args.repository
@@ -288,6 +291,7 @@ callTool = (toolName, args, req, callback) ->
             type: 'text'
             text: JSON.stringify(browseData, null, 2)
           ]
+          isError: false
     
     when 'clodforest.readFile'
       unless args.repository and args.path
@@ -308,6 +312,7 @@ callTool = (toolName, args, req, callback) ->
             type: 'text'
             text: fileData.content
           ]
+          isError: false
     
     when 'clodforest.gitStatus'
       unless args.repository
@@ -327,6 +332,7 @@ callTool = (toolName, args, req, callback) ->
               type: 'text'
               text: gitData.stdout
             ]
+            isError: false
     
     # Context operation handlers
     when 'clodforest.getContext'
@@ -412,6 +418,7 @@ handleGetContext = (args, callback) ->
             type: 'text'
             text: "Context: #{args.name}\n\n#{contextContent}"
           }]
+          isError: false
       .catch (error) ->
         callback
           code: -32603
@@ -471,6 +478,7 @@ handleSetContext = (args, callback) ->
             type: 'text'
             text: "Successfully updated context: #{args.name}"
           }]
+          isError: false
       .catch (error) ->
         callback
           code: -32603
@@ -567,6 +575,7 @@ handleListContexts = (args, callback) ->
             type: 'text'
             text: resultText
           }]
+          isError: false
       .catch (error) ->
         callback
           code: -32603
@@ -577,6 +586,7 @@ handleListContexts = (args, callback) ->
           type: 'text'
           text: 'No contexts directory found. Contexts: none available'
         }]
+        isError: false
   catch error
     callback
       code: -32603
@@ -644,6 +654,7 @@ handleInheritContext = (args, callback) ->
               type: 'text'
               text: "Created inherited context: #{args.name}\nInherits from: #{args.parents.join(', ')}"
             }]
+            isError: false
         .catch (error) ->
           callback
             code: -32603
@@ -770,6 +781,7 @@ handleSearchContexts = (args, callback) ->
             type: 'text'
             text: resultText
           }]
+          isError: false
       .catch (error) ->
         callback
           code: -32603
@@ -780,6 +792,7 @@ handleSearchContexts = (args, callback) ->
           type: 'text'
           text: 'No contexts directory found for searching'
         }]
+        isError: false
   catch error
     callback
       code: -32603

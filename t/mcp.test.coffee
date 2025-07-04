@@ -25,7 +25,10 @@ kava.suite 'MCP Implementation', (suite, test) ->
         params: {}
         id: 1
       
-      jsonrpc.processJsonRpc request, (response) ->
+      # Mock req object for testing
+      mockReq = { ip: '127.0.0.1' }
+      
+      jsonrpc.processJsonRpc request, mockReq, (response) ->
         if response.error?.code is jsonrpc.ERROR_CODES.METHOD_NOT_FOUND
           done()
         else
@@ -33,8 +36,9 @@ kava.suite 'MCP Implementation', (suite, test) ->
     
     test 'should handle parse errors', (done) ->
       request = 'invalid json'
+      mockReq = { ip: '127.0.0.1' }
       
-      jsonrpc.processJsonRpc request, (response) ->
+      jsonrpc.processJsonRpc request, mockReq, (response) ->
         if response.error?.code is jsonrpc.ERROR_CODES.PARSE_ERROR
           done()
         else
@@ -46,7 +50,9 @@ kava.suite 'MCP Implementation', (suite, test) ->
         method: 'test'
         id: 1
       
-      jsonrpc.processJsonRpc request, (response) ->
+      mockReq = { ip: '127.0.0.1' }
+      
+      jsonrpc.processJsonRpc request, mockReq, (response) ->
         if response.error?.code is jsonrpc.ERROR_CODES.INVALID_REQUEST
           done()
         else
@@ -58,7 +64,9 @@ kava.suite 'MCP Implementation', (suite, test) ->
         { jsonrpc: '2.0', method: 'test', id: 2 }
       ]
       
-      jsonrpc.processJsonRpc request, (response) ->
+      mockReq = { ip: '127.0.0.1' }
+      
+      jsonrpc.processJsonRpc request, mockReq, (response) ->
         if response.error?.message?.includes('Batch requests not supported')
           done()
         else
@@ -229,7 +237,8 @@ kava.suite 'MCP Implementation', (suite, test) ->
         done()
     
     test 'should call getTime tool', (done) ->
-      tools.callTool 'clodforest.getTime', { format: 'iso8601' }, (error, result) ->
+      mockReq = { ip: '127.0.0.1' }
+      tools.callTool 'clodforest.getTime', { format: 'iso8601' }, mockReq, (error, result) ->
         if error
           return done(error)
         
@@ -244,7 +253,8 @@ kava.suite 'MCP Implementation', (suite, test) ->
         done()
     
     test 'should call checkHealth tool', (done) ->
-      tools.callTool 'clodforest.checkHealth', {}, (error, result) ->
+      mockReq = { ip: '127.0.0.1' }
+      tools.callTool 'clodforest.checkHealth', {}, mockReq, (error, result) ->
         if error
           return done(error)
         
@@ -259,14 +269,16 @@ kava.suite 'MCP Implementation', (suite, test) ->
         done()
     
     test 'should validate required parameters', (done) ->
-      tools.callTool 'clodforest.readFile', {}, (error, result) ->
+      mockReq = { ip: '127.0.0.1' }
+      tools.callTool 'clodforest.readFile', {}, mockReq, (error, result) ->
         if error?.code is -32602
           done()
         else
           done(new Error('Expected invalid params error'))
     
     test 'should handle unknown tool', (done) ->
-      tools.callTool 'unknown.tool', {}, (error, result) ->
+      mockReq = { ip: '127.0.0.1' }
+      tools.callTool 'unknown.tool', {}, mockReq, (error, result) ->
         if error?.code is -32601
           done()
         else
@@ -335,7 +347,9 @@ kava.suite 'MCP Implementation', (suite, test) ->
         params: { clientInfo: { name: 'test', version: '1.0' } }
         id: 1
       
-      jsonrpc.processJsonRpc initRequest, (initResponse) ->
+      mockReq = { ip: '127.0.0.1' }
+      
+      jsonrpc.processJsonRpc initRequest, mockReq, (initResponse) ->
         unless initResponse.result?.protocolVersion
           return done(new Error('Initialize failed'))
         
@@ -346,7 +360,7 @@ kava.suite 'MCP Implementation', (suite, test) ->
           params: {}
           id: 2
         
-        jsonrpc.processJsonRpc listRequest, (listResponse) ->
+        jsonrpc.processJsonRpc listRequest, mockReq, (listResponse) ->
           unless listResponse.result?.resources
             return done(new Error('List resources failed'))
           
@@ -357,7 +371,7 @@ kava.suite 'MCP Implementation', (suite, test) ->
             params: { uri: 'clodforest://info' }
             id: 3
           
-          jsonrpc.processJsonRpc getRequest, (getResponse) ->
+          jsonrpc.processJsonRpc getRequest, mockReq, (getResponse) ->
             unless getResponse.result?.contents
               return done(new Error('Get resource failed'))
             
@@ -372,11 +386,215 @@ kava.suite 'MCP Implementation', (suite, test) ->
           method: 'notifications/initialized'
           params: {}
         
-        jsonrpc.processJsonRpc notificationRequest, (response) ->
+        mockReq = { ip: '127.0.0.1' }
+        
+        jsonrpc.processJsonRpc notificationRequest, mockReq, (response) ->
           if response is null
             done()
           else
             done(new Error('Notification should not return response'))
+
+  # MCP 2025-06-18 Spec Compliance Tests
+  suite 'MCP Spec Compliance', (suite, test) ->
+    
+    test 'should handle concurrent sessions independently (CRITICAL)', (done) ->
+      # This test should FAIL with current implementation
+      # Tests the global session state violation
+      
+      mockReq1 = { ip: '127.0.0.1' }  # Client 1
+      mockReq2 = { ip: '192.168.1.1' } # Client 2
+      
+      # Client 1 initializes
+      initRequest1 = JSON.stringify
+        jsonrpc: '2.0'
+        method: 'initialize'
+        params: { clientInfo: { name: 'client1', version: '1.0' } }
+        id: 1
+      
+      jsonrpc.processJsonRpc initRequest1, mockReq1, (response1) ->
+        unless response1.result?.protocolVersion
+          return done(new Error('Client 1 initialization failed'))
+        
+        # Client 2 tries to use tools WITHOUT initializing
+        toolsRequest2 = JSON.stringify
+          jsonrpc: '2.0'
+          method: 'tools/list'
+          params: {}
+          id: 2
+        
+        jsonrpc.processJsonRpc toolsRequest2, mockReq2, (response2) ->
+          # This should fail because Client 2 hasn't initialized
+          # But with global session state, it will incorrectly succeed
+          if response2.result?.tools
+            done(new Error('SPEC VIOLATION: Client 2 should not have access to tools without initializing'))
+          else if response2.error?.code is -32002
+            done() # Correct behavior - not initialized error
+          else
+            done(new Error('Unexpected response for uninitialized client'))
+    
+    test 'should require ping method implementation', (done) ->
+      # This test should FAIL - ping method is missing
+      mockReq = { ip: '127.0.0.1' }
+      
+      pingRequest = JSON.stringify
+        jsonrpc: '2.0'
+        method: 'ping'
+        params: {}
+        id: 1
+      
+      jsonrpc.processJsonRpc pingRequest, mockReq, (response) ->
+        if response.error?.code is jsonrpc.ERROR_CODES.METHOD_NOT_FOUND
+          done(new Error('MISSING REQUIRED METHOD: ping method not implemented'))
+        else
+          done() # Method exists - test passes
+    
+    test 'should implement resources/read if advertising resources capability', (done) ->
+      # This test should FAIL - we advertise resources but don't implement resources/read
+      caps = capabilities.getCapabilities()
+      
+      unless caps.capabilities?.resources?
+        return done() # Not advertising resources, so this is fine
+      
+      # We advertise resources capability, so resources/read must work
+      mockReq = { ip: '127.0.0.1' }
+      
+      # Initialize first
+      methods.initialize {}, mockReq, ->
+        readRequest = JSON.stringify
+          jsonrpc: '2.0'
+          method: 'resources/read'
+          params: { uri: 'clodforest://info' }
+          id: 1
+        
+        jsonrpc.processJsonRpc readRequest, mockReq, (response) ->
+          if response.error?.code is jsonrpc.ERROR_CODES.METHOD_NOT_FOUND
+            done(new Error('INVALID CAPABILITY: Advertising resources but resources/read not implemented'))
+          else if response.result?.contents
+            done() # Method works correctly
+          else
+            done(new Error('resources/read method exists but returned invalid response'))
+    
+    test 'should implement prompts/get if advertising prompts capability', (done) ->
+      # This test should FAIL - we advertise prompts but prompts/get might not work properly
+      caps = capabilities.getCapabilities()
+      
+      unless caps.capabilities?.prompts?
+        return done() # Not advertising prompts, so this is fine
+      
+      # We advertise prompts capability, so prompts/get must work
+      mockReq = { ip: '127.0.0.1' }
+      
+      # Initialize first
+      methods.initialize {}, mockReq, ->
+        getPromptRequest = JSON.stringify
+          jsonrpc: '2.0'
+          method: 'prompts/get'
+          params: { name: 'load_context', arguments: { context_path: 'test.yaml' } }
+          id: 1
+        
+        jsonrpc.processJsonRpc getPromptRequest, mockReq, (response) ->
+          if response.error?.code is jsonrpc.ERROR_CODES.METHOD_NOT_FOUND
+            done(new Error('INVALID CAPABILITY: Advertising prompts but prompts/get not implemented'))
+          else if response.result?.messages
+            done() # Method works correctly
+          else
+            done(new Error('prompts/get method exists but returned invalid response'))
+    
+    test 'should validate capabilities match actual implementation', (done) ->
+      # This test validates that we only advertise capabilities we actually support
+      caps = capabilities.getCapabilities()
+      
+      errors = []
+      
+      # Check tools capability
+      if caps.capabilities?.tools?
+        # tools/list and tools/call should exist
+        unless methods['tools/list']
+          errors.push('Advertising tools capability but tools/list not implemented')
+        unless methods['tools/call']
+          errors.push('Advertising tools capability but tools/call not implemented')
+      
+      # Check resources capability  
+      if caps.capabilities?.resources?
+        # resources/list and resources/read should exist
+        unless methods['resources/list']
+          errors.push('Advertising resources capability but resources/list not implemented')
+        unless methods['resources/read']
+          errors.push('Advertising resources capability but resources/read not implemented')
+      
+      # Check prompts capability
+      if caps.capabilities?.prompts?
+        # prompts/list and prompts/get should exist
+        unless methods['prompts/list']
+          errors.push('Advertising prompts capability but prompts/list not implemented')
+        unless methods['prompts/get']
+          errors.push('Advertising prompts capability but prompts/get not implemented')
+      
+      if errors.length > 0
+        done(new Error('CAPABILITY MISMATCH: ' + errors.join('; ')))
+      else
+        done()
+    
+    test 'should simulate Claude.ai connection sequence', (done) ->
+      # This test simulates the exact sequence Claude.ai uses
+      # Should expose session management issues
+      
+      mockReq = { ip: '127.0.0.1' }
+      
+      # Step 1: Claude.ai calls initialize
+      initRequest = JSON.stringify
+        jsonrpc: '2.0'
+        method: 'initialize'
+        params: { 
+          protocolVersion: '2025-06-18'
+          clientInfo: { name: 'Claude.ai', version: '1.0' }
+          capabilities: {}
+        }
+        id: 1
+      
+      jsonrpc.processJsonRpc initRequest, mockReq, (initResponse) ->
+        unless initResponse.result?.protocolVersion
+          return done(new Error('Initialize failed'))
+        
+        # Step 2: Claude.ai immediately calls tools/list (common pattern)
+        toolsRequest = JSON.stringify
+          jsonrpc: '2.0'
+          method: 'tools/list'
+          params: {}
+          id: 2
+        
+        jsonrpc.processJsonRpc toolsRequest, mockReq, (toolsResponse) ->
+          unless toolsResponse.result?.tools
+            return done(new Error('CLAUDE.AI SIMULATION FAILED: tools/list should work after initialize'))
+          
+          # Step 3: Simulate another client connecting (like our test script)
+          # This should not affect Claude.ai's session
+          otherReq = { ip: '10.0.0.1' }
+          
+          otherInitRequest = JSON.stringify
+            jsonrpc: '2.0'
+            method: 'initialize'
+            params: { clientInfo: { name: 'test-script', version: '1.0' } }
+            id: 3
+          
+          jsonrpc.processJsonRpc otherInitRequest, otherReq, (otherResponse) ->
+            # Step 4: Claude.ai tries to call tools/list again
+            # This should still work (session should be independent)
+            toolsRequest2 = JSON.stringify
+              jsonrpc: '2.0'
+              method: 'tools/list'
+              params: {}
+              id: 4
+            
+            jsonrpc.processJsonRpc toolsRequest2, mockReq, (toolsResponse2) ->
+              unless toolsResponse2.result?.tools
+                done(new Error('SESSION INTERFERENCE: Claude.ai lost access to tools after another client connected'))
+              else
+                # Check that tools list is not empty (the actual Claude.ai issue)
+                if toolsResponse2.result.tools.length is 0
+                  done(new Error('CLAUDE.AI ISSUE REPRODUCED: tools list is empty'))
+                else
+                  done() # Test passes - no session interference
 
 # Add to main test index
 module.exports = true  # Mark as loaded

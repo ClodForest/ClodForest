@@ -155,6 +155,11 @@ token = (req, res) ->
       else
         oauth2.refreshAccessToken(refresh_token, clientId)
     
+    when 'client_credentials'
+      # Client credentials grant for machine-to-machine auth (Claude.ai)
+      scope = req.body.scope or 'mcp'
+      oauth2.createToken(clientId, null, scope)
+    
     else
       error: 'unsupported_grant_type'
   

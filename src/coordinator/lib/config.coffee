@@ -70,7 +70,7 @@ FEATURES =
   GIT_OPERATIONS:     true
   ADMIN_AUTH:         NODE_ENV is 'production'
   MCP_PROTOCOL:       true
-  OAUTH2_AUTH:        process.env.ENABLE_OAUTH2 is 'true' or false
+  OAUTH2_AUTH:        true  # Enable OAuth2 by default for Claude.ai MCP integration
 
 # Validation helpers
 validateConfig = ->

@@ -1,0 +1,24 @@
+# ClodForest Development Rules
+
+## Quality Standards
+- ALWAYS confirm assumptions before implementing
+- Ask clarifying questions before making changes
+- Never delete or truncate existing code without explicit permission
+- Preserve all existing functionality unless specifically asked to remove it
+
+## Robert's Collaboration Style
+- Confirm understanding before proceeding with implementations
+- Use Node.js module prefixes (node:path, node:fs/promises, node:crypto)
+- Apply vertical alignment for related imports and object properties
+- Follow define-after-use pattern for data structures
+- Add filename tags as comments
+
+## Context Management
+- When context reaches 50%, create handoff documentation before proceeding
+- Always preserve project context and implementation history
+- Document completed work and next steps clearly
+
+## Current Priority: MCP Integration
+- Focus on adding context tools to complete ClodForest MCP transformation
+- Context operations are the core value proposition
+- Test each tool implementation before proceeding to next
