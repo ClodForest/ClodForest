@@ -77,7 +77,8 @@ processRequest = (request, req, callback) ->
   
   # Execute method
   try
-    method request.params or {}, req, (error, result) ->
+    # Create a wrapper callback to ensure proper error handling
+    methodCallback = (error, result) ->
       if error
         callback createErrorResponse(
           request.id,
@@ -91,6 +92,9 @@ processRequest = (request, req, callback) ->
           callback createSuccessResponse(request.id, result)
         else
           callback null
+    
+    # Call method with proper parameters
+    method request.params or {}, req, methodCallback
   
   catch err
     callback createErrorResponse(
