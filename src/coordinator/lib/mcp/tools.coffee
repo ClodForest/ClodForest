@@ -8,6 +8,7 @@ path   = require 'node:path'
 yaml   = require 'js-yaml'
 config = require '../config'
 apis   = require '../apis'
+logger = require '../logger'
 
 # Tool definitions
 TOOLS = [
@@ -183,7 +184,52 @@ listTools = (callback) ->
   callback null, TOOLS
 
 # Execute a tool
-callTool = (toolName, args, callback) ->
+callTool = (toolName, args, req, callback) ->
+  startTime = Date.now()
+  
+  # Log tool call start
+  logger.logMCP req, 'mcp_tool_call',
+    tool_name: toolName
+    arguments: args
+  
+  # Wrapper callback to add logging
+  loggedCallback = (error, result) ->
+    responseTime = Date.now() - startTime
+    
+    if error
+      logger.logMCP req, 'mcp_tool_error',
+        tool_name: toolName
+        error_code: error.code
+        error_message: error.message
+        response_time_ms: responseTime
+    else
+      # Log successful tool execution with result metadata
+      resultMetadata = 
+        tool_name: toolName
+        success: true
+        response_time_ms: responseTime
+      
+      # Add specific metadata for context operations
+      if toolName.includes('Context')
+        if toolName is 'clodforest.getContext' and args.name
+          resultMetadata.context_name = args.name
+          resultMetadata.resolve_inheritance = args.resolveInheritance ? true
+        else if toolName is 'clodforest.setContext' and args.name
+          resultMetadata.context_name = args.name
+          resultMetadata.context_operation = 'set'
+        else if toolName is 'clodforest.searchContexts' and args.query
+          resultMetadata.search_query = args.query
+          resultMetadata.search_limit = args.limit ? 10
+        else if toolName is 'clodforest.listContexts'
+          resultMetadata.context_operation = 'list'
+          if args.category
+            resultMetadata.filter_category = args.category
+      
+      logger.logMCP req, 'mcp_tool_success', resultMetadata
+    
+    callback(error, result)
+  
+  # Execute the actual tool
   switch toolName
     when 'clodforest.getTime'
       # Create a mock request object for getTimeData
@@ -199,7 +245,7 @@ callTool = (toolName, args, callback) ->
         when 'milliseconds' then timeData.formats.milliseconds.toString()
         else timeData.timestamp
       
-      callback null,
+      loggedCallback null,
         content: [
           type: 'text'
           text: result
@@ -208,7 +254,7 @@ callTool = (toolName, args, callback) ->
     when 'clodforest.checkHealth'
       healthData = apis.getHealthData()
       
-      callback null,
+      loggedCallback null,
         content: [
           type: 'text'
           text: JSON.stringify(healthData, null, 2)
@@ -217,7 +263,7 @@ callTool = (toolName, args, callback) ->
     when 'clodforest.listRepositories'
       repoData = apis.getRepositoryData()
       
-      callback null,
+      loggedCallback null,
         content: [
           type: 'text'
           text: JSON.stringify(repoData, null, 2)
@@ -225,19 +271,19 @@ callTool = (toolName, args, callback) ->
     
     when 'clodforest.browseRepository'
       unless args.repository
-        return callback
+        return loggedCallback
           code: -32602
           message: 'Missing required parameter: repository'
       
       browseData = apis.browseRepository(args.repository, args.path or '')
       
       if browseData.error
-        callback
+        loggedCallback
           code: -32603
           message: browseData.error
           data: browseData.message
       else
-        callback null,
+        loggedCallback null,
           content: [
             type: 'text'
             text: JSON.stringify(browseData, null, 2)
@@ -245,19 +291,19 @@ callTool = (toolName, args, callback) ->
     
     when 'clodforest.readFile'
       unless args.repository and args.path
-        return callback
+        return loggedCallback
           code: -32602
           message: 'Missing required parameters: repository, path'
       
       fileData = apis.readRepositoryFile(args.repository, args.path)
       
       if fileData.error
-        callback
+        loggedCallback
           code: -32603
           message: fileData.error
           data: fileData.message
       else
-        callback null,
+        loggedCallback null,
           content: [
             type: 'text'
             text: fileData.content
@@ -265,18 +311,18 @@ callTool = (toolName, args, callback) ->
     
     when 'clodforest.gitStatus'
       unless args.repository
-        return callback
+        return loggedCallback
           code: -32602
           message: 'Missing required parameter: repository'
       
       apis.executeGitCommand args.repository, 'status', [], (gitData) ->
         if gitData.error
-          callback
+          loggedCallback
             code: -32603
             message: gitData.error
             data: gitData.stderr
         else
-          callback null,
+          loggedCallback null,
             content: [
               type: 'text'
               text: gitData.stdout
@@ -284,22 +330,22 @@ callTool = (toolName, args, callback) ->
     
     # Context operation handlers
     when 'clodforest.getContext'
-      handleGetContext args, callback
+      handleGetContext args, loggedCallback
     
     when 'clodforest.setContext'
-      handleSetContext args, callback
+      handleSetContext args, loggedCallback
     
     when 'clodforest.listContexts'
-      handleListContexts args, callback
+      handleListContexts args, loggedCallback
     
     when 'clodforest.inheritContext'
-      handleInheritContext args, callback
+      handleInheritContext args, loggedCallback
     
     when 'clodforest.searchContexts'
-      handleSearchContexts args, callback
+      handleSearchContexts args, loggedCallback
     
     else
-      callback
+      loggedCallback
         code: -32601
         message: "Unknown tool: #{toolName}"
 

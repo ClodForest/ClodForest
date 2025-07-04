@@ -2,6 +2,7 @@
 # JSON-RPC 2.0 Protocol Implementation for MCP
 
 methods = require './methods'
+logger  = require '../logger'
 
 # JSON-RPC Error Codes
 ERROR_CODES =
@@ -59,7 +60,7 @@ validateRequest = (request) ->
   null  # Valid request
 
 # Process single JSON-RPC request
-processRequest = (request, callback) ->
+processRequest = (request, req, callback) ->
   # Validate request structure
   validationError = validateRequest(request)
   if validationError
@@ -76,7 +77,7 @@ processRequest = (request, callback) ->
   
   # Execute method
   try
-    method request.params or {}, (error, result) ->
+    method request.params or {}, req, (error, result) ->
       if error
         callback createErrorResponse(
           request.id,
@@ -99,11 +100,20 @@ processRequest = (request, callback) ->
     )
 
 # Process JSON-RPC request (single or batch)
-processJsonRpc = (requestBody, callback) ->
+processJsonRpc = (requestBody, req, callback) ->
+  startTime = Date.now()
+  
   # Parse JSON
   try
     request = JSON.parse(requestBody)
   catch parseError
+    # Log parse error
+    logger.logMCP req, 'mcp_error',
+      error_type: 'parse_error'
+      error_code: ERROR_CODES.PARSE_ERROR
+      error_message: 'Parse error'
+      response_time_ms: Date.now() - startTime
+    
     return callback createErrorResponse(
       null,
       ERROR_CODES.PARSE_ERROR,
@@ -112,14 +122,45 @@ processJsonRpc = (requestBody, callback) ->
   
   # MCP doesn't support batch requests
   if Array.isArray(request)
+    # Log batch request error
+    logger.logMCP req, 'mcp_error',
+      error_type: 'batch_not_supported'
+      error_code: ERROR_CODES.INVALID_REQUEST
+      error_message: 'Batch requests not supported by MCP'
+      response_time_ms: Date.now() - startTime
+    
     return callback createErrorResponse(
       null,
       ERROR_CODES.INVALID_REQUEST,
       'Batch requests not supported by MCP'
     )
   
+  # Log incoming request
+  logger.logMCP req, 'mcp_request',
+    method: request.method
+    request_id: request.id
+    params: request.params
+  
   # Single request
-  processRequest request, callback
+  processRequest request, req, (response) ->
+    responseTime = Date.now() - startTime
+    
+    # Log response
+    if response?.error
+      logger.logMCP req, 'mcp_error',
+        method: request.method
+        request_id: request.id
+        error_code: response.error.code
+        error_message: response.error.message
+        response_time_ms: responseTime
+    else
+      logger.logMCP req, 'mcp_response',
+        method: request.method
+        request_id: request.id
+        success: true
+        response_time_ms: responseTime
+    
+    callback(response)
 
 module.exports = {
   processJsonRpc

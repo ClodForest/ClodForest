@@ -15,7 +15,12 @@ session =
 # Core Methods
 
 # Initialize the connection
-initialize = (params, callback) ->
+initialize = (params, req, callback) ->
+  # Handle both 2 and 3 parameter calls for backward compatibility
+  if typeof req is 'function'
+    callback = req
+    req = null
+  
   # Store client info
   session.clientInfo = params.clientInfo if params.clientInfo
   
@@ -28,7 +33,12 @@ initialize = (params, callback) ->
   callback null, caps
 
 # Handle initialized notification
-notificationsInitialized = (params, callback) ->
+notificationsInitialized = (params, req, callback) ->
+  # Handle both 2 and 3 parameter calls for backward compatibility
+  if typeof req is 'function'
+    callback = req
+    req = null
+  
   # This is a notification, no response needed
   console.log 'MCP session initialized'
   callback null, null
@@ -36,7 +46,12 @@ notificationsInitialized = (params, callback) ->
 # Resource Methods
 
 # List available resources
-resourcesList = (params, callback) ->
+resourcesList = (params, req, callback) ->
+  # Handle both 2 and 3 parameter calls for backward compatibility
+  if typeof req is 'function'
+    callback = req
+    req = null
+  
   unless session.initialized
     return callback
       code: -32002
@@ -49,7 +64,12 @@ resourcesList = (params, callback) ->
       callback null, resources: resourceList
 
 # Get a specific resource
-resourcesGet = (params, callback) ->
+resourcesGet = (params, req, callback) ->
+  # Handle both 2 and 3 parameter calls for backward compatibility
+  if typeof req is 'function'
+    callback = req
+    req = null
+  
   unless session.initialized
     return callback
       code: -32002
@@ -69,7 +89,12 @@ resourcesGet = (params, callback) ->
 # Tool Methods
 
 # List available tools
-toolsList = (params, callback) ->
+toolsList = (params, req, callback) ->
+  # Handle both 2 and 3 parameter calls for backward compatibility
+  if typeof req is 'function'
+    callback = req
+    req = null
+  
   unless session.initialized
     return callback
       code: -32002
@@ -82,7 +107,7 @@ toolsList = (params, callback) ->
       callback null, tools: toolList
 
 # Call a tool
-toolsCall = (params, callback) ->
+toolsCall = (params, req, callback) ->
   unless session.initialized
     return callback
       code: -32002
@@ -93,7 +118,7 @@ toolsCall = (params, callback) ->
       code: -32602
       message: 'Missing required parameter: name'
   
-  tools.callTool params.name, params.arguments or {}, (error, result) ->
+  tools.callTool params.name, params.arguments or {}, req, (error, result) ->
     if error
       callback error
     else
@@ -102,7 +127,12 @@ toolsCall = (params, callback) ->
 # Prompt Methods
 
 # List available prompts
-promptsList = (params, callback) ->
+promptsList = (params, req, callback) ->
+  # Handle both 2 and 3 parameter calls for backward compatibility
+  if typeof req is 'function'
+    callback = req
+    req = null
+  
   unless session.initialized
     return callback
       code: -32002
@@ -115,7 +145,12 @@ promptsList = (params, callback) ->
       callback null, prompts: promptList
 
 # Get a specific prompt
-promptsGet = (params, callback) ->
+promptsGet = (params, req, callback) ->
+  # Handle both 2 and 3 parameter calls for backward compatibility
+  if typeof req is 'function'
+    callback = req
+    req = null
+  
   unless session.initialized
     return callback
       code: -32002

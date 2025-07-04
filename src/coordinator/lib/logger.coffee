@@ -28,7 +28,7 @@ initializeLogging = ->
     return false
   
   # Initialize log streams
-  logFiles = ['access', 'error', 'debug']
+  logFiles = ['access', 'error', 'debug', 'mcp']
   
   for logType in logFiles
     logPath = path.join(config.LOG_DIR, "#{logType}.log")
@@ -150,6 +150,37 @@ logAccess = (req, res, responseTime) ->
   
   logStreams.access.write(JSON.stringify(accessEntry) + '\n')
 
+# MCP activity logging function
+logMCP = (req, eventType, data = {}) ->
+  return unless logStreams.mcp
+  
+  clientIP = getRealClientIP(req)
+  
+  # Base MCP log entry
+  mcpEntry =
+    timestamp: new Date().toISOString()
+    client_ip: clientIP
+    event_type: eventType
+  
+  # Add all provided data
+  Object.assign(mcpEntry, data)
+  
+  # Add request metadata if available
+  if req.get('X-Request-ID')
+    mcpEntry.request_id = req.get('X-Request-ID')
+  
+  if req.get('X-ClaudeLink-Instance')
+    mcpEntry.claude_instance = req.get('X-ClaudeLink-Instance')
+  
+  if req.get('User-Agent')
+    mcpEntry.user_agent = req.get('User-Agent')
+  
+  logStreams.mcp.write(JSON.stringify(mcpEntry) + '\n')
+  
+  # Console log for immediate feedback in debug mode
+  if config.debugMode
+    console.log "[MCP] #{eventType}: #{data.method or data.tool_name or 'unknown'}"
+
 # Request logging middleware
 requestLogger = (req, res, next) ->
   startTime = Date.now()
@@ -221,5 +252,6 @@ module.exports = {
   requestLogger
   log
   logAccess
+  logMCP
   shutdown
 }

@@ -1,14 +1,114 @@
 #!/usr/bin/env coffee
-# Test ClodForest MCP Server on production (clodforest.thatsnice.org:8080)
+# ClodForest MCP Server Test Script
+# Supports testing both local development and production environments
 
 http = require 'http'
 https = require 'https'
 
-# Production Configuration
-HOST = 'clodforest.thatsnice.org'
-PORT = 443
-PATH = '/api/mcp'
-USE_HTTPS = true  # Production uses HTTPS
+# Parse command line arguments
+args = process.argv.slice(2)
+
+# Default configuration (local development)
+config =
+  host: 'localhost'
+  port: 8080
+  path: '/api/mcp'
+  useHttps: false
+  environment: 'local'
+
+# Environment presets
+environments =
+  local:
+    host: 'localhost'
+    port: 8080
+    path: '/api/mcp'
+    useHttps: false
+    environment: 'local'
+  
+  production:
+    host: 'clodforest.thatsnice.org'
+    port: 443
+    path: '/api/mcp'
+    useHttps: true
+    environment: 'production'
+
+# Parse arguments
+showHelp = ->
+  console.log '''
+    ClodForest MCP Server Test Script
+    
+    Usage:
+      coffee bin/test-mcp.coffee [options]
+    
+    Options:
+      --env, -e <environment>    Environment preset (local, production)
+      --host, -h <hostname>      Server hostname
+      --port, -p <port>          Server port
+      --https                    Use HTTPS
+      --http                     Use HTTP
+      --help                     Show this help
+    
+    Environment Presets:
+      local                      http://localhost:8080/api/mcp (default)
+      production                 https://clodforest.thatsnice.org:443/api/mcp
+    
+    Examples:
+      coffee bin/test-mcp.coffee                           # Test local development
+      coffee bin/test-mcp.coffee --env production          # Test production
+      coffee bin/test-mcp.coffee --host example.com --port 3000 --https
+    '''
+  process.exit 0
+
+i = 0
+while i < args.length
+  arg = args[i]
+  
+  switch arg
+    when '--help'
+      showHelp()
+    
+    when '--env', '-e'
+      envName = args[++i]
+      unless envName
+        console.error 'Error: --env requires an environment name'
+        process.exit 1
+      
+      unless environments[envName]
+        console.error "Error: Unknown environment '#{envName}'. Available: #{Object.keys(environments).join(', ')}"
+        process.exit 1
+      
+      config = Object.assign({}, environments[envName])
+    
+    when '--host', '-h'
+      config.host = args[++i]
+      unless config.host
+        console.error 'Error: --host requires a hostname'
+        process.exit 1
+    
+    when '--port', '-p'
+      config.port = parseInt(args[++i])
+      unless config.port
+        console.error 'Error: --port requires a valid port number'
+        process.exit 1
+    
+    when '--https'
+      config.useHttps = true
+    
+    when '--http'
+      config.useHttps = false
+    
+    else
+      console.error "Error: Unknown option '#{arg}'"
+      console.error "Use --help for usage information"
+      process.exit 1
+  
+  i++
+
+# Configuration
+HOST = config.host
+PORT = config.port
+PATH = config.path
+USE_HTTPS = config.useHttps
 
 # Helper to make JSON-RPC request
 makeRequest = (method, params, id, callback) ->
@@ -44,13 +144,15 @@ makeRequest = (method, params, id, callback) ->
   req.end()
 
 # Test sequence
-console.log "🌐 Testing ClodForest MCP Server on #{HOST}:#{PORT}...\n"
+protocol = if USE_HTTPS then 'https' else 'http'
+console.log "🌐 Testing ClodForest MCP Server (#{config.environment})"
+console.log "   Target: #{protocol}://#{HOST}:#{PORT}#{PATH}\n"
 
 # Test 1: Initialize
 console.log '1. Testing initialize...'
 makeRequest 'initialize', 
   clientInfo:
-    name: 'production-test-client'
+    name: "mcp-test-client-#{config.environment}"
     version: '1.0.0'
 , 1, (err, res) ->
   if err
@@ -221,14 +323,14 @@ makeRequest 'initialize',
                 catch
                   console.log '   Repository data received'
                 
-                console.log '\n🎉 Production MCP testing complete!'
+                console.log "\n🎉 MCP testing complete (#{config.environment})!"
                 console.log '\n📊 Test Summary:'
                 console.log '   ✅ MCP Protocol: Working'
                 console.log '   ✅ Context Operations: Working'
                 console.log '   ✅ Repository Operations: Working'
                 console.log '   ✅ Health & Time: Working'
                 console.log '   ✅ Search Intelligence: Working'
-                console.log '\n🚀 ClodForest MCP Server is fully operational!'
+                console.log "\n🚀 ClodForest MCP Server (#{config.environment}) is fully operational!"
 
 # Handle process errors
 process.on 'uncaughtException', (err) ->

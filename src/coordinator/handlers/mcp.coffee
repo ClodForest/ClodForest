@@ -17,7 +17,7 @@ handleRequest = (req, res) ->
   try
     requestBody = if typeof req.body is 'string' then req.body else JSON.stringify(req.body)
     
-    mcp.processJsonRpc requestBody, (response) ->
+    mcp.processJsonRpc requestBody, req, (response) ->
       if response
         res.json response
       else
