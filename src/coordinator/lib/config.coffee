@@ -6,6 +6,11 @@ PORT         = process.env.PORT         or 8080
 NODE_ENV     = process.env.NODE_ENV     or 'development'
 LOG_LEVEL    = process.env.LOG_LEVEL    or 'info'
 
+# Logging configuration
+LOG_DIR      = process.env.LOG_DIR      or './logs'
+LOG_ROTATION = process.env.LOG_ROTATION or 'daily'  # daily, size, none
+TRUST_PROXY  = process.env.TRUST_PROXY  is 'true' or true  # Default true for load balancer
+
 # Service identification
 VAULT_SERVER = process.env.VAULT_SERVER or 'clodforest-vault'
 SERVICE_NAME = process.env.SERVICE_NAME or 'ClodForest Coordinator'
@@ -129,6 +134,11 @@ module.exports = {
   VAULT_SERVER
   SERVICE_NAME
   VERSION
+
+  # Logging config
+  LOG_DIR
+  LOG_ROTATION
+  TRUST_PROXY
 
   # Paths and storage
   REPO_PATH

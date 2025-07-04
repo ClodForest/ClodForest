@@ -5,6 +5,7 @@ express = require 'express'
 cors    = require 'cors'
 yaml    = require 'js-yaml'
 config  = require './config'
+logger  = require './logger'
 
 # CORS configuration
 corsOptions =
@@ -22,17 +23,8 @@ corsOptions =
   credentials: true
   maxAge: 86400  # 24 hours
 
-# Request logging middleware
-requestLogger = (req, res, next) ->
-  timestamp = new Date().toISOString()
-  clientIP = req.ip || req.connection.remoteAddress || req.socket.remoteAddress || 'unknown'
-  queryString = if Object.keys(req.query).length > 0 then "?#{new URLSearchParams(req.query).toString()}" else ''
-
-  if config.debugMode
-    console.log "[#{timestamp}] #{clientIP} #{req.method} #{req.path}#{queryString}"
-  else
-    console.log "[#{timestamp}] #{req.method} #{req.path}"
-  next()
+# Request logging middleware (now uses enhanced logger)
+requestLogger = logger.requestLogger
 
 # Security middleware
 securityMiddleware = (req, res, next) ->
