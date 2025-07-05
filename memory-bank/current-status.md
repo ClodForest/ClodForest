@@ -10,7 +10,11 @@
 - ❌ **MCP Inspector Compatibility Issue** - oidc-provider has hardcoded validation that rejects `refresh_token` in grant_types array
 - ❌ **Error**: "grant_types can only contain 'authorization_code' or 'client_credentials'"
 - ❌ **Root Cause**: oidc-provider enforces strict RFC 7591 compliance that conflicts with MCP Inspector's registration request
-- ❌ **Multiple Fix Attempts Failed**: Middleware filtering, extraClientMetadata validation, removing refresh_token from supported grants
+- ❌ **Multiple Fix Attempts Failed**: 
+  - Added `'refresh_token'` to `clientDefaults.grant_types` - validation still occurs before this
+  - Middleware filtering in router - request doesn't pass through our middleware
+  - extraClientMetadata validation - validator not called for grant_types
+  - oidc-provider middleware - validation happens before middleware execution
 
 #### Analysis:
 - **oidc-provider validation is too strict** - It doesn't allow `refresh_token` in grant_types during registration
@@ -31,11 +35,24 @@
 - **Grant Types**: authorization_code, client_credentials, refresh_token
 - **Issue**: MCP Inspector sends `["authorization_code", "refresh_token"]` but oidc-provider expects only `["authorization_code"]`
 
+#### Current Fix Attempts (All Failed):
+1. **clientDefaults modification** - Added `'refresh_token'` to `clientDefaults.grant_types` but oidc-provider validates before applying defaults
+2. **Router middleware** - Added middleware to filter grant_types in `src/oauth/router.coffee` but request doesn't pass through our middleware
+3. **extraClientMetadata validator** - Configured validator function but it's not called for standard properties like grant_types
+4. **oidc-provider middleware** - Added middleware directly to provider instance but validation occurs before middleware execution
+
+#### Root Problem Analysis:
+- **oidc-provider architecture** - Validation is hardcoded in the library's core registration logic
+- **Request flow** - `/register` endpoint is handled directly by oidc-provider, bypassing our middleware
+- **RFC interpretation** - oidc-provider strictly follows RFC 7591 which doesn't allow refresh_token in grant_types
+- **MCP Inspector behavior** - Sends technically incorrect but commonly accepted registration request
+
 #### Next Steps to Resolve:
-1. **Research oidc-provider documentation** for proper refresh_token handling
-2. **Implement custom validation policy** to filter refresh_token from grant_types during registration
-3. **Test with MCP Inspector** to verify compatibility
-4. **Ensure backward compatibility** with existing OAuth2 flows
+1. **Consider reverting to oauth2-server** - Original implementation works with MCP Inspector
+2. **Patch oidc-provider source** - Modify validation logic (not recommended for production)
+3. **Use different OAuth2 library** - Find one with more flexible validation
+4. **Contact MCP Inspector maintainers** - Request fix to send RFC-compliant registration
+5. **Implement custom registration endpoint** - Handle registration separately from oidc-provider
 
 ### Previous Implementation (Still Working):
 
