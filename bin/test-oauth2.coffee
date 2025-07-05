@@ -415,7 +415,7 @@ main = ->
       response_types: ['token']
     }
 
-    clientResponse = await makeRequest 'POST', '/oauth/clients', clientRequest
+    clientResponse = await makeRequest 'POST', '/oauth/register', clientRequest
 
     if clientResponse.status is 201
       oauth2Results.clientRegistration = true

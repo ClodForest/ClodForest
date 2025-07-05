@@ -508,7 +508,8 @@ generateEnhancedReport = ->
     for result in sortedByDuration.slice(0, 3)
       logInfo "   • #{result.name}: #{Math.round(result.duration/1000)}s"
 
-    avgDuration = if allTests.length > 0 then Math.round(allTests.reduce((sum, r) -> sum + r.duration, 0) / allTests.length / 1000) else 0
+    totalDurationMs = allTests.reduce(((sum, r) -> sum + r.duration), 0)
+    avgDuration = if allTests.length > 0 then Math.round(totalDurationMs / allTests.length / 1000) else 0
     logInfo "   Average Duration: #{avgDuration}s"
 
   # Recommendations
