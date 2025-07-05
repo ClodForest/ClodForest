@@ -119,6 +119,12 @@ class OAuth2Model
     
     requiredScopes.every (s) -> tokenScopes.includes s
 
+  getUserFromClient: (client) ->
+    # For client_credentials grant, return a simple user object
+    # since this is machine-to-machine authentication
+    id:       'system'
+    username: client.id
+
   # Client registration method
   registerClient: (clientData) ->
     clients = await @loadClients()
