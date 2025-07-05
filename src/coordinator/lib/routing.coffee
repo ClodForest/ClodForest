@@ -151,15 +151,15 @@ setup = (app) ->
   # MCP Protocol endpoint
   if config.FEATURES.MCP_PROTOCOL
     mcp = require '../handlers/mcp'
-    
+
     # Apply OAuth2 protection if enabled
     if config.FEATURES.OAUTH2_AUTH
       {requireAuth} = require './oauth2/middleware'
-      
+
       # Original endpoint for backward compatibility
       app.post config.API_PATHS.MCP, requireAuth('mcp'), (req, res) ->
         mcp.handleRequest req, res
-      
+
       # Claude.ai expected endpoint
       app.post '/mcp/jsonrpc', requireAuth('mcp'), (req, res) ->
         mcp.handleRequest req, res
@@ -167,7 +167,7 @@ setup = (app) ->
       # Original endpoint for backward compatibility
       app.post config.API_PATHS.MCP, (req, res) ->
         mcp.handleRequest req, res
-      
+
       # Claude.ai expected endpoint
       app.post '/mcp/jsonrpc', (req, res) ->
         mcp.handleRequest req, res
@@ -175,17 +175,17 @@ setup = (app) ->
   # OAuth2 endpoints
   if config.FEATURES.OAUTH2_AUTH
     oauth = require '../handlers/oauth'
-    
+
     # OAuth2 authorization endpoints
     app.get  config.API_PATHS.OAUTH + '/authorize', oauth.authorize
     app.post config.API_PATHS.OAUTH + '/authorize', oauth.authorizeSubmit
-    
+
     # OAuth2 token endpoint
     app.post config.API_PATHS.OAUTH + '/token', oauth.token
-    
+
     # Client registration endpoint (enabled for Claude.ai integration)
     app.post config.API_PATHS.OAUTH + '/clients', oauth.registerClient
-    
+
     # Dynamic client registration endpoint (RFC 7591 - for Claude.ai)
     app.post config.API_PATHS.OAUTH + '/register', oauth.registerClient
 
@@ -214,11 +214,32 @@ setup = (app) ->
         grant_types_supported: ['authorization_code', 'client_credentials']
         token_endpoint_auth_methods_supported: ['client_secret_basic', 'client_secret_post']
         code_challenge_methods_supported: ['S256']
-        
+
       res.setHeader 'Content-Type', 'application/json'
       res.setHeader 'Access-Control-Allow-Origin', '*'
       res.setHeader 'Access-Control-Allow-Methods', 'GET, OPTIONS'
       res.setHeader 'Access-Control-Allow-Headers', 'Content-Type'
+      res.json metadata
+    else
+      res.status(404).json error: 'OAuth2 not enabled'
+
+# RFC 8707 OAuth2 Protected Resource Metadata (CRITICAL for Claude.ai)
+  app.get '/.well-known/oauth-protected-resource', (req, res) ->
+    if config.FEATURES.OAUTH2_AUTH
+      metadata =
+        resource: "#{if config.useHttps then 'https' else 'http'}://#{req.get('host')}#{config.API_PATHS.MCP}"
+        authorization_servers: ["#{if config.useHttps then 'https' else 'http'}://#{req.get('host')}"]
+        scopes_supported: ['mcp', 'read', 'write']
+        bearer_methods_supported: ['header', 'query']
+        resource_documentation: "#{if config.useHttps then 'https' else 'http'}://#{req.get('host')}/docs/mcp"
+        introspection_endpoint: "#{if config.useHttps then 'https' else 'http'}://#{req.get('host')}#{config.API_PATHS.OAUTH}/introspect"
+        revocation_endpoint: "#{if config.useHttps then 'https' else 'http'}://#{req.get('host')}#{config.API_PATHS.OAUTH}/revoke"
+
+      res.setHeader 'Content-Type', 'application/json; charset=utf-8'
+      res.setHeader 'Cache-Control', 'public, max-age=3600'
+      res.setHeader 'Access-Control-Allow-Origin', '*'
+      res.setHeader 'Access-Control-Allow-Methods', 'GET, OPTIONS'
+      res.setHeader 'Access-Control-Allow-Headers', 'Content-Type, Authorization'
       res.json metadata
     else
       res.status(404).json error: 'OAuth2 not enabled'
@@ -244,7 +265,7 @@ setup = (app) ->
           resources: false
           prompts: false
         transport: 'http'
-        
+
       res.setHeader 'Content-Type', 'application/json'
       res.setHeader 'Access-Control-Allow-Origin', '*'
       res.setHeader 'Access-Control-Allow-Methods', 'GET, OPTIONS'
