@@ -12,6 +12,7 @@ oauthRoutes     = require './oauth/server'
 mcpHandler      = require './mcp/server'
 authMiddleware  = require './middleware/auth'
 securityMiddleware = require './middleware/security'
+{ logger, requestLogger } = require './lib/logger'
 
 PORT = process.env.PORT or 8080
 
@@ -30,10 +31,8 @@ app.use cors
 app.use express.json limit: '10mb'
 app.use express.urlencoded extended: true, limit: '10mb'
 
-# Logging middleware
-app.use (req, res, next) ->
-  console.log "#{new Date().toISOString()} #{req.method} #{req.path}"
-  next()
+# Request logging middleware
+app.use requestLogger
 
 # Well-known endpoints (RFC 5785)
 app.use '/.well-known', wellKnownRoutes
@@ -49,7 +48,7 @@ app.use '/api/mcp', authMiddleware, mcpHandler
 
 # Error handling middleware
 app.use (err, req, res, next) ->
-  console.error 'Error:', err
+  logger.error 'HTTP Error', { error: err.message, stack: err.stack, status: err.status }
   res.status(err.status or 500).json
     error:   'Internal Server Error'
     message: if process.env.NODE_ENV is 'development' then err.message else 'Something went wrong'
@@ -62,10 +61,17 @@ app.use (req, res) ->
 
 # Start server
 app.listen PORT, ->
-  console.log """
+  startupMessage = """
     ClodForest MCP Server running on port #{PORT}
     Environment:         #{process.env.NODE_ENV or 'development'}
     OAuth2 endpoints:    /oauth/*
     MCP endpoint:        /api/mcp
     Well-known endpoints: /.well-known/*
   """
+  
+  console.log startupMessage
+  logger.info 'Server started', {
+    port: PORT
+    environment: process.env.NODE_ENV or 'development'
+    pid: process.pid
+  }

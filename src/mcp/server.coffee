@@ -5,6 +5,7 @@
 { StdioServerTransport }                      = require '@modelcontextprotocol/sdk/server/stdio.js'
 { CallToolRequestSchema, ListToolsRequestSchema } = require '@modelcontextprotocol/sdk/types.js'
 stateTools = require './tools/state'
+{ logger }  = require '../lib/logger'
 
 # Create MCP server instance
 server = new Server(
@@ -115,6 +116,9 @@ mcpHandler = (req, res) ->
           message: 'Invalid Request - method is required'
         id: id or null
 
+    # Log MCP request
+    logger.mcp 'MCP Request', { method, params, id }
+    
     # Handle MCP methods
     if method is 'initialize'
       result =
@@ -125,16 +129,60 @@ mcpHandler = (req, res) ->
           name:    'clodforest-mcp-server'
           version: '1.0.0'
     else if method is 'tools/list'
-      toolsResponse = await server.request { method: 'tools/list', params: params or {} }, ListToolsRequestSchema
-      result = toolsResponse
+      # Return tools list directly (no need for server.request)
+      result =
+        tools: [
+          name: 'read_state_file'
+          description: 'Read files from the state directory'
+          inputSchema:
+            type: 'object'
+            properties:
+              path:
+                type: 'string'
+                description: 'Path to the file within the state directory'
+            required: ['path']
+        ,
+          name: 'write_state_file'
+          description: 'Write files to the state directory'
+          inputSchema:
+            type: 'object'
+            properties:
+              path:
+                type: 'string'
+                description: 'Path to the file within the state directory'
+              content:
+                type: 'string'
+                description: 'Content to write to the file'
+            required: ['path', 'content']
+        ,
+          name: 'list_state_files'
+          description: 'List files and directories in the state directory'
+          inputSchema:
+            type: 'object'
+            properties:
+              path:
+                type: 'string'
+                description: 'Path within the state directory to list (defaults to root)'
+                default: '.'
+        ]
     else if method is 'tools/call'
       unless params?.name
         throw new Error 'Tool name is required'
-      toolResponse = await server.request { 
-        method: 'tools/call'
-        params: params 
-      }, CallToolRequestSchema
-      result = toolResponse
+      
+      # Call tools directly instead of using server.request
+      { name, arguments: args } = params
+      
+      switch name
+        when 'read_state_file'
+          toolResult = await stateTools.readStateFile args.path
+        when 'write_state_file'
+          toolResult = await stateTools.writeStateFile args.path, args.content
+        when 'list_state_files'
+          toolResult = await stateTools.listStateFiles args.path or '.'
+        else
+          throw new Error "Unknown tool: #{name}"
+      
+      result = toolResult
     else
       return res.status(400).json
         jsonrpc: '2.0'
@@ -150,7 +198,7 @@ mcpHandler = (req, res) ->
       id:      id or null
 
   catch error
-    console.error 'MCP handler error:', error
+    logger.error 'MCP handler error', { error: error.message, stack: error.stack, method: req.body?.method }
     
     res.status(500).json
       jsonrpc: '2.0'

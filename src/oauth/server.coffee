@@ -4,6 +4,7 @@
 express      = require 'express'
 OAuth2Server = require 'oauth2-server'
 OAuth2Model  = require './model'
+{ logger }   = require '../lib/logger'
 
 router = express.Router()
 model  = new OAuth2Model()
@@ -55,7 +56,7 @@ router.post '/register', (req, res) ->
       client_secret_expires_at: 0 # Never expires
 
   catch error
-    console.error 'Client registration error:', error
+    logger.oauth 'Client registration error', { error: error.message, client_name: req.body.client_name }
     res.status(500).json
       error:             'server_error'
       error_description: 'Internal server error'
@@ -63,7 +64,7 @@ router.post '/register', (req, res) ->
 # Token endpoint
 router.post '/token', (req, res) ->
   try
-    console.log 'Token request received:', {
+    logger.oauth 'Token request received', {
       grant_type: req.body.grant_type
       client_id: req.body.client_id
       scope: req.body.scope
@@ -74,7 +75,7 @@ router.post '/token', (req, res) ->
 
     token = await oauth.token request, response
     
-    console.log 'Token generated successfully:', {
+    logger.oauth 'Token generated successfully', {
       accessToken: token.accessToken?.substring(0, 10) + '...'
       expiresAt: token.accessTokenExpiresAt
       scope: token.scope
@@ -87,7 +88,7 @@ router.post '/token', (req, res) ->
       scope:        token.scope
 
   catch error
-    console.error 'Token endpoint error details:', {
+    logger.oauth 'Token endpoint error', {
       name: error.name
       message: error.message
       code: error.code
@@ -137,7 +138,7 @@ router.post '/introspect', (req, res) ->
                     undefined
 
   catch error
-    console.error 'Token introspection error:', error
+    logger.oauth 'Token introspection error', { error: error.message, stack: error.stack }
     res.status(500).json
       error:             'server_error'
       error_description: 'Internal server error'
@@ -147,7 +148,7 @@ setInterval (->
   try
     await model.cleanupExpiredTokens()
   catch error
-    console.error 'Token cleanup error:', error
+    logger.oauth 'Token cleanup error', { error: error.message }
 ), 60000 # Every minute
 
 module.exports = router

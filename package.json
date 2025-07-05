@@ -47,7 +47,7 @@
   "devDependencies": {
     "coffeescript": "^2.7.0",
     "kava": "^7.9.0",
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.1.10"
   },
   "engines": {
     "node": ">=18.0.0"
