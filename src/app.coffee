@@ -8,7 +8,7 @@ fs         = require 'node:fs/promises'
 
 wellKnownRoutes = require './routes/wellknown'
 healthRoutes    = require './routes/health'
-oauthRoutes     = require './oauth/server'
+oauthRoutes     = require './oauth/router'
 mcpHandler      = require './mcp/server'
 authMiddleware  = require './middleware/auth'
 securityMiddleware = require './middleware/security'
@@ -40,8 +40,8 @@ app.use '/.well-known', wellKnownRoutes
 # Health check endpoint
 app.use '/api/health', healthRoutes
 
-# OAuth2 endpoints
-app.use '/oauth', oauthRoutes
+# OAuth2 endpoints (oidc-provider needs to be at root for well-known endpoints)
+app.use oauthRoutes
 
 # MCP endpoint (OAuth2 protected)
 app.use '/api/mcp', authMiddleware, mcpHandler

@@ -1,34 +1,12 @@
 # FILENAME: { ClodForest/src/routes/wellknown.coffee }
-# Well-known endpoints for OAuth2 and MCP discovery
+# Well-known endpoints for MCP discovery
+# Note: OAuth2 discovery is handled by oidc-provider at /.well-known/oauth-authorization-server
 
 express = require 'express'
 router  = express.Router()
 
-# OAuth2 Authorization Server Metadata (RFC 8414)
-router.get '/oauth-authorization-server', (req, res) ->
-  baseUrl = "#{req.protocol}://#{req.get('host')}"
-  
-  res.json
-    issuer:                                    baseUrl
-    authorization_endpoint:                    "#{baseUrl}/oauth/authorize"
-    token_endpoint:                            "#{baseUrl}/oauth/token"
-    token_endpoint_auth_methods_supported:     ['client_secret_basic', 'client_secret_post']
-    token_endpoint_auth_signing_alg_values_supported: ['RS256', 'HS256']
-    userinfo_endpoint:                         "#{baseUrl}/oauth/userinfo"
-    registration_endpoint:                     "#{baseUrl}/oauth/register"
-    introspection_endpoint:                    "#{baseUrl}/oauth/introspect"
-    revocation_endpoint:                       "#{baseUrl}/oauth/revoke"
-    scopes_supported:                          ['mcp', 'read', 'write']
-    response_types_supported:                  ['token']
-    grant_types_supported:                     ['client_credentials']
-    subject_types_supported:                   ['public']
-    id_token_signing_alg_values_supported:     ['RS256']
-    claims_supported:                          ['sub', 'iss', 'aud', 'exp', 'iat']
-    code_challenge_methods_supported:          ['S256']
-    service_documentation:                     "#{baseUrl}/docs"
-    ui_locales_supported:                      ['en-US']
-    op_policy_uri:                             "#{baseUrl}/policy"
-    op_tos_uri:                                "#{baseUrl}/terms"
+# OAuth2 Authorization Server Metadata is now handled by oidc-provider
+# The endpoint /.well-known/oauth-authorization-server is automatically provided
 
 # OAuth2 Protected Resource Metadata (RFC 8707)
 router.get '/oauth-protected-resource', (req, res) ->

@@ -1,10 +1,43 @@
 # ClodForest OAuth2 + MCP Server Implementation Status
 
-## Implementation Complete: ✅
+## Current Status: OIDC-PROVIDER MIGRATION BLOCKED ❌
 
-**All JavaScript files converted to CoffeeScript following coding standards**
+**Migration from oauth2-server to oidc-provider blocked by MCP Inspector compatibility**
 
-### Files Implemented:
+### Current Task Progress:
+
+#### Issue Encountered:
+- ❌ **MCP Inspector Compatibility Issue** - oidc-provider has hardcoded validation that rejects `refresh_token` in grant_types array
+- ❌ **Error**: "grant_types can only contain 'authorization_code' or 'client_credentials'"
+- ❌ **Root Cause**: oidc-provider enforces strict RFC 7591 compliance that conflicts with MCP Inspector's registration request
+- ❌ **Multiple Fix Attempts Failed**: Middleware filtering, extraClientMetadata validation, removing refresh_token from supported grants
+
+#### Analysis:
+- **oidc-provider validation is too strict** - It doesn't allow `refresh_token` in grant_types during registration
+- **MCP Inspector expects refresh_token support** - Sends `["authorization_code", "refresh_token"]` in registration
+- **RFC 6749 allows this pattern** - refresh_token can be explicitly requested in grant_types
+- **oidc-provider interpretation differs** - Treats refresh_token as implicit with authorization_code
+
+#### Files Modified During Migration:
+- ✅ `src/oauth/oidc-provider.coffee` - New oidc-provider configuration with file-based adapter
+- ✅ `src/oauth/router.coffee` - Updated to use oidc-provider instead of oauth2-server
+- ✅ `src/middleware/auth.coffee` - Updated for oidc-provider token introspection
+- ✅ `src/app.coffee` - Updated to use new oidc-provider router
+- ✅ `memory-bank/development-practices.md` - Added development workflow guidelines
+
+#### Technical Details:
+- **Library**: Migrating from `oauth2-server` to `oidc-provider` v8.x
+- **Adapter**: Custom file-based adapter for persistence (FileAdapter class)
+- **Grant Types**: authorization_code, client_credentials, refresh_token
+- **Issue**: MCP Inspector sends `["authorization_code", "refresh_token"]` but oidc-provider expects only `["authorization_code"]`
+
+#### Next Steps to Resolve:
+1. **Research oidc-provider documentation** for proper refresh_token handling
+2. **Implement custom validation policy** to filter refresh_token from grant_types during registration
+3. **Test with MCP Inspector** to verify compatibility
+4. **Ensure backward compatibility** with existing OAuth2 flows
+
+### Previous Implementation (Still Working):
 
 #### Core Application:
 - ✅ `src/app.coffee` - Main Express application with proper CoffeeScript structure
@@ -14,7 +47,7 @@
 - ✅ `src/middleware/security.coffee` - Helmet security headers and HTTPS enforcement
 - ✅ `src/middleware/auth.coffee` - OAuth2 authentication middleware with scope verification
 
-#### OAuth2 Implementation:
+#### OAuth2 Implementation (Original):
 - ✅ `src/oauth/model.coffee` - File system persistence for OAuth2 data (clients/tokens)
 - ✅ `src/oauth/server.coffee` - OAuth2 server with client registration, token, and introspection endpoints
 
@@ -34,7 +67,7 @@
 - ✅ **Define-after-use pattern** - Functions defined after first use
 - ✅ **Export pattern** - Using module.exports.foo = foo = pattern where appropriate
 
-### Architecture Implemented:
+### Architecture (Target):
 
 ```
 Express App (src/app.coffee)
@@ -42,10 +75,11 @@ Express App (src/app.coffee)
 ├── CORS & Body Parsing
 ├── Well-known endpoints (/.well-known/*)
 ├── Health endpoints (/api/health/*)
-├── OAuth2 endpoints (/oauth/*)
-│   ├── /register - Client registration (RFC 7591)
-│   ├── /token - Token endpoint (RFC 6749)
-│   └── /introspect - Token introspection (RFC 7662)
+├── OIDC Provider endpoints (/oauth/*)
+│   ├── /register - Client registration (RFC 7591) [oidc-provider]
+│   ├── /token - Token endpoint (RFC 6749) [oidc-provider]
+│   ├── /authorize - Authorization endpoint [oidc-provider]
+│   └── /introspect - Token introspection (RFC 7662) [oidc-provider]
 └── MCP endpoint (/api/mcp) [OAuth2 protected]
     └── Three state management tools:
         ├── read_state_file
@@ -61,10 +95,10 @@ Express App (src/app.coffee)
 - ✅ **Security headers** via Helmet
 - ✅ **File system access restricted** to state/ directory only
 
-### RFC Compliance:
+### RFC Compliance (Target):
 - ✅ **RFC 6749** - OAuth 2.0 Authorization Framework
 - ✅ **RFC 6750** - Bearer Token Usage
-- ✅ **RFC 7591** - Dynamic Client Registration
+- 🔄 **RFC 7591** - Dynamic Client Registration (stricter validation with oidc-provider)
 - ✅ **RFC 7662** - Token Introspection
 - ✅ **RFC 8414** - Authorization Server Metadata
 - ✅ **RFC 8707** - Resource Indicators
@@ -75,99 +109,49 @@ Express App (src/app.coffee)
 2. **write_state_file(path, content)** - Securely write files to state/ directory  
 3. **list_state_files(path)** - List directory contents with file metadata
 
-### Ready for Production Deployment:
-- ✅ All dependencies installed (helmet added)
-- ✅ Environment variable support for configuration
-- ✅ Production HTTPS enforcement
-- ✅ File system persistence for OAuth2 data
-- ✅ Comprehensive error handling
-- ✅ Health check endpoints for monitoring
-- ✅ JSON-RPC 2.0 compliant MCP implementation
+### Current Server Status:
+- 🔄 **Server Running**: localhost:8080 with oidc-provider implementation
+- ❌ **MCP Inspector Test**: Failing due to grant_types validation
+- ✅ **Basic Endpoints**: Health checks working
+- 🔄 **OAuth2 Endpoints**: oidc-provider endpoints active but incompatible with MCP Inspector
 
-### Next Steps:
-1. **Deploy to production** (clodforest.thatsnice.org)
-2. **Test OAuth2 flow** with curl commands
-3. **Test MCP integration** with Claude.ai
-4. **Verify state file operations** work correctly
+### Test Results (Current):
+- ❌ **MCP Inspector Client Registration**: Status 400 - grant_types validation error
+- 🔄 **Basic MCP Functionality**: Not tested yet (blocked by registration)
+- 🔄 **Comprehensive Tool Testing**: Not tested yet (blocked by registration)
+- 🔄 **Security Boundary Testing**: Not tested yet (blocked by registration)
+- 🔄 **RFC 8414 Compliance**: Not tested yet (blocked by registration)
 
-### Success Criteria Met:
-- ✅ OAuth2 client_credentials grant flow implemented
-- ✅ MCP 2025-06-18 protocol compliance
-- ✅ State directory access tools only (as specified)
-- ✅ RFC compliant well-known endpoints
-- ✅ Production-ready security configuration
-- ✅ CoffeeScript coding standards followed
+### Development Practices Established:
+- ✅ **Development workflow documented** in memory-bank/development-practices.md
+- ✅ **Server management**: Use npm run kill/start, check logs/ directory
+- ✅ **Syntax validation**: Use coffee -c before testing
+- ✅ **Research-first approach**: Look up documentation instead of guessing
 
-**Status: PRODUCTION DEPLOYMENT SUCCESSFUL ✅**
+### Immediate Next Actions:
+1. **Research oidc-provider refresh_token handling** - Find proper way to support refresh tokens
+2. **Implement grant_types filtering** - Remove refresh_token from registration, add implicitly
+3. **Test MCP Inspector compatibility** - Verify registration works after fix
+4. **Run full test suite** - Ensure all existing functionality still works
+5. **Update production deployment** - Once compatibility is confirmed
 
-### Production Testing Results:
-- ✅ **Health endpoint**: Working (https://clodforest.thatsnice.org/api/health)
-- ✅ **OAuth2 discovery**: Working (https://clodforest.thatsnice.org/.well-known/oauth-authorization-server)
-- ✅ **MCP discovery**: Working (https://clodforest.thatsnice.org/.well-known/mcp-server)
-- ✅ **MCP authentication**: Properly protected - returns "unauthorized" without token
-- ✅ **Protocol compliance**: MCP 2025-06-18 confirmed
+### Migration Benefits (When Complete):
+- **Better RFC compliance** - oidc-provider is more standards-compliant
+- **Maintained functionality** - All existing OAuth2 flows preserved
+- **Enhanced validation** - Stricter input validation and error handling
+- **Future-proof** - Better foundation for additional OAuth2/OIDC features
 
-### Production URLs:
+**Status: OIDC-PROVIDER MIGRATION 80% COMPLETE - RESOLVING MCP INSPECTOR COMPATIBILITY**
+
+### Production URLs (Previous Working Version):
 - **Base URL**: https://clodforest.thatsnice.org
 - **OAuth2 Discovery**: https://clodforest.thatsnice.org/.well-known/oauth-authorization-server
 - **MCP Discovery**: https://clodforest.thatsnice.org/.well-known/mcp-server
 - **MCP Endpoint**: https://clodforest.thatsnice.org/api/mcp (OAuth2 protected)
 - **Health Check**: https://clodforest.thatsnice.org/api/health
 
-### Ready for Claude.ai Integration:
-The server is now ready for Claude.ai to connect using:
-1. OAuth2 client_credentials flow for authentication
-2. MCP 2025-06-18 protocol for tool access
-3. Three state file tools: read_state_file, write_state_file, list_state_files
-
-**Status: DEBUGGING AUTHENTICATION ISSUE 🔧**
-
-### Latest Progress:
-- ✅ **OAuth2Model initialization fixed** - Added lazy initialization pattern
-- ✅ **getUserFromClient() method added** - Required for client_credentials grant
-- ✅ **Token acquisition working** - OAuth2 flow now generates tokens successfully
-- 🔧 **MCP authentication failing** - Tokens generated but not being accepted for MCP requests
-
-### Current Issue:
-The OAuth2 token generation is working, but the MCP endpoint authentication is failing with "invalid_token". Added debugging to authentication middleware to identify the specific failure point.
-
-### Next Steps:
-1. Test with enhanced debugging to see authentication failure details
-2. Verify token format and storage consistency
-3. Complete full OAuth2 + MCP workflow
-
-**Status: MCP HANDLER FIXED - READY FOR DEPLOYMENT 🚀**
-
-### Root Cause Analysis Complete & Fixed:
-
-**✅ AUTHENTICATION ISSUE RESOLVED**: 
-- Fixed Date object serialization in `src/oauth/model.coffee`
-- OAuth2 tokens now properly convert from JSON strings back to Date objects
-- Server logs confirm: "Authentication successful: { tokenExists: true }"
-
-**✅ MCP HANDLER ISSUE RESOLVED**:
-- **Root Cause**: MCP SDK `server.request()` method expects connected transport, but we're using HTTP
-- **Fix Applied**: Removed `server.request()` calls and handle JSON-RPC requests directly
-- **Changes Made**: Updated `src/mcp/server.coffee` to call state tools directly instead of through SDK
-
-### Technical Details of Fixes:
-
-#### 1. OAuth2 Date Fix (`src/oauth/model.coffee`):
-```coffeescript
-# Convert string dates back to Date objects (JSON serialization converts dates to strings)
-accessTokenExpiresAt = if token.accessTokenExpiresAt then new Date(token.accessTokenExpiresAt) else null
-```
-
-#### 2. MCP Handler Fix (`src/mcp/server.coffee`):
-- Replaced `server.request()` calls with direct tool invocation
-- `tools/list`: Returns tool definitions directly
-- `tools/call`: Calls `stateTools.readStateFile()`, `writeStateFile()`, `listStateFiles()` directly
-
-### Ready for Production Deployment:
-Both critical fixes are implemented and ready for deployment:
-1. **OAuth2 authentication** will work correctly
-2. **MCP tool calls** will execute without "Not connected" errors
-
-**Next Step**: Deploy to production and test the complete OAuth2 + MCP workflow
-
-**Status: AWAITING DEPLOYMENT TO TEST COMPLETE FIX 🚀**
+### Documentation & Quality Standards:
+Reference documentation in `docs/` directory:
+- **`state/contexts/domains/coding_standard.md`**
+- **`state/contexts/domains/general_development.yaml`** 
+- **`memory-bank/development-practices.md`** - New development workflow guidelines

@@ -10,6 +10,7 @@ class OAuth2Model
     @dataDir     = path.join process.cwd(), 'data', 'oauth2'
     @clientsFile = path.join @dataDir, 'clients.json'
     @tokensFile  = path.join @dataDir, 'tokens.json'
+    @codesFile   = path.join @dataDir, 'codes.json'
     @initialized = false
 
   init: ->
@@ -29,6 +30,12 @@ class OAuth2Model
         await fs.access @tokensFile
       catch
         await fs.writeFile @tokensFile, JSON.stringify([], null, 2)
+
+      # Initialize codes file if it doesn't exist
+      try
+        await fs.access @codesFile
+      catch
+        await fs.writeFile @codesFile, JSON.stringify([], null, 2)
       
       @initialized = true
       console.log 'OAuth2 data directory initialized successfully'
@@ -146,17 +153,94 @@ class OAuth2Model
 
     client
 
-  # Clean up expired tokens
+  # Authorization code flow methods
+  loadCodes: ->
+    await @init()
+    try
+      data = await fs.readFile @codesFile, 'utf8'
+      JSON.parse data
+    catch
+      []
+
+  saveCodes: (codes) ->
+    await @init()
+    await fs.writeFile @codesFile, JSON.stringify(codes, null, 2)
+
+  saveAuthorizationCode: (code, client, user) ->
+    codes = await @loadCodes()
+    
+    codeData =
+      authorizationCode: code.authorizationCode
+      expiresAt:         code.expiresAt
+      redirectUri:       code.redirectUri
+      scope:             code.scope
+      client:            id: client.id
+      user:              user or null
+      createdAt:         new Date().toISOString()
+
+    codes.push codeData
+    await @saveCodes codes
+
+    codeData
+
+  getAuthorizationCode: (authorizationCode) ->
+    codes = await @loadCodes()
+    code  = codes.find (c) -> c.authorizationCode is authorizationCode
+    
+    return false unless code
+    
+    # Convert string dates back to Date objects
+    expiresAt = if code.expiresAt then new Date(code.expiresAt) else null
+    
+    # Check if code is expired
+    if expiresAt and new Date() > expiresAt
+      return false
+
+    authorizationCode: code.authorizationCode
+    expiresAt:         expiresAt
+    redirectUri:       code.redirectUri
+    scope:             code.scope
+    client:            code.client
+    user:              code.user
+
+  revokeAuthorizationCode: (authorizationCode) ->
+    codes = await @loadCodes()
+    
+    # Remove the used authorization code
+    remainingCodes = codes.filter (c) -> c.authorizationCode isnt authorizationCode.authorizationCode
+    await @saveCodes remainingCodes
+    
+    true
+
+  getUser: (username, password) ->
+    # For MCP Inspector, we'll allow a simple user authentication
+    # In a real implementation, this would check against a user database
+    if username is 'mcp-user'
+      id:       'mcp-user'
+      username: 'mcp-user'
+    else
+      false
+
+  # Clean up expired tokens and codes
   cleanupExpiredTokens: ->
     tokens = await @loadTokens()
+    codes  = await @loadCodes()
     now    = new Date()
     
     validTokens = tokens.filter (token) ->
       return true unless token.accessTokenExpiresAt
       new Date(token.accessTokenExpiresAt) > now
 
+    validCodes = codes.filter (code) ->
+      return true unless code.expiresAt
+      new Date(code.expiresAt) > now
+
     if validTokens.length isnt tokens.length
       await @saveTokens validTokens
       console.log "Cleaned up #{tokens.length - validTokens.length} expired tokens"
+
+    if validCodes.length isnt codes.length
+      await @saveCodes validCodes
+      console.log "Cleaned up #{codes.length - validCodes.length} expired authorization codes"
 
 module.exports = OAuth2Model
