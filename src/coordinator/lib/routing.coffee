@@ -204,19 +204,20 @@ setup = (app) ->
   # OAuth2 Authorization Server Metadata (RFC 8414)
   app.get '/.well-known/oauth-authorization-server', (req, res) ->
     if config.FEATURES.OAUTH2_AUTH
+      proto = if config.useHttps then 'https' else 'http'
       metadata =
-        issuer: "#{if config.useHttps then 'https' else 'http'}://#{req.get('host')}"
-        authorization_endpoint: "#{if config.useHttps then 'https' else 'http'}://#{req.get('host')}#{config.API_PATHS.OAUTH}/authorize"
-        token_endpoint: "#{if config.useHttps then 'https' else 'http'}://#{req.get('host')}#{config.API_PATHS.OAUTH}/token"
-        registration_endpoint: "#{if config.useHttps then 'https' else 'http'}://#{req.get('host')}#{config.API_PATHS.OAUTH}/register"
-        scopes_supported: ['mcp', 'read', 'write']
-        response_types_supported: ['code', 'token']
-        grant_types_supported: ['authorization_code', 'client_credentials']
+        issuer:                                "#{proto}://#{req.get('host')}"
+        authorization_endpoint:                "#{proto}://#{req.get('host')}#{config.API_PATHS.OAUTH}/authorize"
+        token_endpoint:                        "#{proto}://#{req.get('host')}#{config.API_PATHS.OAUTH}/token"
+        registration_endpoint:                 "#{proto}://#{req.get('host')}#{config.API_PATHS.OAUTH}/register"
+        scopes_supported:                      ['mcp', 'read', 'write']
+        response_types_supported:              ['code', 'token']
+        grant_types_supported:                 ['authorization_code', 'client_credentials']
         token_endpoint_auth_methods_supported: ['client_secret_basic', 'client_secret_post']
-        code_challenge_methods_supported: ['S256']
+        code_challenge_methods_supported:      ['S256']
 
-      res.setHeader 'Content-Type', 'application/json'
-      res.setHeader 'Access-Control-Allow-Origin', '*'
+      res.setHeader 'Content-Type',                 'application/json'
+      res.setHeader 'Access-Control-Allow-Origin',  '*'
       res.setHeader 'Access-Control-Allow-Methods', 'GET, OPTIONS'
       res.setHeader 'Access-Control-Allow-Headers', 'Content-Type'
       res.json metadata
@@ -226,14 +227,15 @@ setup = (app) ->
 # RFC 8707 OAuth2 Protected Resource Metadata (CRITICAL for Claude.ai)
   app.get '/.well-known/oauth-protected-resource', (req, res) ->
     if config.FEATURES.OAUTH2_AUTH
+      proto = if config.useHttps then 'https' else 'http'
       metadata =
-        resource: "#{if config.useHttps then 'https' else 'http'}://#{req.get('host')}#{config.API_PATHS.MCP}"
-        authorization_servers: ["#{if config.useHttps then 'https' else 'http'}://#{req.get('host')}"]
-        scopes_supported: ['mcp', 'read', 'write']
+        resource:                  "#{proto}://#{req.get('host')}#{config.API_PATHS.MCP}"
+        authorization_servers:    ["#{proto}://#{req.get('host')}"]
+        scopes_supported:         ['mcp', 'read', 'write']
         bearer_methods_supported: ['header', 'query']
-        resource_documentation: "#{if config.useHttps then 'https' else 'http'}://#{req.get('host')}/docs/mcp"
-        introspection_endpoint: "#{if config.useHttps then 'https' else 'http'}://#{req.get('host')}#{config.API_PATHS.OAUTH}/introspect"
-        revocation_endpoint: "#{if config.useHttps then 'https' else 'http'}://#{req.get('host')}#{config.API_PATHS.OAUTH}/revoke"
+        resource_documentation:    "#{proto}://#{req.get('host')}/docs/mcp"
+        introspection_endpoint:    "#{proto}://#{req.get('host')}#{config.API_PATHS.OAUTH}/introspect"
+        revocation_endpoint:       "#{proto}://#{req.get('host')}#{config.API_PATHS.OAUTH}/revoke"
 
       res.setHeader 'Content-Type', 'application/json; charset=utf-8'
       res.setHeader 'Cache-Control', 'public, max-age=3600'
@@ -247,24 +249,25 @@ setup = (app) ->
   # MCP Server Metadata (ClodForest extension)
   app.get '/.well-known/mcp-server', (req, res) ->
     if config.FEATURES.MCP_PROTOCOL
+      proto = if config.useHttps then 'https' else 'http'
       metadata =
         server_info:
-          name: 'clodforest-mcp'
-          version: '1.0.0'
-        protocol_version: '2025-06-18'
-        description: 'ClodForest Model Context Protocol Server'
+          name:            'clodforest-mcp'
+          version:         '1.0.0'
+        protocol_version:  '2025-06-18'
+        description:       'ClodForest Model Context Protocol Server'
         endpoints:
-          mcp: "#{if config.useHttps then 'https' else 'http'}://#{req.get('host')}#{config.API_PATHS.MCP}"
-          claude_ai: "#{if config.useHttps then 'https' else 'http'}://#{req.get('host')}/mcp/jsonrpc"
+          mcp:             "#{proto}://#{req.get('host')}#{config.API_PATHS.MCP}"
+          claude_ai:       "#{proto}://#{req.get('host')}/mcp/jsonrpc"
         authentication:
-          required: config.FEATURES.OAUTH2_AUTH
-          type: if config.FEATURES.OAUTH2_AUTH then 'oauth2' else 'none'
-          oauth2_metadata: if config.FEATURES.OAUTH2_AUTH then "#{if config.useHttps then 'https' else 'http'}://#{req.get('host')}/.well-known/oauth-authorization-server" else null
+          required:        config.FEATURES.OAUTH2_AUTH
+          type:            if config.FEATURES.OAUTH2_AUTH then 'oauth2' else 'none'
+          oauth2_metadata: if config.FEATURES.OAUTH2_AUTH then "#{proto}://#{req.get('host')}/.well-known/oauth-authorization-server" else null
         capabilities:
-          tools: true
-          resources: false
-          prompts: false
-        transport: 'http'
+          tools:           true
+          resources:       false
+          prompts:         false
+        transport:         'http'
 
       res.setHeader 'Content-Type', 'application/json'
       res.setHeader 'Access-Control-Allow-Origin', '*'

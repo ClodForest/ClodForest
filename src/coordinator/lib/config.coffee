@@ -12,7 +12,7 @@ LOG_ROTATION = process.env.LOG_ROTATION or 'daily'  # daily, size, none
 TRUST_PROXY  = process.env.TRUST_PROXY  is 'true' or true  # Default true for load balancer
 
 # Service identification
-VAULT_SERVER = process.env.VAULT_SERVER or 'clodforest-vault'
+VAULT_SERVER = process.env.VAULT_SERVER or 'clodforest.thatsnice.org'
 SERVICE_NAME = process.env.SERVICE_NAME or 'ClodForest Coordinator'
 VERSION      = process.env.VERSION      or '1.0.0'
 
@@ -50,10 +50,11 @@ API_PATHS =
   BUSTIT:     '/api/bustit'
   CONTEXT:    '/api/context'
   INSTANCES:  '/api/instances'
-  ADMIN:      '/admin'
   MCP:        '/api/mcp'
-  OAUTH:      '/oauth'
   CONFIG:     '/api/config'
+
+  ADMIN:      '/admin'
+  OAUTH:      '/oauth'
 
 # Response format configuration
 RESPONSE_FORMATS =
@@ -104,25 +105,25 @@ getPublicConfig = ->
     service_name: SERVICE_NAME
     version:      VERSION
     vault_server: VAULT_SERVER
-  
+
   paths:
     repo_path:  REPO_PATH
     api_paths:  API_PATHS
-  
+
   features:     FEATURES
-  
+
   security:
     cors_origins:         CORS_ORIGINS
     allowed_git_commands: ALLOWED_GIT_COMMANDS
-  
+
   response_formats: RESPONSE_FORMATS
-  
+
   environment:
     is_development: NODE_ENV isnt 'production'
     is_production:  NODE_ENV is 'production'
     debug_mode:     LOG_LEVEL is 'debug'
     runtime:        getEnvironmentInfo()
-  
+
   timestamp: new Date().toISOString()
 
 # Export all configuration
@@ -160,7 +161,9 @@ module.exports = {
   getPublicConfig
 
   # Computed properties
-  isDevelopment: NODE_ENV isnt 'production'
-  isProduction:  NODE_ENV is 'production'
-  debugMode:     LOG_LEVEL is 'debug'
+  isDevelopment: NODE_ENV  isnt 'production'
+  isProduction:  NODE_ENV  is   'production'
+  useHttps:      NODE_ENV  is   'production'
+
+  debugMode:     LOG_LEVEL is   'debug'
 }
