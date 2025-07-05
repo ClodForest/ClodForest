@@ -63,10 +63,22 @@ router.post '/register', (req, res) ->
 # Token endpoint
 router.post '/token', (req, res) ->
   try
+    console.log 'Token request received:', {
+      grant_type: req.body.grant_type
+      client_id: req.body.client_id
+      scope: req.body.scope
+    }
+    
     request  = new OAuth2Server.Request req
     response = new OAuth2Server.Response res
 
     token = await oauth.token request, response
+    
+    console.log 'Token generated successfully:', {
+      accessToken: token.accessToken?.substring(0, 10) + '...'
+      expiresAt: token.accessTokenExpiresAt
+      scope: token.scope
+    }
     
     res.json
       access_token: token.accessToken
@@ -75,7 +87,12 @@ router.post '/token', (req, res) ->
       scope:        token.scope
 
   catch error
-    console.error 'Token endpoint error:', error
+    console.error 'Token endpoint error details:', {
+      name: error.name
+      message: error.message
+      code: error.code
+      stack: error.stack
+    }
     
     # Handle OAuth2 errors
     if error.name is 'OAuthError'

@@ -10,9 +10,11 @@ class OAuth2Model
     @dataDir     = path.join process.cwd(), 'data', 'oauth2'
     @clientsFile = path.join @dataDir, 'clients.json'
     @tokensFile  = path.join @dataDir, 'tokens.json'
-    @init()
+    @initialized = false
 
   init: ->
+    return if @initialized
+    
     try
       await fs.mkdir @dataDir, recursive: true
       
@@ -27,10 +29,15 @@ class OAuth2Model
         await fs.access @tokensFile
       catch
         await fs.writeFile @tokensFile, JSON.stringify([], null, 2)
+      
+      @initialized = true
+      console.log 'OAuth2 data directory initialized successfully'
     catch error
       console.error 'Failed to initialize OAuth2 data directory:', error
+      throw error
 
   loadClients: ->
+    await @init()
     try
       data = await fs.readFile @clientsFile, 'utf8'
       JSON.parse data
@@ -38,9 +45,11 @@ class OAuth2Model
       []
 
   saveClients: (clients) ->
+    await @init()
     await fs.writeFile @clientsFile, JSON.stringify(clients, null, 2)
 
   loadTokens: ->
+    await @init()
     try
       data = await fs.readFile @tokensFile, 'utf8'
       JSON.parse data
@@ -48,6 +57,7 @@ class OAuth2Model
       []
 
   saveTokens: (tokens) ->
+    await @init()
     await fs.writeFile @tokensFile, JSON.stringify(tokens, null, 2)
 
   # OAuth2 Server required methods
