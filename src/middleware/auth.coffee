@@ -17,11 +17,23 @@ oauth = new OAuth2Server
 # OAuth2 authentication middleware
 authenticate = (req, res, next) ->
   try
+    console.log 'Authentication attempt:', {
+      authorization: req.headers.authorization?.substring(0, 20) + '...'
+      method: req.method
+      path: req.path
+    }
+    
     request  = new OAuth2Server.Request req
     response = new OAuth2Server.Response res
 
     # Authenticate the request
     token = await oauth.authenticate request, response
+    
+    console.log 'Authentication successful:', {
+      tokenExists: !!token
+      clientId: token?.client?.id
+      scope: token?.scope
+    }
     
     # Add token info to request object
     req.oauth =
@@ -32,7 +44,12 @@ authenticate = (req, res, next) ->
     next()
 
   catch error
-    console.error 'Authentication error:', error
+    console.error 'Authentication error details:', {
+      name: error.name
+      message: error.message
+      code: error.code
+      statusCode: error.statusCode
+    }
     
     # Handle OAuth2 authentication errors
     if error.name is 'UnauthorizedRequestError'
