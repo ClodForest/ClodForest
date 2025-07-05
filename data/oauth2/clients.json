@@ -1,1 +1,46 @@
-[]
+[
+  {
+    "id": "43000805-31bb-4028-a3cc-542b482c13be",
+    "secret": "e95ef362fdb833ea3d2c2ba3cbcf390aa2857dcc99dc1c8632f008c449980f55",
+    "name": "test-client",
+    "grants": [
+      "client_credentials"
+    ],
+    "redirectUris": [],
+    "scope": "mcp",
+    "createdAt": "2025-07-05T03:43:28.351Z"
+  },
+  {
+    "id": "41873dde-6cf5-4b8d-9098-214cd3f57358",
+    "secret": "29789382d28cba5fba8e4eec84737137f4fe566b1adf3986bbd39cf3c808151c",
+    "name": "test-client",
+    "grants": [
+      "client_credentials"
+    ],
+    "redirectUris": [],
+    "scope": "mcp",
+    "createdAt": "2025-07-05T03:45:44.556Z"
+  },
+  {
+    "id": "2d83715f-7e9d-45b6-bf88-ba4ea0526f7f",
+    "secret": "946800d3953bf4863f09acd77f7df9f06f5ab06ff1126759181d0fd508c4524b",
+    "name": "test-client",
+    "grants": [
+      "client_credentials"
+    ],
+    "redirectUris": [],
+    "scope": "mcp",
+    "createdAt": "2025-07-05T03:47:55.830Z"
+  },
+  {
+    "id": "ca917a4a-9463-4574-a2c3-e8b58ec6c698",
+    "secret": "fa93f009cb1897d0a6f6dabb40d2b67a41eee078a09eb6bc1f04c9c274a4ab64",
+    "name": "test-client",
+    "grants": [
+      "client_credentials"
+    ],
+    "redirectUris": [],
+    "scope": "mcp",
+    "createdAt": "2025-07-05T03:48:37.809Z"
+  }
+]
