@@ -2,10 +2,10 @@
   "name": "clodforest-coordinator",
   "version": "1.0.1",
   "description": "ClodForest Coordinator Service - Provides active protocol support for distributed Claude instance coordination",
-  "main": "src/coordinator/index.coffee",
+  "main": "src/app.coffee",
   "scripts": {
-    "start": "coffee src/coordinator",
-    "dev": "nodemon coffee src/coordinator",
+    "start": "coffee src/app.coffee",
+    "dev": "nodemon --exec coffee src/app.coffee",
     "test": "coffee t/index.coffee",
     "test:watch": "nodemon --exec 'coffee t/index.coffee' --ext coffee",
     "test:config": "coffee t/config.test.coffee",
@@ -36,6 +36,7 @@
     "brace-expansion": "^4.0.1",
     "cors": "^2.8.5",
     "express": "^5.1.0",
+    "helmet": "^7.1.0",
     "js-yaml": "^4.1.0",
     "oauth2-server": "^3.1.1"
   },
