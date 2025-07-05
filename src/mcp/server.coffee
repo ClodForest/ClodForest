@@ -116,35 +116,32 @@ mcpHandler = (req, res) ->
         id: id or null
 
     # Handle MCP methods
-    result = switch method
-      when 'initialize'
+    if method is 'initialize'
+      result =
         protocolVersion: '2025-06-18'
         capabilities:
           tools: {}
         serverInfo:
           name:    'clodforest-mcp-server'
           version: '1.0.0'
-
-      when 'tools/list'
-        toolsResponse = await server.request { method: 'tools/list', params: params or {} }, ListToolsRequestSchema
-        toolsResponse
-
-      when 'tools/call'
-        unless params?.name
-          throw new Error 'Tool name is required'
-        toolResponse = await server.request { 
-          method: 'tools/call'
-          params: params 
-        }, CallToolRequestSchema
-        toolResponse
-
-      else
-        return res.status(400).json
-          jsonrpc: '2.0'
-          error:
-            code:    -32601
-            message: "Method not found: #{method}"
-          id: id or null
+    else if method is 'tools/list'
+      toolsResponse = await server.request { method: 'tools/list', params: params or {} }, ListToolsRequestSchema
+      result = toolsResponse
+    else if method is 'tools/call'
+      unless params?.name
+        throw new Error 'Tool name is required'
+      toolResponse = await server.request { 
+        method: 'tools/call'
+        params: params 
+      }, CallToolRequestSchema
+      result = toolResponse
+    else
+      return res.status(400).json
+        jsonrpc: '2.0'
+        error:
+          code:    -32601
+          message: "Method not found: #{method}"
+        id: id or null
 
     # Return successful response
     res.json
