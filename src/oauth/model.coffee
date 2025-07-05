@@ -101,12 +101,15 @@ class OAuth2Model
     
     return false unless token
     
+    # Convert string dates back to Date objects (JSON serialization converts dates to strings)
+    accessTokenExpiresAt = if token.accessTokenExpiresAt then new Date(token.accessTokenExpiresAt) else null
+    
     # Check if token is expired
-    if token.accessTokenExpiresAt and new Date() > new Date(token.accessTokenExpiresAt)
+    if accessTokenExpiresAt and new Date() > accessTokenExpiresAt
       return false
 
     accessToken:          token.accessToken
-    accessTokenExpiresAt: token.accessTokenExpiresAt
+    accessTokenExpiresAt: accessTokenExpiresAt  # Return as Date object
     scope:                token.scope
     client:               token.client
     user:                 token.user
