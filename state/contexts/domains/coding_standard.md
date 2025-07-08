@@ -12,6 +12,7 @@ Replace `comment_philosophy: "Explain why, not what"` with: eliminate comments b
 
 ### Honesty Everywhere
 Never allow mock interfaces or test data without clear self-identification. No silent deception in codebases.
+This goes for fallback mechanisms too: fallback and graceful degredation should never be silent.
 
 ### Vertical Alignment
 Align related code vertically to show relationships. Use REPL to generate columnar content when manual alignment is difficult.
@@ -41,13 +42,13 @@ routing   .setup(app)
 
 ### Alignment Rules
 
-- **Related imports**: Line up assignment operators
-- **Blank lines**: Separate conceptual sections (imports vs config vs initialization)
-- **Method calls**: Line up dots when calling similar methods (`.setup(app)`)
-- **Export pattern**: `module.exports.foo = foo =` instead of single assignment at end
+- **Related imports**:       Line up assignment operators
+- **Blank lines**:           Separate conceptual sections (imports vs config vs initialization)
+- **Method calls**:          Line up dots when calling similar methods (`.setup(app)`)
+- **Export pattern**:        `module.exports.foo = foo =` instead of single assignment at end
 - **Indentation hierarchy**: Indent continuation lines to show relationship
-- **Semantic grouping**: Don't align unrelated operations even if they look similar
-- **Language constraints**: Respect syntax requirements (Python whitespace) over alignment
+- **Semantic grouping**:     Don't align unrelated operations even if they look similar
+- **Language constraints**:  Respect syntax requirements (Python whitespace) over alignment
 
 ### Non-Alignment Indicators
 
@@ -143,11 +144,16 @@ gracefulExit = (ourWorld) ->
 
 ### Abstract out repetition into data structures
 
-Pattern: Declarative Detection Tables
-
-When detecting system capabilities or features, separate the what from the how:
+Express if/else if/else chains as arrays of functions to invoke.
 
 ```coffee
+
+objectMap = (o, fn) ->
+  Object.keys o
+        .map fn
+
+objectInvokeValues = (o) ->
+  Object.fromEntries objectMap (k) -> [k, o[k]()]
 
 # Define detectors as a data structure
 
@@ -162,14 +168,10 @@ CAPABILITY_DETECTORS =
   # Separate different patterns with blank lines
   different   : -> different kind of detection
 
-detectCapabilities = (detectorDict) ->
-  Object.assign {}, (
-      for name, detector of detectorDict
-        [name]: detector()
-    )...
+detectCapabilities = -> objectInvokeValues CAPABILITY_DETECTORS
 
-  # Later...
-  capabilities = detectCapabilities CAPABILITY_DETECTORS
+# Later...
+capabilities = detectCapabilities()
 ```
 
 Benefits:
