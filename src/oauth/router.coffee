@@ -1,15 +1,15 @@
 # FILENAME: { ClodForest/src/oauth/router.coffee }
 # OAuth2 router using oidc-provider
 
-express = require 'express'
+express            = require 'express'
 { createProvider } = require './oidc-provider'
-{ logger } = require '../lib/logger'
+{ logger }         = require '../lib/logger'
 
 # Create router
 router = express.Router()
 
 # Create OIDC provider instance
-issuer = process.env.ISSUER_URL or "http://localhost:#{process.env.PORT or 8080}/oauth"
+issuer   = process.env.ISSUER_URL or "http://localhost:#{process.env.PORT or 8080}/oauth"
 provider = createProvider issuer
 
 # Fix MCP Inspector's malformed grant_types before oidc-provider processes it
