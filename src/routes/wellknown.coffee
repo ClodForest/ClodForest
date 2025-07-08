@@ -11,7 +11,7 @@ router  = express.Router()
 # OAuth2 Protected Resource Metadata (RFC 8707)
 router.get '/oauth-protected-resource', (req, res) ->
   baseUrl = "#{req.protocol}://#{req.get('host')}"
-  
+
   res.json
     resource:                baseUrl
     authorization_servers:   [baseUrl]
@@ -23,7 +23,7 @@ router.get '/oauth-protected-resource', (req, res) ->
 # MCP Server Discovery Metadata
 router.get '/mcp-server', (req, res) ->
   baseUrl = "#{req.protocol}://#{req.get('host')}"
-  
+
   res.json
     name:             'ClodForest MCP Server'
     version:          '1.0.0'

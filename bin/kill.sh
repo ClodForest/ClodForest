@@ -4,7 +4,7 @@
 
 set -e
 
-PROJECT_DIR="/mnt/nvme0n1p4/git/github/ClodForest/ClodForest"
+PROJECT_DIR="$HOME/git/github/ClodForest/ClodForest"
 PID_FILE="$PROJECT_DIR/.pid"
 
 # Change to project directory
@@ -30,7 +30,7 @@ fi
 if ps -p "$SERVER_PID" -o args= | grep -q "coffee src/app.coffee"; then
     echo "Stopping ClodForest server (PID: $SERVER_PID)..."
     kill "$SERVER_PID"
-    
+
     # Wait for process to stop
     for i in {1..10}; do
         if ! kill -0 "$SERVER_PID" 2>/dev/null; then
@@ -38,13 +38,13 @@ if ps -p "$SERVER_PID" -o args= | grep -q "coffee src/app.coffee"; then
         fi
         sleep 1
     done
-    
+
     # Force kill if still running
     if kill -0 "$SERVER_PID" 2>/dev/null; then
         echo "Process didn't stop gracefully, force killing..."
         kill -9 "$SERVER_PID"
     fi
-    
+
     rm "$PID_FILE"
     echo "ClodForest server stopped"
 else

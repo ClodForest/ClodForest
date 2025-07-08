@@ -9,7 +9,7 @@ express = require 'express'
 router = express.Router()
 
 # Create OIDC provider instance
-issuer = process.env.ISSUER_URL or "http://localhost:#{process.env.PORT or 8080}"
+issuer = process.env.ISSUER_URL or "http://localhost:#{process.env.PORT or 8080}/oauth"
 provider = createProvider issuer
 
 # Fix MCP Inspector's malformed grant_types before oidc-provider processes it
@@ -22,20 +22,19 @@ router.use (req, res, next) ->
       originalUrl: req.originalUrl
       body: req.body
     }
-  
-  if req.path is '/register' and req.method is 'POST' and req.body?.grant_types?.includes('refresh_token')
+
+  if req.path is '/oauth/register' and req.method is 'POST' and req.body?.grant_types?.includes('refresh_token')
     originalGrantTypes = req.body.grant_types
     req.body.grant_types = originalGrantTypes.filter (gt) -> gt isnt 'refresh_token'
-    
+
     logger.oauth 'Fixed MCP Inspector malformed grant_types', {
       original: originalGrantTypes
       fixed: req.body.grant_types
       note: 'refresh_token is not a grant type per RFC 7591'
     }
-  
+
   next()
 
-# Mount the OIDC provider at /oauth path
 router.use '/oauth', provider.callback()
 
 # Custom interaction endpoint for auto-approval
@@ -43,13 +42,13 @@ router.get '/oauth/interaction/:uid', (req, res) ->
   try
     # Get interaction details
     details = await provider.interactionDetails req, res
-    
+
     logger.oauth 'Interaction requested', {
       uid: req.params.uid
       client_id: details.params.client_id
       scope: details.params.scope
     }
-    
+
     # Auto-approve for MCP clients
     if details.params.scope?.includes('mcp')
       result = {
@@ -57,13 +56,13 @@ router.get '/oauth/interaction/:uid', (req, res) ->
           grantId: details.grantId
         }
       }
-      
+
       logger.oauth 'Auto-approving MCP client interaction', {
         uid: req.params.uid
         client_id: details.params.client_id
         scope: details.params.scope
       }
-      
+
       await provider.interactionFinished req, res, result, {
         mergeWithLastSubmission: false
       }
@@ -72,14 +71,14 @@ router.get '/oauth/interaction/:uid', (req, res) ->
       res.status(400).json
         error: 'interaction_required'
         error_description: 'This authorization server only supports MCP clients'
-        
+
   catch error
     logger.oauth 'Interaction error', {
       uid: req.params.uid
       error: error.message
       stack: error.stack
     }
-    
+
     res.status(500).json
       error: 'server_error'
       error_description: 'Internal server error during interaction'

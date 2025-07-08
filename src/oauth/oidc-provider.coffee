@@ -37,31 +37,31 @@ class FileAdapter
 
   upsert: (id, payload, expiresIn) ->
     data = await @loadData()
-    
+
     # Calculate expiration if provided
     expiresAt = if expiresIn then new Date(Date.now() + expiresIn * 1000) else null
-    
+
     data[id] = {
       payload: payload
       expiresAt: expiresAt?.toISOString()
       createdAt: new Date().toISOString()
     }
-    
+
     await @saveData data
     undefined
 
   find: (id) ->
     data = await @loadData()
     record = data[id]
-    
+
     return undefined unless record
-    
+
     # Check if expired
     if record.expiresAt and new Date() > new Date(record.expiresAt)
       delete data[id]
       await @saveData data
       return undefined
-    
+
     record.payload
 
   findByUserCode: (userCode) ->
@@ -82,7 +82,7 @@ class FileAdapter
     data = await @loadData()
     record = data[id]
     return undefined unless record
-    
+
     record.payload.consumed = Math.floor(Date.now() / 1000)
     await @saveData data
     undefined
@@ -96,14 +96,14 @@ class FileAdapter
   revokeByGrantId: (grantId) ->
     data = await @loadData()
     toDelete = []
-    
+
     for id, record of data
       if record.payload?.grantId is grantId
         toDelete.push id
-    
+
     for id in toDelete
       delete data[id]
-    
+
     await @saveData data if toDelete.length > 0
     undefined
 
@@ -154,7 +154,7 @@ configuration =
           # Modify the metadata directly
           metadata.grant_types = filtered
         return
-      
+
       # Default validation for other properties
       return
 
@@ -171,11 +171,13 @@ configuration =
     ClientCredentials: 3600  # 1 hour
 
   # Scopes
-  scopes: ['mcp', 'read', 'write']
+  scopes: ['openid', 'mcp', 'read', 'write']
 
-  # Claims (minimal for OAuth2-only)
   claims:
-    openid: []
+    openid: ['sub'] # Standard OpenID Connect claims
+    mcp:    ['sub'] # Your custom MCP scope
+    read:   ['sub'] # Read access scope
+    write:  ['sub'] # Write access scope
 
   # Client authentication methods
   clientAuthMethods: [
@@ -221,7 +223,7 @@ configuration =
       description: error.error_description
       status: error.status
     }
-    
+
     ctx.type = 'application/json'
     ctx.body = {
       error: error.error
@@ -231,7 +233,7 @@ configuration =
 # Create and configure the provider
 createProvider = (issuer) ->
   provider = new Provider issuer, configuration
-  
+
   # Event listeners for logging
   provider.on 'grant.success', (ctx) ->
     logger.oauth 'Grant successful', {
@@ -269,38 +271,68 @@ createProvider = (issuer) ->
       if ctx.request.body?.grant_types?.includes('refresh_token')
         originalGrantTypes = ctx.request.body.grant_types
         ctx.request.body.grant_types = originalGrantTypes.filter (gt) -> gt isnt 'refresh_token'
-        
+
         logger.oauth 'Fixed MCP Inspector grant_types for oidc-provider compatibility', {
           original: originalGrantTypes
           fixed: ctx.request.body.grant_types
           note: 'refresh_token capability is automatically available with authorization_code'
         }
-    
+
     await next()
 
   # Handle authorization endpoint for auto-approval
-  provider.use (ctx, next) ->
-    if ctx.path is '/oauth/authorize' and ctx.method is 'GET'
+  false and provider.use (ctx, next) ->
+    # Add scope debugging for ALL requests
+    if ctx.method is 'GET' and ctx.path.includes('/authorize')
+      logger.oauth 'Authorization request received', {
+        path: ctx.path
+        query: ctx.query
+        requestedScope: ctx.query?.scope
+        supportedScopes: configuration.scopes
+        claims: Object.keys(configuration.claims)
+      }
+
+    if ctx.path is '/authorize' and ctx.method is 'GET'
       # Auto-approve authorization requests for MCP clients
       try
+        logger.oauth 'About to get interaction details'
         # Get the interaction
         details = await provider.interactionDetails(ctx.req, ctx.res)
-        
+
+        logger.oauth 'Got interaction details successfully', {
+          requestedScope: details.params.scope
+          clientId: details.params.client_id
+          supportedScopes: configuration.scopes
+          promptType: details.prompt.name
+          promptDetails: details.prompt.details
+        }
+
         # Auto-grant for MCP scope
         if details.params.scope?.includes('mcp')
+          logger.oauth 'Proceeding with auto-approval for MCP scope'
+
           result = {
             consent: {
               grantId: details.grantId
             }
           }
-          
+
+          logger.oauth 'About to finish interaction', { result }
+
           await provider.interactionFinished(ctx.req, ctx.res, result, {
             mergeWithLastSubmission: false
           })
+
+          logger.oauth 'Interaction finished successfully'
           return
+        else
+          logger.oauth 'NOT auto-approving - no MCP scope', {
+            requestedScope: details.params.scope
+            hasMcp: details.params.scope?.includes('mcp')
+          }
       catch error
-        logger.oauth 'Auto-approval error', { error: error.message }
-    
+        logger.oauth 'Auto-approval error', { error: error.message, stack: error.stack }
+
     await next()
 
   provider

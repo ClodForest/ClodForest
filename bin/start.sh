@@ -4,7 +4,7 @@
 
 set -e
 
-PROJECT_DIR="/mnt/nvme0n1p4/git/github/ClodForest/ClodForest"
+PROJECT_DIR="$HOME/git/github/ClodForest/ClodForest"
 PID_FILE="$PROJECT_DIR/.pid"
 LOG_FILE="$PROJECT_DIR/server.log"
 
