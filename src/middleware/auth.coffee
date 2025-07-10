@@ -4,10 +4,16 @@
 { jwtVerify, createRemoteJWKSet } = require 'jose'
 { logger } = require '../lib/logger'
 
-# JWKS endpoint for JWT verification
-issuer = process.env.ISSUER_URL or "http://localhost:#{process.env.PORT or 8080}/oauth"
-jwksUri = "#{issuer}/jwks"
-JWKS = createRemoteJWKSet new URL(jwksUri)
+# Dynamic JWKS endpoint for JWT verification
+getDynamicJwksUri = (req) ->
+  # Handle AWS ALB/CloudFront forwarded headers
+  protocol = req.get('X-Forwarded-Proto') or req.protocol or 'http'
+  host = req.get('X-Forwarded-Host') or req.get('host') or "localhost:#{process.env.PORT or 8080}"
+  issuer = "#{protocol}://#{host}/oauth"
+  "#{issuer}/jwks"
+
+# Cache JWKS clients to avoid creating new ones for each request
+jwksCache = new Map()
 
 # OAuth2 authentication middleware
 authenticate = (req, res, next) ->
@@ -35,9 +41,19 @@ authenticate = (req, res, next) ->
     # Validate JWT token using JWKS (RFC 7519)
     # This is the proper way for a resource server to validate JWT tokens
     try
+      # Get dynamic JWKS and issuer for this request
+      jwksUri = getDynamicJwksUri(req)
+      protocol = req.get('X-Forwarded-Proto') or req.protocol or 'http'
+      host = req.get('X-Forwarded-Host') or req.get('host') or "localhost:#{process.env.PORT or 8080}"
+      issuer = "#{protocol}://#{host}/oauth"
+      audience = "#{protocol}://#{host}/api/mcp"
+      
+      # Get or create JWKS client for this URI
+      unless jwksCache.has(jwksUri)
+        jwksCache.set(jwksUri, createRemoteJWKSet(new URL(jwksUri)))
+      JWKS = jwksCache.get(jwksUri)
+      
       # Verify JWT signature, expiry, and claims
-      # Build audience from actual request to handle different environments
-      audience = "#{req.protocol}://#{req.get('host')}/api/mcp"
       { payload } = await jwtVerify token, JWKS, {
         issuer: issuer
         audience: audience

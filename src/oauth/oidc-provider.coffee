@@ -251,6 +251,30 @@ configuration =
       error_description: error.error_description
     }
 
+  # Override discovery document to use dynamic URLs
+  discovery: (ctx, next) ->
+    # Handle AWS ALB/CloudFront forwarded headers
+    protocol = ctx.get('X-Forwarded-Proto') or ctx.protocol or 'http'
+    host = ctx.get('X-Forwarded-Host') or ctx.get('host') or "localhost:#{process.env.PORT or 8080}"
+    dynamicIssuer = "#{protocol}://#{host}/oauth"
+    
+    # Get the standard discovery document
+    discovery = await next()
+    
+    # Override issuer and all endpoint URLs with dynamic values
+    discovery.issuer = dynamicIssuer
+    discovery.authorization_endpoint = "#{dynamicIssuer}/authorize"
+    discovery.token_endpoint = "#{dynamicIssuer}/token"
+    discovery.jwks_uri = "#{dynamicIssuer}/jwks"
+    discovery.registration_endpoint = "#{dynamicIssuer}/register"
+    discovery.introspection_endpoint = "#{dynamicIssuer}/introspect"
+    discovery.revocation_endpoint = "#{dynamicIssuer}/revoke"
+    discovery.end_session_endpoint = "#{dynamicIssuer}/session/end"
+    discovery.userinfo_endpoint = "#{dynamicIssuer}/me"
+    discovery.pushed_authorization_request_endpoint = "#{dynamicIssuer}/request"
+    
+    discovery
+
 # Create and configure the provider
 createProvider = (issuer) ->
   provider = new Provider issuer, configuration

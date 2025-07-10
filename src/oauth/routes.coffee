@@ -5,9 +5,16 @@
 { createProvider } = require './oidc-provider'
 { logger }         = require '../lib/logger'
 
-# Create OIDC provider instance
-issuer   = process.env.ISSUER_URL or "http://localhost:#{process.env.PORT or 8080}/oauth"
-provider = createProvider issuer
+# Create OIDC provider instance with dynamic issuer detection
+getDynamicIssuer = (req) ->
+  # Handle AWS ALB/CloudFront forwarded headers
+  protocol = req.get('X-Forwarded-Proto') or req.protocol or 'http'
+  host = req.get('X-Forwarded-Host') or req.get('host') or "localhost:#{process.env.PORT or 8080}"
+  "#{protocol}://#{host}/oauth"
+
+# Use environment variable if set, otherwise determine dynamically
+staticIssuer = process.env.ISSUER_URL or "http://localhost:#{process.env.PORT or 8080}/oauth"
+provider = createProvider staticIssuer
 
 # Main interaction handler
 interactionHandler = (req, res) ->

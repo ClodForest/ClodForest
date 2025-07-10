@@ -10,7 +10,10 @@ router  = express.Router()
 
 # OAuth2 Protected Resource Metadata (RFC 8707)
 router.get '/oauth-protected-resource', (req, res) ->
-  baseUrl = "#{req.protocol}://#{req.get('host')}"
+  # Handle AWS ALB/CloudFront forwarded headers
+  protocol = req.get('X-Forwarded-Proto') or req.protocol
+  host = req.get('X-Forwarded-Host') or req.get('host')
+  baseUrl = "#{protocol}://#{host}"
 
   res.json
     resource:                baseUrl + "/api/mcp"  # The actual MCP API endpoint
@@ -20,7 +23,10 @@ router.get '/oauth-protected-resource', (req, res) ->
 
 # MCP Server Discovery Metadata
 router.get '/mcp-server', (req, res) ->
-  baseUrl = "#{req.protocol}://#{req.get('host')}"
+  # Handle AWS ALB/CloudFront forwarded headers
+  protocol = req.get('X-Forwarded-Proto') or req.protocol
+  host = req.get('X-Forwarded-Host') or req.get('host')
+  baseUrl = "#{protocol}://#{host}"
 
   res.json
     name:             'ClodForest MCP Server'

@@ -41,6 +41,23 @@ app.use '/.well-known', wellKnownRoutes
 app.use '/api/health',  healthRoutes
 app.use '/api/mcp',     authMiddleware, mcpHandler
 
+# Root path handler for service discovery
+app.get '/', (req, res) ->
+  # Handle AWS ALB/CloudFront forwarded headers
+  protocol = req.get('X-Forwarded-Proto') or req.protocol or 'http'
+  host = req.get('X-Forwarded-Host') or req.get('host') or "localhost:#{process.env.PORT or 8080}"
+  baseUrl = "#{protocol}://#{host}"
+  
+  res.json
+    name: 'ClodForest MCP Server'
+    version: '1.0.0'
+    description: 'OAuth2-secured MCP server for LLM state management'
+    endpoints:
+      mcp: "#{baseUrl}/api/mcp"
+      health: "#{baseUrl}/api/health"
+      oauth: "#{baseUrl}/oauth"
+      wellKnown: "#{baseUrl}/.well-known"
+
 # Debug route to list all registered routes
 app.get '/debug/routes', (req, res) ->
   routes = []
