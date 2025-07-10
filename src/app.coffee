@@ -31,6 +31,10 @@ app.use express.json limit: '10mb'
 app.use express.urlencoded extended: true, limit: '10mb'
 
 app.use requestLogger
+
+# Smart authentication middleware that protects only specific paths
+app.use authMiddleware
+
 app.use oauthRoutes
 
 app.get '/.well-known/oauth-authorization-server', (req, res) ->
@@ -39,7 +43,7 @@ app.get '/.well-known/oauth-authorization-server', (req, res) ->
 app.use '/.well-known', wellKnownRoutes
 
 app.use '/api/health',  healthRoutes
-app.use '/api/mcp',     authMiddleware, mcpHandler
+app.use '/api/mcp',     mcpHandler
 
 # Root path handler for service discovery
 app.get '/', (req, res) ->

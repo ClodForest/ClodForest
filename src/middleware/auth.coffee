@@ -15,19 +15,41 @@ getDynamicJwksUri = (req) ->
 # Cache JWKS clients to avoid creating new ones for each request
 jwksCache = new Map()
 
-# OAuth2 authentication middleware
+# OAuth2 authentication middleware - smart path-based protection
 authenticate = (req, res, next) ->
   try
-    # Debug log to see what requests hit auth middleware
+    # Paths that require authentication
+    protectedPaths = [
+      '/api/mcp'
+    ]
+    
+    # Paths that are explicitly public
+    publicPaths = [
+      '/api/health'
+      '/oauth'
+      '/.well-known'
+      '/'
+    ]
+    
+    # Check if this path needs authentication
+    needsAuth = protectedPaths.some (path) -> req.path.startsWith(path)
+    isPublic = publicPaths.some (path) -> req.path.startsWith(path)
+    
+    # Debug log
     logger.oauth 'Auth middleware called', {
       method: req.method
       url: req.url
       originalUrl: req.originalUrl
       path: req.path
-      route: req.route?.path
+      needsAuth: needsAuth
+      isPublic: isPublic
       ip: req.ip
       userAgent: req.get('User-Agent')
     }
+    
+    # If path doesn't need auth, pass through
+    if isPublic or not needsAuth
+      return next()
     # Extract Bearer token from Authorization header
     authHeader = req.headers.authorization
     unless authHeader?.startsWith('Bearer ')
