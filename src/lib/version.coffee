@@ -1,49 +1,46 @@
 # FILENAME: { ClodForest/src/lib/version.coffee }
-# Version management with auto-incrementing build number
+# Version management using git commit info
 
+{ execSync } = require 'node:child_process'
 fs = require 'node:fs/promises'
 path = require 'node:path'
 
-# Version file path
-VERSION_FILE = path.join process.cwd(), 'version.json'
-
-# Load or create version info
-loadVersion = ->
+# Get git commit info
+getGitInfo = ->
   try
-    data = await fs.readFile VERSION_FILE, 'utf8'
-    JSON.parse data
-  catch
-    # Create initial version if file doesn't exist
-    initialVersion = 
-      major: 1
-      minor: 0
-      patch: 0
-      build: 0
-      lastBuild: new Date().toISOString()
+    commit = execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim()
+    shortCommit = commit.substring(0, 8)
+    commitCount = parseInt(execSync('git rev-list --count HEAD', { encoding: 'utf8' }).trim())
+    branch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf8' }).trim()
     
-    await fs.writeFile VERSION_FILE, JSON.stringify(initialVersion, null, 2)
-    initialVersion
-
-# Increment build number on startup
-incrementBuild = ->
-  version = await loadVersion()
-  version.build += 1
-  version.lastBuild = new Date().toISOString()
-  
-  await fs.writeFile VERSION_FILE, JSON.stringify(version, null, 2)
-  version
+    {
+      commit: commit
+      shortCommit: shortCommit
+      commitCount: commitCount
+      branch: branch
+    }
+  catch
+    # Fallback if not in git repo
+    {
+      commit: 'unknown'
+      shortCommit: 'unknown'
+      commitCount: 0
+      branch: 'unknown'
+    }
 
 # Get current version info
 getVersion = ->
-  version = await incrementBuild()
+  git = getGitInfo()
   
   {
-    version: "#{version.major}.#{version.minor}.#{version.patch}"
-    build: version.build
-    full: "#{version.major}.#{version.minor}.#{version.patch}-build.#{version.build}"
-    lastBuild: version.lastBuild
+    version: "1.0.0"
+    build: git.commitCount
+    commit: git.shortCommit
+    branch: git.branch
+    full: "1.0.0-#{git.commitCount}-#{git.shortCommit}"
     nodeVersion: process.version
     environment: process.env.NODE_ENV or 'development'
+    deployedAt: new Date().toISOString()
   }
 
 module.exports = { getVersion }

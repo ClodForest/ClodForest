@@ -60,7 +60,9 @@ router.get '/', (req, res) ->
       uptime:           process.uptime()
       version:          versionInfo?.full or 'unknown'
       build:            versionInfo?.build or 0
-      lastBuild:        versionInfo?.lastBuild or 'unknown'
+      commit:           versionInfo?.commit or 'unknown'
+      branch:           versionInfo?.branch or 'unknown'
+      deployedAt:       versionInfo?.deployedAt or 'unknown'
       environment:      process.env.NODE_ENV or 'development'
       response_time_ms: responseTime
       services:

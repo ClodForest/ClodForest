@@ -32,7 +32,7 @@
   "author": "Robert de Forest <robert@defore.st>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rdeforest/clodforest-coordinator.git"
+    "url": "https://github.com/ClodForest/ClodForest.git"
   },
   "license": "MIT",
   "dependencies": {
@@ -55,12 +55,9 @@
     "nodemon": "^3.1.10"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
   },
   "config": {
-    "port": 8080,
-    "freebsd_server": "clodforest-vault",
-    "repo_base_path": "/public/file/0/git",
-    "github_repo_path": "/public/file/0/git/ClodForest"
+    "port": 8080
   }
 }
