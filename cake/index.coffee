@@ -1,14 +1,7 @@
 # FILENAME: { ClodForest/cake/index.coffee }
 # Main task orchestrator
 
-# Try to load chalk, fall back to plain text if not available
-try
-  chalk = require 'chalk'
-catch
-  chalk =
-    cyan:   (text) -> text
-    green:  (text) -> text
-    yellow: (text) -> text
+# Simple console formatting without external dependencies
 
 # Import tasks
 {setup} = require './tasks/setup'
@@ -56,38 +49,38 @@ tasks =
     description: 'Clean temporary files'
     action: ->
       await runOrFail 'rm -f /tmp/clodforest /tmp/clodforest.service'
-      console.log "#{chalk.green '✅'} Cleanup complete"
+      console.log "✅ Cleanup complete"
       
   help:
     description: 'Show available tasks'
     action: ->
       console.log """
-      #{chalk.cyan 'ClodForest Coordinator Tasks'}
+      ClodForest Coordinator Tasks
 
-      #{chalk.green 'Development:'}
+      Development:
       """
       
       for name, task of tasks when name in ['setup', 'dev', 'test', 'debug:mcp-inspector', 'status']
         console.log "  cake #{name.padEnd 20} - #{task.description}"
       
-      console.log "\n#{chalk.green 'Production:'}"
+      console.log "\nProduction:"
       
       for name, task of tasks when name in ['start', 'install']
         console.log "  cake #{name.padEnd 20} - #{task.description}"
       
-      console.log "\n#{chalk.green 'Maintenance:'}"
+      console.log "\nMaintenance:"
       
       for name, task of tasks when name in ['clean', 'help']
         console.log "  cake #{name.padEnd 20} - #{task.description}"
       
       console.log """
 
-      #{chalk.yellow 'Examples:'}
+      Examples:
         cake setup && cake dev      - Initialize and start development
         cake install                - Auto-install for current platform
         cake status                 - Check project health
 
-      #{chalk.yellow 'Platform Support:'}
+      Platform Support:
         ✅ Linux (systemd)     ✅ FreeBSD     ✅ Devuan/SysV
         ⚠️  macOS (manual)     ❌ Windows
       """

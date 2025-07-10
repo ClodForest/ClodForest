@@ -1,36 +1,23 @@
 # FILENAME: { ClodForest/cake/lib/logger.coffee }
-# Logging utilities with optional chalk support
-
-# Try to load chalk, fall back to plain text if not available
-try
-  chalk = require 'chalk'
-catch
-  # Fallback when chalk is not installed
-  chalk =
-    blue:   (text) -> text
-    green:  (text) -> text
-    red:    (text) -> text
-    yellow: (text) -> text
-    cyan:   (text) -> text
-    gray:   (text) -> text
+# Simple logging utilities without dependencies
 
 log = (message) ->
-  console.log "#{chalk.blue '[ClodForest]'} #{message}"
+  console.log "[ClodForest] #{message}"
 
 success = (message) ->
-  console.log "#{chalk.green '✅'} #{message}"
+  console.log "✅ #{message}"
 
 error = (message) ->
-  console.log "#{chalk.red '❌'} #{message}"
+  console.log "❌ #{message}"
 
 warning = (message) ->
-  console.log "#{chalk.yellow '⚠️'} #{message}"
+  console.log "⚠️ #{message}"
 
 info = (message) ->
-  console.log "#{chalk.cyan 'ℹ'} #{message}"
+  console.log "ℹ #{message}"
 
 debug = (message) ->
-  console.log "#{chalk.gray '[DEBUG]'} #{message}" if process.env.DEBUG
+  console.log "[DEBUG] #{message}" if process.env.DEBUG
 
 module.exports = {
   log

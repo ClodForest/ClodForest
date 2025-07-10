@@ -49,7 +49,7 @@ startProduction = ->
 
   spawn getCoffeePath(), [paths.entryPoint],
     stdio: 'inherit'
-    env: Object.assing {},
+    env: Object.assign {},
       process.env
       NODE_ENV: 'production'
 
