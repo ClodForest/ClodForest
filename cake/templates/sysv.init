@@ -1,0 +1,35 @@
+#!/bin/bash
+# ClodForest Coordinator init script
+# chkconfig: 35 80 20
+# description: ClodForest Coordinator Service
+
+. /lib/lsb/init-functions
+
+USER="{{user}}"
+DAEMON="{{coffeePath}}"
+ROOT_DIR="{{workingDir}}"
+SERVER="$ROOT_DIR/{{entryPoint}}"
+PIDFILE="/var/run/clodforest.pid"
+
+case "$1" in
+  start)
+    echo -n "Starting ClodForest: "
+    start-stop-daemon --start --quiet --pidfile $PIDFILE --make-pidfile \
+      --background --chuid $USER --exec $DAEMON -- $SERVER
+    echo "."
+    ;;
+  stop)
+    echo -n "Shutting down ClodForest: "
+    start-stop-daemon --stop --quiet --pidfile $PIDFILE
+    echo "."
+    ;;
+  restart)
+    $0 stop
+    $0 start
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit 0

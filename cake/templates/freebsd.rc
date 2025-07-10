@@ -1,0 +1,27 @@
+#!/bin/sh
+#
+# PROVIDE: clodforest
+# REQUIRE: LOGIN
+# KEYWORD: shutdown
+#
+# Add the following lines to /etc/rc.conf to enable clodforest:
+# clodforest_enable="YES"
+#
+
+. /etc/rc.subr
+
+name="clodforest"
+rcvar=clodforest_enable
+
+load_rc_config $name
+
+: ${clodforest_enable="NO"}
+: ${clodforest_user="{{user}}"}
+: ${clodforest_dir="{{workingDir}}"}
+: ${clodforest_env="NODE_ENV=production REPO_PATH=./state"}
+
+pidfile="/var/run/clodforest.pid"
+command="/usr/sbin/daemon"
+command_args="-p ${pidfile} -u ${clodforest_user} {{coffeePath}} ${clodforest_dir}/{{entryPoint}}"
+
+run_rc_command "$1"

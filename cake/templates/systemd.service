@@ -1,0 +1,16 @@
+[Unit]
+Description=ClodForest Coordinator
+After=network.target
+
+[Service]
+Type=simple
+User={{user}}
+WorkingDirectory={{workingDir}}
+ExecStart={{coffeePath}} {{entryPoint}}
+Restart=always
+RestartSec=10
+Environment=NODE_ENV=production
+Environment=REPO_PATH=./state
+
+[Install]
+WantedBy=multi-user.target

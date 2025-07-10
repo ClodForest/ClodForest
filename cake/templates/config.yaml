@@ -1,0 +1,27 @@
+# ClodForest Configuration
+# Customize your deployment settings here
+
+server:
+  port: 8080
+  vault_server: clodforest-vault
+  log_level: info
+
+repository:
+  path: ./state
+
+features:
+  git_operations: true
+  admin_auth: false  # Set to true for production
+  context_updates: false  # Not yet implemented
+
+cors:
+  origins:
+    - https://claude.ai
+    - https://*.claude.ai
+    - http://localhost:3000
+    - http://localhost:8080
+
+# SSH configuration for Git operations
+ssh:
+  key_file: ~/.ssh/clodforest_github
+  key_comment: clodforest@thatsnice.org
