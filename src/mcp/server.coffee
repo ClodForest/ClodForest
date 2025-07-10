@@ -126,9 +126,10 @@ mcpHandler = (req, res) ->
     # Handle MCP methods
     if method is 'initialize'
       result =
-        protocolVersion: '2025-06-18'
+        protocolVersion: '2024-11-05'  # Match Claude's requested version
         capabilities:
-          tools: {}
+          tools: 
+            listChanged: false  # We don't support dynamic tool list changes
         serverInfo:
           name:    'clodforest-mcp-server'
           version: '1.0.0'

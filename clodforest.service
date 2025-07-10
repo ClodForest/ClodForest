@@ -1,0 +1,18 @@
+[Unit]
+Description=ClodForest Coordinator
+After=network.target
+
+[Service]
+Type=simple
+User=ec2-user
+WorkingDirectory=/home/ec2-user/ClodForest
+# Load nvm and use Node v24 before starting
+ExecStart=/bin/bash -c 'source /home/ec2-user/.nvm/nvm.sh && nvm use 24 && exec coffee src/app.coffee'
+Restart=always
+RestartSec=10
+Environment=NODE_ENV=production
+Environment=REPO_PATH=./state
+Environment=ENABLE_OAUTH2=true
+
+[Install]
+WantedBy=multi-user.target
