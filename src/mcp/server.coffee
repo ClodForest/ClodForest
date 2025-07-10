@@ -101,20 +101,24 @@ mcpHandler = (req, res) ->
     { jsonrpc, method, params, id } = req.body
     
     if jsonrpc isnt '2.0'
-      return res.status(400).json
+      errorResponse = 
         jsonrpc: '2.0'
         error:
           code:    -32600
           message: 'Invalid Request - jsonrpc must be "2.0"'
-        id: id or null
+      if id?
+        errorResponse.id = id
+      return res.status(400).json errorResponse
 
     if not method or typeof method isnt 'string'
-      return res.status(400).json
+      errorResponse = 
         jsonrpc: '2.0'
         error:
           code:    -32600
           message: 'Invalid Request - method is required'
-        id: id or null
+      if id?
+        errorResponse.id = id
+      return res.status(400).json errorResponse
 
     # Log MCP request
     logger.mcp 'MCP Request', { method, params, id }
@@ -184,28 +188,38 @@ mcpHandler = (req, res) ->
       
       result = toolResult
     else
-      return res.status(400).json
+      errorResponse = 
         jsonrpc: '2.0'
         error:
           code:    -32601
           message: "Method not found: #{method}"
-        id: id or null
+      if id?
+        errorResponse.id = id
+      return res.status(400).json errorResponse
 
     # Return successful response
-    res.json
+    response = 
       jsonrpc: '2.0'
       result:  result
-      id:      id or null
+    
+    # Only include id if it was provided in the request
+    if id?
+      response.id = id
+    
+    res.json response
 
   catch error
     logger.error 'MCP handler error', { error: error.message, stack: error.stack, method: req.body?.method }
     
-    res.status(500).json
+    errorResponse = 
       jsonrpc: '2.0'
       error:
         code:    -32603
         message: 'Internal error'
         data:    if process.env.NODE_ENV is 'development' then error.message else undefined
-      id: req.body?.id or null
+    if req.body?.id?
+      errorResponse.id = req.body.id
+    
+    res.status(500).json errorResponse
 
 module.exports = mcpHandler

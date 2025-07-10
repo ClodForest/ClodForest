@@ -176,12 +176,20 @@ configuration =
     'code'
   ]
 
-  # Token lifetimes
+  # Token lifetimes and formats
   ttl:
     AccessToken: 3600        # 1 hour
     AuthorizationCode: 300   # 5 minutes
     RefreshToken: 86400      # 24 hours
     ClientCredentials: 3600  # 1 hour
+
+  # JWT signing configuration for when JWT tokens are issued
+  jwt:
+    sign: { alg: 'RS256' }
+
+  # Force JWT format for all access tokens using function
+  formats:
+    AccessToken: (ctx, token) -> 'jwt'
 
   # Scopes
   scopes: ['openid', 'mcp', 'read', 'write']
@@ -325,6 +333,46 @@ createProvider = (issuer) ->
               note: 'Auto-adding openid scope to help debug OAuth scope issues'
               todo: 'Remove this workaround once scope handling is understood'
             }
+
+        # TEMPORARY WORKAROUND: Add multiple redirect URIs for MCP Inspector
+        # MCP Inspector uses different redirect URIs for different flows
+        if ctx.req.body.client_name?.includes('MCP Inspector') and ctx.req.body.redirect_uris
+          originalUris = ctx.req.body.redirect_uris
+          additionalUris = []
+          
+          # Add both /debug and non-/debug variants
+          for uri in originalUris
+            if uri.includes('/oauth/callback/debug')
+              # Add non-debug variant
+              additionalUris.push uri.replace('/oauth/callback/debug', '/oauth/callback')
+            else if uri.includes('/oauth/callback') and not uri.includes('/debug')
+              # Add debug variant  
+              additionalUris.push uri.replace('/oauth/callback', '/oauth/callback/debug')
+          
+          if additionalUris.length > 0
+            ctx.req.body.redirect_uris = originalUris.concat(additionalUris)
+            
+            logger.oauth 'TEMPORARY WORKAROUND: Added multiple redirect URIs for MCP Inspector', {
+              original: originalUris
+              fixed: ctx.req.body.redirect_uris
+              note: 'MCP Inspector uses different redirect URIs for different flows'
+            }
+    
+    # Handle token endpoint requests
+    if ctx.path is '/token' and ctx.method is 'POST'
+      # TEMPORARY WORKAROUND: Fix MCP Inspector undefined resource parameter
+      # MCP Inspector sometimes sends "resource": "undefined" which causes invalid_target error
+      if ctx.req.body?.resource is 'undefined'
+        # Instead of deleting, set it to our default resource to trigger JWT tokens
+        # Use the same origin as the OAuth server, not the client's origin
+        baseUrl = process.env.ISSUER_URL or "http://localhost:#{process.env.PORT or 8080}"
+        ctx.req.body.resource = "#{baseUrl}/api/mcp"
+        logger.oauth 'TEMPORARY WORKAROUND: Fixed undefined resource parameter to trigger JWT tokens', {
+          original: 'undefined'
+          fixed: ctx.req.body.resource
+          client_id: ctx.req.body.client_id
+          note: 'MCP Inspector bug fixed by setting proper resource for JWT token generation'
+        }
 
     await next()
 

@@ -13,12 +13,10 @@ router.get '/oauth-protected-resource', (req, res) ->
   baseUrl = "#{req.protocol}://#{req.get('host')}"
 
   res.json
-    resource:                baseUrl
-    authorization_servers:   [baseUrl]
-    scopes_supported:        ['mcp', 'read', 'write']
+    resource:                baseUrl + "/api/mcp"  # The actual MCP API endpoint
+    authorization_servers:   [baseUrl + "/oauth"]  # Our OAuth issuer
+    scopes_supported:        ['openid', 'mcp', 'read', 'write']  # Match OAuth server scopes
     bearer_methods_supported: ['header']
-    resource_documentation:  "#{baseUrl}/docs/mcp"
-    scope_policy_uri:        "#{baseUrl}/policy/scopes"
 
 # MCP Server Discovery Metadata
 router.get '/mcp-server', (req, res) ->
