@@ -122,6 +122,19 @@ configuration =
     registration:
       enabled: true
       initialAccessToken: false
+    resourceIndicators:
+      enabled: true
+      defaultResource: (ctx, client) ->
+        # Default resource is our MCP API
+        "#{ctx.origin}/api/mcp"
+      getResourceServerInfo: (ctx, resourceIndicator, client) ->
+        # Configure JWT tokens for MCP API
+        scope: 'mcp read write'
+        audience: resourceIndicator
+        accessTokenTTL: 3600  # 1 hour
+        accessTokenFormat: 'jwt'
+        jwt:
+          sign: { alg: 'RS256' }
 
   # Supported grant types (include refresh_token for MCP Inspector compatibility)
   grantTypes: [
@@ -262,21 +275,56 @@ createProvider = (issuer) ->
       client_name: ctx.request.body?.client_name
     }
 
-  # Fix MCP Inspector's grant_types before oidc-provider validation
+  # Fix MCP Inspector bugs before oidc-provider validation
   provider.use (ctx, next) ->
+    # oidc-provider uses ctx.request.body (from Express) but also supports ctx.oidc.body
+    # Check both Express body and koa/oidc-provider body locations
+    requestBody = ctx.request.body or ctx.req.body or {}
+    
+    logger.oauth 'Provider middleware called', {
+      path: ctx.path
+      method: ctx.method
+      hasExpressBody: !!ctx.request.body
+      hasReqBody: !!ctx.req.body
+      expressBodyKeys: if ctx.request.body then Object.keys(ctx.request.body) else []
+      reqBodyKeys: if ctx.req.body then Object.keys(ctx.req.body) else []
+    }
+    
     if ctx.path is '/register' and ctx.method is 'POST'
-      # MCP Inspector sends refresh_token in grant_types, but oidc-provider only allows
-      # authorization_code or client_credentials. Filter it out since refresh_token
-      # capability is automatically available with authorization_code.
-      if ctx.request.body?.grant_types?.includes('refresh_token')
-        originalGrantTypes = ctx.request.body.grant_types
-        ctx.request.body.grant_types = originalGrantTypes.filter (gt) -> gt isnt 'refresh_token'
+      # Use the request body from Express (ctx.req.body)
+      if ctx.req.body
+        # MCP Inspector sends refresh_token in grant_types, but oidc-provider only allows
+        # authorization_code or client_credentials. Filter it out since refresh_token
+        # capability is automatically available with authorization_code.
+        if ctx.req.body.grant_types?.includes('refresh_token')
+          originalGrantTypes = ctx.req.body.grant_types
+          ctx.req.body.grant_types = originalGrantTypes.filter (gt) -> gt isnt 'refresh_token'
 
-        logger.oauth 'Fixed MCP Inspector grant_types for oidc-provider compatibility', {
-          original: originalGrantTypes
-          fixed: ctx.request.body.grant_types
-          note: 'refresh_token capability is automatically available with authorization_code'
-        }
+          logger.oauth 'Fixed MCP Inspector grant_types for oidc-provider compatibility', {
+            original: originalGrantTypes
+            fixed: ctx.req.body.grant_types
+            note: 'refresh_token capability is automatically available with authorization_code'
+          }
+
+        # TEMPORARY WORKAROUND: Auto-add openid scope for any client registration missing it
+        # This helps debug scope-related OAuth issues during development
+        # TODO: Remove once we understand the scope handling better
+        if ctx.req.body.scope
+          originalScope = ctx.req.body.scope
+          scopes = originalScope.split(/\s+/)
+          
+          # Add 'openid' scope if missing (common issue with OAuth clients)
+          unless scopes.includes('openid')
+            scopes.unshift('openid')
+            ctx.req.body.scope = scopes.join(' ')
+
+            logger.oauth 'TEMPORARY WORKAROUND: Auto-added missing openid scope', {
+              original: originalScope
+              fixed: ctx.req.body.scope
+              client_name: ctx.req.body.client_name
+              note: 'Auto-adding openid scope to help debug OAuth scope issues'
+              todo: 'Remove this workaround once scope handling is understood'
+            }
 
     await next()
 

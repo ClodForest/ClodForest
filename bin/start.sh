@@ -11,6 +11,12 @@ LOG_FILE="$PROJECT_DIR/server.log"
 # Change to project directory
 cd "$PROJECT_DIR"
 
+js_files=$(find src -name '*.js' | wc -l)
+if [ $js_files -gt 0 ]; then
+    echo "JavaScript files found in src/! Check your workflow!"
+    exit 1
+fi
+
 # Check if already running
 if [ -f "$PID_FILE" ] && kill -0 $(cat "$PID_FILE") 2>/dev/null; then
     echo "ClodForest server is already running (PID: $(cat $PID_FILE))"

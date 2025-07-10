@@ -1,12 +1,13 @@
 # FILENAME: { ClodForest/src/middleware/auth.coffee }
-# OAuth2 authentication middleware using oidc-provider
+# OAuth2 authentication middleware using JWT validation
 
-{ createProvider } = require '../oauth/oidc-provider'
+{ jwtVerify, createRemoteJWKSet } = require 'jose'
 { logger } = require '../lib/logger'
 
-# Create provider instance for token introspection
+# JWKS endpoint for JWT verification
 issuer = process.env.ISSUER_URL or "http://localhost:#{process.env.PORT or 8080}"
-provider = createProvider issuer
+jwksUri = "#{issuer}/.well-known/jwks.json"
+JWKS = createRemoteJWKSet new URL(jwksUri)
 
 # OAuth2 authentication middleware
 authenticate = (req, res, next) ->
@@ -31,52 +32,40 @@ authenticate = (req, res, next) ->
       path: req.path
     }
 
-    # Use oidc-provider's token introspection
-    # Create a mock request for introspection
-    introspectionReq = {
-      method: 'POST'
-      url: '/oauth/introspect'
-      headers: {
-        'content-type': 'application/x-www-form-urlencoded'
+    # Validate JWT token using JWKS (RFC 7519)
+    # This is the proper way for a resource server to validate JWT tokens
+    try
+      # Verify JWT signature, expiry, and claims
+      { payload } = await jwtVerify token, JWKS, {
+        issuer: issuer
+        audience: "#{issuer}/api/mcp"  # Expected audience for MCP API
       }
-      body: {
-        token: token
-        token_type_hint: 'access_token'
-      }
-    }
 
-    # Get AccessToken instance from provider
-    AccessToken = provider.AccessToken
-    tokenInstance = await AccessToken.find(token)
-    
-    unless tokenInstance
-      logger.oauth 'Token not found', { tokenPrefix: token.substring(0, 10) + '...' }
+      logger.oauth 'JWT validation successful', {
+        tokenPrefix: token.substring(0, 10) + '...'
+        clientId: payload.client_id
+        scope: payload.scope
+        audience: payload.aud
+        subject: payload.sub
+      }
+
+      # Add token info to request object
+      req.oauth = {
+        payload: payload
+        client: { id: payload.client_id }
+        scope: payload.scope
+      }
+
+    catch error
+      logger.oauth 'JWT validation failed', { 
+        error: error.message
+        tokenPrefix: token.substring(0, 10) + '...'
+        errorCode: error.code
+      }
+      
       return res.status(401).json
         error: 'invalid_token'
         error_description: 'The access token provided is expired, revoked, malformed, or invalid'
-
-    # Check if token is expired
-    if tokenInstance.isExpired
-      logger.oauth 'Token expired', { 
-        tokenPrefix: token.substring(0, 10) + '...'
-        expiresAt: tokenInstance.expiresAt
-      }
-      return res.status(401).json
-        error: 'invalid_token'
-        error_description: 'The access token provided is expired'
-
-    logger.oauth 'Authentication successful', {
-      tokenPrefix: token.substring(0, 10) + '...'
-      clientId: tokenInstance.clientId
-      scope: tokenInstance.scope
-    }
-
-    # Add token info to request object
-    req.oauth = {
-      token: tokenInstance
-      client: { id: tokenInstance.clientId }
-      scope: tokenInstance.scope
-    }
 
     next()
 
@@ -102,7 +91,7 @@ authenticate = (req, res, next) ->
 # Scope verification middleware factory
 requireScope = (requiredScope) ->
   (req, res, next) ->
-    unless req.oauth?.token
+    unless req.oauth?.payload
       return res.status(401).json
         error: 'invalid_token'
         error_description: 'No valid token found'

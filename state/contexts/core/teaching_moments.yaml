@@ -11,3 +11,107 @@ communication_preferences:
 workflow_patterns:
   lesson: "Document the discovery sequence, not just the solutions"
   context: "Iterative troubleshooting creates valuable debugging patterns"
+
+oauth2_architecture_confusion:
+  lesson: "When app is both auth server AND resource server, use JWT tokens with local validation"
+  context: "Incorrectly mixed oidc-provider internals with resource server token validation"
+  date: "2025-07-09"
+  pattern: "Resource servers validate tokens via public standards (JWT+JWKS), not library internals"
+  mistakes:
+    - "Used undocumented oidc-provider.AccessToken.find() method"
+    - "Only worked for AccessToken, not ClientCredentials tokens"
+    - "Attempted HTTP introspection calls to self (circular dependency)"
+    - "Hardcoded client credentials as 'temporary' fix"
+  correct_approach:
+    - "Configure resourceIndicators in oidc-provider for JWT tokens"
+    - "Validate JWTs using jose library + JWKS endpoint"
+    - "Treat oidc-provider as black box"
+    - "No HTTP calls to self for internal validation"
+  prevention:
+    - "Plan token format (JWT vs opaque) early in architecture"
+    - "Separate authorization server vs resource server concerns"
+    - "Flag any library internal usage in code review"
+
+debugging_methodology:
+  lesson: "When something doesn't work, don't just try to do it differently. Figure out why it doesn't work and fix it"
+  context: "Multiple instances of working around problems instead of solving root cause"
+  date: "2025-07-09"
+  pattern: "Systematic diagnosis and root cause analysis prevents recurring issues"
+  examples:
+    - "Shell directory reset issue - diagnosed bash profile cd $HOME command"
+    - "Route ordering problems - created centralized route registry instead of ad-hoc fixes"
+    - "OAuth2 interaction endpoint - identified specific routing conflicts"
+  methodology:
+    - "Use logs and debugging tools to understand what's actually happening"
+    - "Check configuration files and startup scripts systematically"
+    - "Test hypotheses about root cause before implementing fixes"
+    - "Document the actual problem and solution for future reference"
+  prevention:
+    - "Resist the urge to quickly try a different approach"
+    - "Invest time in understanding the underlying system"
+    - "Create systematic debugging procedures"
+    - "Always validate that fixes address the root cause"
+
+mcp_inspector_oauth_scope_bug:
+  lesson: "Sometimes you need to implement workarounds for third-party bugs, but document them extensively"
+  context: "MCP Inspector has a scope handling bug in OAuth registration vs authorization flows"
+  date: "2025-07-09"
+  pattern: "Client tools can have bugs that require server-side workarounds"
+  bug_description:
+    - "MCP Inspector registers clients with scope 'mcp read write' (missing openid)"
+    - "But then requests authorization with scope 'openid+mcp+read+write'"
+    - "This violates OAuth2 principle that authorization scopes must be subset of registered scopes"
+  github_issues:
+    - "https://github.com/modelcontextprotocol/inspector/issues/580"
+    - "Authorization URL doesn't contain 'scope' in certain scenario"
+  workaround_implemented:
+    - "Detect MCP Inspector client registrations by client_name"
+    - "Automatically add 'openid' scope if missing during registration"
+    - "Log the workaround clearly with GitHub issue reference"
+    - "Preserve original scope in logs for debugging"
+  risks:
+    - "Workaround is brittle - depends on client_name containing 'MCP Inspector'"
+    - "May mask other scope-related issues"
+    - "Could break if MCP Inspector changes client_name format"
+  monitoring:
+    - "Watch for workaround activation in oauth.log"
+    - "Monitor for MCP Inspector updates that fix the scope bug"
+    - "Plan to remove workaround once upstream bug is fixed"
+
+coffeescript_js_file_masking:
+  lesson: "CoffeeScript syntax checking with -c flag creates .js files that mask .coffee changes"
+  context: "Spent hours debugging OAuth scope workaround that wasn't activating"
+  date: "2025-07-10"
+  pattern: "Node.js prioritizes .js files over .coffee files when requiring modules"
+  problem:
+    - "Running 'coffee -c filename.coffee' creates filename.js"
+    - "Node.js require() loads filename.js instead of filename.coffee"
+    - "Changes to .coffee files don't take effect until .js files are removed"
+    - "Server appears to restart successfully but runs old compiled code"
+  solution:
+    - "Use 'coffee -p filename.coffee > /dev/null' for syntax checking"
+    - "Never use 'coffee -c' in src/ directory"
+    - "Add .js files to .gitignore for src/ directory"
+    - "Check for stray .js files when changes don't take effect"
+  prevention:
+    - "Update Cakefile test task to use -p flag instead of -c"
+    - "Add find command to clean task to remove any .js files in src/"
+    - "Create pre-commit hook to prevent .js files in src/"
+  debugging_symptoms:
+    - "Code changes don't take effect after server restart"
+    - "Logs show old behavior despite source changes"
+    - "No error messages, just old code continues running"
+oauth2_success_celebration:
+  summary: "🎉 OAuth2 authorization flow working with MCP Inspector"
+  details:  < /dev/null | 
+    After implementing proper oidc-provider Grant handling, the complete OAuth2 authorization
+    code flow now works successfully with MCP Inspector. Key lesson: Always RTFM first!
+  examples:
+    - "Complete OAuth2 flow: registration -> authorization -> token -> resource access"
+    - "PKCE support for public OAuth2 clients" 
+    - "JWT access tokens with resource indicators"
+  methodology:
+    - "Follow OAuth2 and OpenID Connect specifications properly"
+    - "Use official library APIs and examples as primary reference"
+    - "Test end-to-end with real OAuth2 clients"
+

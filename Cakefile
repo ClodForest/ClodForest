@@ -70,7 +70,7 @@ detectPlatform = ->
 
 # Configuration
 config =
-  entryPoint: 'src/coordinator/index.coffee'
+  entryPoint: 'src/app.coffee'
   watchFiles: ['src/**/*.coffee', 'Cakefile']
   configFile: 'config.yaml'
 
@@ -324,14 +324,31 @@ task 'test', 'Run basic functionality tests', ->
     error "Entry point not found: #{config.entryPoint}"
     return
 
-  # Test syntax
-  runCommand "coffee -c -p #{config.entryPoint} > /dev/null", ->
+  # Test syntax (use -p to avoid creating .js files)
+  runCommand "coffee -p #{config.entryPoint} > /dev/null", ->
     success 'CoffeeScript syntax is valid'
 
     # TODO: Add more comprehensive tests
     log 'Additional tests will be added as the project grows'
 
     success 'Basic tests passed'
+
+task 'debug:mcp-inspector', 'Run MCP Inspector OAuth2 debug server', ->
+  log 'Starting MCP Inspector OAuth2 debug server on port 3000...'
+  log 'Configure MCP Inspector to connect to http://localhost:3000'
+  log 'Press Ctrl+C to stop'
+  
+  unless fileExists 'test/scripts/mcp-inspector-oauth-debug.coffee'
+    error 'Debug server script not found: test/scripts/mcp-inspector-oauth-debug.coffee'
+    return
+
+  spawn 'coffee', ['test/scripts/mcp-inspector-oauth-debug.coffee'],
+    stdio: 'inherit'
+    env: {
+      ...process.env
+      NODE_ENV: 'development'
+      PORT: '3000'
+    }
 
 task 'status', 'Show current project status', ->
   console.log """
@@ -396,6 +413,7 @@ task 'help', 'Show available tasks', ->
     cake setup          - Initialize configuration files
     cake dev            - Start development server with auto-restart
     cake test           - Run basic functionality tests
+    cake debug:mcp-inspector - Run MCP Inspector OAuth2 debug server
     cake status         - Show current project status
 
   #{colors.green}Production:#{colors.reset}

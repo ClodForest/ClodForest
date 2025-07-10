@@ -41,11 +41,45 @@ app.use '/.well-known', wellKnownRoutes
 app.use '/api/health',  healthRoutes
 app.use '/api/mcp',     authMiddleware, mcpHandler
 
+# Debug route to list all registered routes
+app.get '/debug/routes', (req, res) ->
+  routes = []
+  
+  try
+    # Simple route extraction
+    if app._router?.stack
+      app._router.stack.forEach (layer) ->
+        try
+          if layer?.route
+            routes.push
+              path: layer.route.path
+              methods: Object.keys(layer.route.methods || {}).join(', ').toUpperCase()
+          else if layer?.name
+            routes.push
+              type: 'middleware'
+              name: layer.name
+              regexp: layer.regexp?.source
+        catch layerError
+          routes.push
+            type: 'error'
+            error: layerError.message
+  catch error
+    logger.error 'Debug route error', { error: error.message }
+  
+  res.json
+    totalRoutes: routes.length
+    routes: routes
+
 app.use (err, req, res, next) ->
-  logger.error 'HTTP Error', { error: err.message, stack: err.stack, status: err.status }
-  res.status(err.status or 500).json
+  logger.error 'HTTP Error', { 
+    error: err?.message or 'Unknown error'
+    stack: err?.stack or 'No stack trace'
+    status: err?.status
+    type: typeof err
+  }
+  res.status(err?.status or 500).json
     error:   'Internal Server Error'
-    message: if process.env.NODE_ENV is 'development' then err.message else 'Something went wrong'
+    message: if process.env.NODE_ENV is 'development' then (err?.message or 'Unknown error') else 'Something went wrong'
 
 app.use (req, res) ->
   res.status(404).json
