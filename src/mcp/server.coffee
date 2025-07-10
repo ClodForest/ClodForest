@@ -206,6 +206,9 @@ mcpHandler = (req, res) ->
     if id?
       response.id = id
     
+    # Log the response for debugging
+    logger.mcp 'MCP Response', { method, response }
+    
     res.json response
 
   catch error
