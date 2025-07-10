@@ -4,8 +4,13 @@
 express = require 'express'
 fs      = require 'node:fs/promises'
 path    = require 'node:path'
+{ getVersion } = require '../lib/version'
 
 router = express.Router()
+
+# Cache version info on startup
+versionInfo = null
+getVersion().then (info) -> versionInfo = info
 
 router.get '/', (req, res) ->
   try
@@ -53,7 +58,9 @@ router.get '/', (req, res) ->
       status:           if fsStatus is 'ok' then 'healthy' else 'degraded'
       timestamp:        new Date().toISOString()
       uptime:           process.uptime()
-      version:          '1.0.0'
+      version:          versionInfo?.full or 'unknown'
+      build:            versionInfo?.build or 0
+      lastBuild:        versionInfo?.lastBuild or 'unknown'
       environment:      process.env.NODE_ENV or 'development'
       response_time_ms: responseTime
       services:
