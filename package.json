@@ -1,5 +1,5 @@
 {
-  "name": "clodforest-coordinator",
+  "name": "clodforest",
   "version": "1.0.1",
   "description": "ClodForest Coordinator Service - Provides active protocol support for distributed Claude instance coordination",
   "main": "src/app.coffee",
@@ -16,12 +16,12 @@
     "test:apis": "coffee t/apis.test.coffee",
     "test:routing": "coffee t/routing.test.coffee",
     "test:integration": "coffee t/integration.test.coffee",
-    "install-service": "sudo cp clodforest-coordinator.service /etc/systemd/system/ && sudo systemctl daemon-reload",
-    "enable-service": "sudo systemctl enable clodforest-coordinator",
-    "start-service": "sudo systemctl start clodforest-coordinator",
-    "stop-service": "sudo systemctl stop clodforest-coordinator",
-    "status-service": "sudo systemctl status clodforest-coordinator",
-    "logs-service": "sudo journalctl -u clodforest-coordinator -f"
+    "install-service": "sudo cp clodforest.service /etc/systemd/system/ && sudo systemctl daemon-reload",
+    "enable-service": "sudo systemctl enable clodforest",
+    "start-service": "sudo systemctl start clodforest",
+    "stop-service": "sudo systemctl stop clodforest",
+    "status-service": "sudo systemctl status clodforest",
+    "logs-service": "sudo journalctl -u clodforest -f"
   },
   "keywords": [
     "llm-enhancement",
