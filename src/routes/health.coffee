@@ -9,20 +9,19 @@ path    = require 'node:path'
 router = express.Router()
 
 # Cache version info on startup
-versionInfo = null
-getVersion().then (info) -> versionInfo = info
+versionInfo = getVersion()
 
 router.get '/', (req, res) ->
   try
     startTime = Date.now()
-    
+
     # Check file system access
     stateDir = path.join process.cwd(), 'state'
     dataDir  = path.join process.cwd(), 'data'
-    
+
     fsStatus  = 'ok'
     fsDetails = {}
-    
+
     try
       # Check state directory
       await fs.access stateDir
@@ -37,7 +36,7 @@ router.get '/', (req, res) ->
         exists: false
         error:  error.message
         path:   stateDir
-    
+
     try
       # Check data directory
       await fs.access dataDir
@@ -53,7 +52,7 @@ router.get '/', (req, res) ->
         path:   dataDir
 
     responseTime = Date.now() - startTime
-    
+
     health =
       status:           if fsStatus is 'ok' then 'healthy' else 'degraded'
       timestamp:        new Date().toISOString()
@@ -88,12 +87,12 @@ router.get '/', (req, res) ->
 
     # Set appropriate HTTP status
     httpStatus = if health.status is 'healthy' then 200 else 503
-    
+
     res.status(httpStatus).json health
 
   catch error
     console.error 'Health check error:', error
-    
+
     res.status(503).json
       status:    'unhealthy'
       timestamp: new Date().toISOString()
@@ -106,7 +105,7 @@ router.get '/ready', (req, res) ->
     # Check if essential services are ready
     stateDir = path.join process.cwd(), 'state'
     await fs.access stateDir
-    
+
     res.json
       status:    'ready'
       timestamp: new Date().toISOString()
