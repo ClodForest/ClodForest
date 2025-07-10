@@ -18,6 +18,16 @@ jwksCache = new Map()
 # OAuth2 authentication middleware
 authenticate = (req, res, next) ->
   try
+    # Debug log to see what requests hit auth middleware
+    logger.oauth 'Auth middleware called', {
+      method: req.method
+      url: req.url
+      originalUrl: req.originalUrl
+      path: req.path
+      route: req.route?.path
+      ip: req.ip
+      userAgent: req.get('User-Agent')
+    }
     # Extract Bearer token from Authorization header
     authHeader = req.headers.authorization
     unless authHeader?.startsWith('Bearer ')

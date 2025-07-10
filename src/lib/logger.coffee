@@ -31,19 +31,19 @@ formatTimestamp = ->
 writeToFile = (filename, level, message, data = null) ->
   try
     await ensureLogsDir()
-    
+
     logEntry =
       timestamp: formatTimestamp()
       level:     level
       message:   message
       pid:       process.pid
-    
+
     if data
       logEntry.data = data
-    
+
     logLine = JSON.stringify(logEntry) + '\n'
     filePath = path.join LOGS_DIR, filename
-    
+
     await fs.appendFile filePath, logLine
   catch error
     console.error "Failed to write to log file #{filename}:", error
@@ -55,7 +55,7 @@ logToConsoleAndFile = (level, filename, message, data = null) ->
     console.log "#{formatTimestamp()} [#{level}] #{message}", data
   else
     console.log "#{formatTimestamp()} [#{level}] #{message}"
-  
+
   # Also write to file if level is appropriate
   if LOG_LEVELS[level] <= CURRENT_LEVEL
     writeToFile filename, level, message, data
@@ -66,34 +66,46 @@ module.exports.logger =
     # General application logs
     info: (message, data = null) ->
       logToConsoleAndFile 'INFO', 'app.log', message, data
-    
+
     warn: (message, data = null) ->
       logToConsoleAndFile 'WARN', 'app.log', message, data
-    
+
     error: (message, data = null) ->
       logToConsoleAndFile 'ERROR', 'error.log', message, data
-    
+
     debug: (message, data = null) ->
       logToConsoleAndFile 'DEBUG', 'debug.log', message, data
-    
+
     # HTTP access logs
     access: (req, res, responseTime = null) ->
       logData =
-        method:     req.method
-        url:        req.url
-        ip:         req.ip or req.connection?.remoteAddress
-        userAgent:  req.get('User-Agent')
-        status:     res.statusCode
-        
+        method:       req.method
+        url:          req.url
+        originalUrl:  req.originalUrl
+        path:         req.path
+        ip:           req.ip or req.connection?.remoteAddress
+        userAgent:    req.get('User-Agent')
+        status:       res.statusCode
+        headers:      {
+          'host':               req.get('host')
+          'x-forwarded-proto':  req.get('x-forwarded-proto')
+          'x-forwarded-host':   req.get('x-forwarded-host')
+          'content-type':       req.get('content-type')
+          'authorization':      if req.get('authorization') then 'Bearer ***' else undefined
+        }
+        route:        req.route?.path
+        params:       req.params
+        query:        req.query
+
       if responseTime
         logData.responseTime = "#{responseTime}ms"
-      
+
       writeToFile 'access.log', 'INFO', 'HTTP Request', logData
-    
+
     # MCP protocol logs
     mcp: (message, data = null) ->
       writeToFile 'mcp.log', 'INFO', message, data
-    
+
     # OAuth2 logs
     oauth: (message, data = null) ->
       writeToFile 'oauth.log', 'INFO', message, data
@@ -102,15 +114,15 @@ module.exports.logger =
 module.exports.requestLogger =
   requestLogger = (req, res, next) ->
     startTime = Date.now()
-    
+
     # Log the request
     logger.access req, res
-    
+
     # Override res.end to capture response time
     originalEnd = res.end
     res.end = (chunk, encoding) ->
       responseTime = Date.now() - startTime
       logger.access req, res, responseTime
       originalEnd.call res, chunk, encoding
-    
+
     next()
