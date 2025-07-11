@@ -5,51 +5,49 @@
 set -e
 
 PROJECT_DIR="$HOME/git/github/ClodForest/ClodForest"
-PID_FILE="$PROJECT_DIR/.pid"
+PORT=${PORT:-8080}
 
 # Change to project directory
 cd "$PROJECT_DIR"
 
-# Check if PID file exists
-if [ ! -f "$PID_FILE" ]; then
-    echo "No PID file found - server may not be running"
+# Check what's listening on the configured port
+LISTENING_PID=$(lsof -ti :$PORT 2>/dev/null || true)
+
+if [ -z "$LISTENING_PID" ]; then
+    echo "Nothing listening on port $PORT - server not running"
     exit 0
 fi
 
-# Read PID
-SERVER_PID=$(cat "$PID_FILE")
+# Check if it's our ClodForest process
+COMMAND_LINE=$(ps -p "$LISTENING_PID" -o args= 2>/dev/null || true)
 
-# Check if process is actually running
-if ! kill -0 "$SERVER_PID" 2>/dev/null; then
-    echo "Process $SERVER_PID is not running - cleaning up PID file"
-    rm "$PID_FILE"
+if [ -z "$COMMAND_LINE" ]; then
+    echo "Process $LISTENING_PID not found"
     exit 0
 fi
 
-# Verify this is actually our ClodForest process by checking the command line
-if ps -p "$SERVER_PID" -o args= | grep -q "coffee src/app.coffee"; then
-    echo "Stopping ClodForest server (PID: $SERVER_PID)..."
-    kill "$SERVER_PID"
+if echo "$COMMAND_LINE" | grep -q "coffee src/app.coffee"; then
+    echo "Stopping ClodForest server (PID: $LISTENING_PID)..."
+    kill "$LISTENING_PID"
 
     # Wait for process to stop
     for i in {1..10}; do
-        if ! kill -0 "$SERVER_PID" 2>/dev/null; then
+        if ! kill -0 "$LISTENING_PID" 2>/dev/null; then
             break
         fi
         sleep 1
     done
 
     # Force kill if still running
-    if kill -0 "$SERVER_PID" 2>/dev/null; then
+    if kill -0 "$LISTENING_PID" 2>/dev/null; then
         echo "Process didn't stop gracefully, force killing..."
-        kill -9 "$SERVER_PID"
+        kill -9 "$LISTENING_PID"
     fi
 
-    rm "$PID_FILE"
     echo "ClodForest server stopped"
 else
-    echo "Warning: PID $SERVER_PID doesn't appear to be ClodForest server"
-    echo "Command line: $(ps -p $SERVER_PID -o args= 2>/dev/null || echo 'Process not found')"
+    echo "Error: Something else is listening on port $PORT"
+    echo "Command line: $COMMAND_LINE"
     echo "Not killing process for safety"
     exit 1
 fi

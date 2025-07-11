@@ -11,6 +11,7 @@ wellKnownRoutes    = require './routes/wellknown'
 healthRoutes       = require './routes/health'
 oauthRoutes        = require './oauth/router'
 mcpHandler         = require './mcp/server'
+{ createSseRouter } = require './mcp/sse-server'
 authMiddleware     = require './middleware/auth'
 securityMiddleware = require './middleware/security'
 
@@ -43,6 +44,9 @@ app.get '/.well-known/oauth-authorization-server', (req, res) ->
 app.use '/.well-known', wellKnownRoutes
 
 app.use '/api/health',  healthRoutes
+# SSE-based MCP server with modern protocol support
+sseRouter = createSseRouter()
+app.use '/api/mcp-sse', sseRouter
 app.use '/api/mcp',     mcpHandler
 
 # Root path handler for service discovery
@@ -58,9 +62,13 @@ app.get '/', (req, res) ->
     description: 'OAuth2-secured MCP server for LLM state management'
     endpoints:
       mcp: "#{baseUrl}/api/mcp"
+      mcpSse: "#{baseUrl}/api/mcp-sse/sse"
       health: "#{baseUrl}/api/health"
       oauth: "#{baseUrl}/oauth"
       wellKnown: "#{baseUrl}/.well-known"
+    transport:
+      legacy: "#{baseUrl}/api/mcp"
+      sse: "#{baseUrl}/api/mcp-sse/sse"
 
 # Debug route to list all registered routes
 app.get '/debug/routes', (req, res) ->
@@ -113,6 +121,7 @@ app.listen PORT, ->
     Environment:         #{process.env.NODE_ENV or 'development'}
     OAuth2 endpoints:    /oauth/*
     MCP endpoint:        /api/mcp
+    SSE MCP endpoint:    /api/mcp/sse
     Well-known endpoints: /.well-known/*
   """
 

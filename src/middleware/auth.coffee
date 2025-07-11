@@ -18,52 +18,49 @@ jwksCache = new Map()
 # OAuth2 authentication middleware - smart path-based protection
 authenticate = (req, res, next) ->
   try
-    # Paths that require authentication
-    protectedPaths = [
-      '/api/mcp'
+    # Paths that are explicitly public (whitelist only)
+    publicPathRules = [
+      (p) -> p is         '/api/health'
+      (p) -> p.startsWith '/oauth'
+      (p) -> p.startsWith '/.well-known'
+      (p) -> p is         '/'
     ]
-    
-    # Paths that are explicitly public
-    publicPaths = [
-      '/api/health'
-      '/oauth'
-      '/.well-known'
-      '/'
-    ]
-    
-    # Check if this path needs authentication
-    needsAuth = protectedPaths.some (path) -> req.path.startsWith(path)
-    isPublic = publicPaths.some (path) -> req.path.startsWith(path)
-    
+
+    # Check if this path is public
+    isPublic = publicPathRules.some (pathRule) -> pathRule req.path
+
     # Debug log
     logger.oauth 'Auth middleware called', {
-      method: req.method
-      url: req.url
+      method:      req.method
+      url:         req.url
       originalUrl: req.originalUrl
-      path: req.path
-      needsAuth: needsAuth
-      isPublic: isPublic
-      ip: req.ip
-      userAgent: req.get('User-Agent')
+      path:        req.path
+      isPublic:    isPublic
+      ip:          req.ip
+      userAgent:   req.get('User-Agent')
     }
-    
-    # If path doesn't need auth, pass through
-    if isPublic or not needsAuth
+
+    # If path is public, pass through without auth
+    if isPublic
       return next()
     # Extract Bearer token from Authorization header
     authHeader = req.headers.authorization
+    console.log "DEBUG: authHeader=#{authHeader}, path=#{req.path}"
     unless authHeader?.startsWith('Bearer ')
+      console.log "DEBUG: No Bearer token, returning 401"
       logger.oauth 'Missing or invalid Authorization header', {
         authorization: authHeader?.substring(0, 20) + '...' if authHeader
         method: req.method
         path: req.path
       }
+      if 'function' isnt typeof res.status
+        console.log "res: " + JSON.stringify res, null, 2
       return res.status(401).json
         error: 'invalid_token'
         error_description: 'Bearer token required'
 
     token = authHeader.substring(7) # Remove 'Bearer ' prefix
-    
+
     logger.oauth 'Authentication attempt', {
       tokenPrefix: token.substring(0, 10) + '...'
       method: req.method
@@ -79,12 +76,12 @@ authenticate = (req, res, next) ->
       host = req.get('X-Forwarded-Host') or req.get('host') or "localhost:#{process.env.PORT or 8080}"
       issuer = "#{protocol}://#{host}/oauth"
       audience = "#{protocol}://#{host}/api/mcp"
-      
+
       # Get or create JWKS client for this URI
       unless jwksCache.has(jwksUri)
         jwksCache.set(jwksUri, createRemoteJWKSet(new URL(jwksUri)))
       JWKS = jwksCache.get(jwksUri)
-      
+
       # Verify JWT signature, expiry, and claims
       { payload } = await jwtVerify token, JWKS, {
         issuer: issuer
@@ -107,12 +104,12 @@ authenticate = (req, res, next) ->
       }
 
     catch error
-      logger.oauth 'JWT validation failed', { 
+      logger.oauth 'JWT validation failed', {
         error: error.message
         tokenPrefix: token.substring(0, 10) + '...'
         errorCode: error.code
       }
-      
+
       return res.status(401).json
         error: 'invalid_token'
         error_description: 'The access token provided is expired, revoked, malformed, or invalid'

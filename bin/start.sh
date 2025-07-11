@@ -5,7 +5,7 @@
 set -e
 
 PROJECT_DIR="$HOME/git/github/ClodForest/ClodForest"
-PID_FILE="$PROJECT_DIR/.pid"
+PORT=${PORT:-8080}
 LOG_FILE="$PROJECT_DIR/server.log"
 
 # Change to project directory
@@ -18,9 +18,17 @@ if [ $js_files -gt 0 ]; then
 fi
 
 # Check if already running
-if [ -f "$PID_FILE" ] && kill -0 $(cat "$PID_FILE") 2>/dev/null; then
-    echo "ClodForest server is already running (PID: $(cat $PID_FILE))"
-    exit 1
+LISTENING_PID=$(lsof -ti :$PORT 2>/dev/null || true)
+if [ -n "$LISTENING_PID" ]; then
+    COMMAND_LINE=$(ps -p "$LISTENING_PID" -o args= 2>/dev/null || true)
+    if echo "$COMMAND_LINE" | grep -q "coffee src/app.coffee"; then
+        echo "ClodForest server is already running (PID: $LISTENING_PID)"
+        exit 1
+    else
+        echo "Error: Port $PORT is already in use by another process"
+        echo "Command line: $COMMAND_LINE"
+        exit 1
+    fi
 fi
 
 # Start server in background
@@ -28,9 +36,4 @@ echo "Starting ClodForest server..."
 nohup coffee src/app.coffee > "$LOG_FILE" 2>&1 &
 SERVER_PID=$!
 
-# Save PID
-echo $SERVER_PID > "$PID_FILE"
-
-echo "ClodForest server started in background (PID: $SERVER_PID)"
-echo "Logs: tail -f $LOG_FILE"
-echo "Stop with: npm run kill"
+echo "ClodForest server started (PID: $SERVER_PID)"

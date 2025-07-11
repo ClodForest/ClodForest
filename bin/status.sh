@@ -2,37 +2,45 @@
 # FILENAME: { ClodForest/bin/status.sh }
 # Check ClodForest server status
 
-PROJECT_DIR="/mnt/nvme0n1p4/git/github/ClodForest/ClodForest"
-PID_FILE="$PROJECT_DIR/.pid"
+PROJECT_DIR="$HOME/git/github/ClodForest/ClodForest"
+PORT=${PORT:-8080}
 LOG_FILE="$PROJECT_DIR/server.log"
 
 # Change to project directory
 cd "$PROJECT_DIR"
 
-# Check if PID file exists
-if [ ! -f "$PID_FILE" ]; then
-    echo "ClodForest server is not running (no PID file)"
+# Check what's listening on the configured port
+LISTENING_PID=$(lsof -ti :$PORT 2>/dev/null || true)
+
+if [ -z "$LISTENING_PID" ]; then
+    echo "ClodForest server is not running (nothing listening on port $PORT)"
     exit 1
 fi
 
-# Read PID
-SERVER_PID=$(cat "$PID_FILE")
+# Check if it's our ClodForest process
+COMMAND_LINE=$(ps -p "$LISTENING_PID" -o args= 2>/dev/null || true)
 
-# Check if process is actually running
-if ! kill -0 "$SERVER_PID" 2>/dev/null; then
-    echo "ClodForest server is not running (stale PID file)"
+if [ -z "$COMMAND_LINE" ]; then
+    echo "ClodForest server is not running (process $LISTENING_PID not found)"
     exit 1
 fi
 
-# Verify this is actually our ClodForest process
-if ps -p "$SERVER_PID" -o args= | grep -q "coffee src/app.coffee"; then
-    echo "ClodForest server is running (PID: $SERVER_PID)"
-    echo "Started: $(ps -p $SERVER_PID -o lstart= 2>/dev/null)"
-    echo "Log file: $LOG_FILE"
-    echo "View logs: tail -f $LOG_FILE"
+if echo "$COMMAND_LINE" | grep -q "coffee src/app.coffee"; then
+    echo "ClodForest server is running (PID: $LISTENING_PID)"
+    echo "Started: $(ps -p $LISTENING_PID -o lstart= 2>/dev/null)"
+    
+    # Check health endpoint
+    HEALTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:$PORT/api/health" 2>/dev/null || echo "000")
+    
+    if [ "$HEALTH_STATUS" = "200" ]; then
+        echo "Health check: OK"
+    else
+        echo "Health check: FAILED (HTTP $HEALTH_STATUS)"
+    fi
+    
     exit 0
 else
-    echo "Warning: PID $SERVER_PID exists but doesn't appear to be ClodForest server"
-    echo "Command line: $(ps -p $SERVER_PID -o args= 2>/dev/null || echo 'Process not found')"
+    echo "Warning: Something else is listening on port $PORT"
+    echo "Command line: $COMMAND_LINE"
     exit 1
 fi

@@ -170,6 +170,10 @@ mcpHandler = (req, res) ->
                 description: 'Path within the state directory to list (defaults to root)'
                 default: '.'
         ]
+    else if method is 'notifications/initialized'
+      # Client is ready - this is a notification, no response needed
+      logger.mcp 'Client initialized notification received'
+      return res.status(200).end()  # Empty 200 response for notification
     else if method is 'tools/call'
       unless params?.name
         throw new Error 'Tool name is required'
