@@ -11,7 +11,6 @@ wellKnownRoutes    = require './routes/wellknown'
 healthRoutes       = require './routes/health'
 oauthRoutes        = require './oauth/router'
 mcpHandler         = require './mcp/server'
-{ createSseRouter } = require './mcp/sse-server'
 authMiddleware     = require './middleware/auth'
 securityMiddleware = require './middleware/security'
 
@@ -44,9 +43,6 @@ app.get '/.well-known/oauth-authorization-server', (req, res) ->
 app.use '/.well-known', wellKnownRoutes
 
 app.use '/api/health',  healthRoutes
-# SSE-based MCP server with modern protocol support
-sseRouter = createSseRouter()
-app.use '/api/mcp-sse', sseRouter
 app.use '/api/mcp',     mcpHandler
 
 # Root path handler for service discovery
@@ -55,25 +51,21 @@ app.get '/', (req, res) ->
   protocol = req.get('X-Forwarded-Proto') or req.protocol or 'http'
   host = req.get('X-Forwarded-Host') or req.get('host') or "localhost:#{process.env.PORT or 8080}"
   baseUrl = "#{protocol}://#{host}"
-  
+
   res.json
-    name: 'ClodForest MCP Server'
-    version: '1.0.0'
+    name:        'ClodForest MCP Server'
+    version:     '1.0.0'
     description: 'OAuth2-secured MCP server for LLM state management'
     endpoints:
-      mcp: "#{baseUrl}/api/mcp"
-      mcpSse: "#{baseUrl}/api/mcp-sse/sse"
-      health: "#{baseUrl}/api/health"
-      oauth: "#{baseUrl}/oauth"
+      mcp:       "#{baseUrl}/api/mcp"
+      health:    "#{baseUrl}/api/health"
+      oauth:     "#{baseUrl}/oauth"
       wellKnown: "#{baseUrl}/.well-known"
-    transport:
-      legacy: "#{baseUrl}/api/mcp"
-      sse: "#{baseUrl}/api/mcp-sse/sse"
 
 # Debug route to list all registered routes
 app.get '/debug/routes', (req, res) ->
   routes = []
-  
+
   try
     # Simple route extraction
     if app._router?.stack
@@ -94,13 +86,13 @@ app.get '/debug/routes', (req, res) ->
             error: layerError.message
   catch error
     logger.error 'Debug route error', { error: error.message }
-  
+
   res.json
     totalRoutes: routes.length
     routes: routes
 
 app.use (err, req, res, next) ->
-  logger.error 'HTTP Error', { 
+  logger.error 'HTTP Error', {
     error: err?.message or 'Unknown error'
     stack: err?.stack or 'No stack trace'
     status: err?.status
@@ -121,7 +113,6 @@ app.listen PORT, ->
     Environment:         #{process.env.NODE_ENV or 'development'}
     OAuth2 endpoints:    /oauth/*
     MCP endpoint:        /api/mcp
-    SSE MCP endpoint:    /api/mcp/sse
     Well-known endpoints: /.well-known/*
   """
 

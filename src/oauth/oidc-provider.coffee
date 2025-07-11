@@ -125,7 +125,6 @@ configuration =
     resourceIndicators:
       enabled: true
       defaultResource: (ctx, client) ->
-        # Default resource is our MCP API
         "#{ctx.origin}/api/mcp"
       getResourceServerInfo: (ctx, resourceIndicator, client) ->
         # Configure JWT tokens for MCP API
@@ -257,10 +256,10 @@ configuration =
     protocol = ctx.get('X-Forwarded-Proto') or ctx.protocol or 'http'
     host = ctx.get('X-Forwarded-Host') or ctx.get('host') or "localhost:#{process.env.PORT or 8080}"
     dynamicIssuer = "#{protocol}://#{host}/oauth"
-    
+
     # Get the standard discovery document
     discovery = await next()
-    
+
     # Override issuer and all endpoint URLs with dynamic values
     discovery.issuer = dynamicIssuer
     discovery.authorization_endpoint = "#{dynamicIssuer}/authorize"
@@ -272,7 +271,7 @@ configuration =
     discovery.end_session_endpoint = "#{dynamicIssuer}/session/end"
     discovery.userinfo_endpoint = "#{dynamicIssuer}/me"
     discovery.pushed_authorization_request_endpoint = "#{dynamicIssuer}/request"
-    
+
     discovery
 
 # Create and configure the provider
@@ -312,7 +311,7 @@ createProvider = (issuer) ->
     # oidc-provider uses ctx.request.body (from Express) but also supports ctx.oidc.body
     # Check both Express body and koa/oidc-provider body locations
     requestBody = ctx.request.body or ctx.req.body or {}
-    
+
     logger.oauth 'Provider middleware called', {
       path: ctx.path
       method: ctx.method
@@ -321,7 +320,7 @@ createProvider = (issuer) ->
       expressBodyKeys: if ctx.request.body then Object.keys(ctx.request.body) else []
       reqBodyKeys: if ctx.req.body then Object.keys(ctx.req.body) else []
     }
-    
+
     if ctx.path is '/register' and ctx.method is 'POST'
       # Use the request body from Express (ctx.req.body)
       if ctx.req.body
@@ -344,7 +343,7 @@ createProvider = (issuer) ->
         if ctx.req.body.scope
           originalScope = ctx.req.body.scope
           scopes = originalScope.split(/\s+/)
-          
+
           # Add 'openid' scope if missing (common issue with OAuth clients)
           unless scopes.includes('openid')
             scopes.unshift('openid')
@@ -363,25 +362,25 @@ createProvider = (issuer) ->
         if ctx.req.body.client_name?.includes('MCP Inspector') and ctx.req.body.redirect_uris
           originalUris = ctx.req.body.redirect_uris
           additionalUris = []
-          
+
           # Add both /debug and non-/debug variants
           for uri in originalUris
             if uri.includes('/oauth/callback/debug')
               # Add non-debug variant
               additionalUris.push uri.replace('/oauth/callback/debug', '/oauth/callback')
             else if uri.includes('/oauth/callback') and not uri.includes('/debug')
-              # Add debug variant  
+              # Add debug variant
               additionalUris.push uri.replace('/oauth/callback', '/oauth/callback/debug')
-          
+
           if additionalUris.length > 0
             ctx.req.body.redirect_uris = originalUris.concat(additionalUris)
-            
+
             logger.oauth 'TEMPORARY WORKAROUND: Added multiple redirect URIs for MCP Inspector', {
               original: originalUris
               fixed: ctx.req.body.redirect_uris
               note: 'MCP Inspector uses different redirect URIs for different flows'
             }
-    
+
     # Handle token endpoint requests
     if ctx.path is '/token' and ctx.method is 'POST'
       # TEMPORARY WORKAROUND: Fix MCP Inspector undefined resource parameter

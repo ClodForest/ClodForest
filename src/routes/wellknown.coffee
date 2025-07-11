@@ -16,8 +16,8 @@ router.get '/oauth-protected-resource', (req, res) ->
   baseUrl = "#{protocol}://#{host}"
 
   res.json
-    resource:                baseUrl + "/api/mcp"  # The actual MCP API endpoint
-    authorization_servers:   [baseUrl + "/oauth"]  # Our OAuth issuer
+    resource:                baseUrl + "/api/mcp"  # Primary MCP endpoint
+    authorization_servers:   [baseUrl + "/oauth"]      # Our OAuth issuer
     scopes_supported:        ['openid', 'mcp', 'read', 'write']  # Match OAuth server scopes
     bearer_methods_supported: ['header']
 
@@ -33,8 +33,13 @@ router.get '/mcp-server', (req, res) ->
     version:          '1.0.0'
     protocol_version: '2025-06-18'
     description:      'ClodForest Model Context Protocol Server for LLM collaboration'
-    endpoint:         "#{baseUrl}/api/mcp"
-    transport:        'http'
+    endpoints: [
+      {
+        endpoint:    "#{baseUrl}/api/mcp"
+        transport:   'http'
+        description: 'Legacy HTTP transport'
+      }
+    ]
     authentication:
       type:                'oauth2'
       authorization_server: "#{baseUrl}/.well-known/oauth-authorization-server"

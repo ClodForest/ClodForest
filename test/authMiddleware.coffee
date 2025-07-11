@@ -37,7 +37,7 @@ runTests = ->
 
   console.log '\\nProtected paths:'
   protectedResults = []
-  for path in ['/api/mcp', '/api/mcp-sse/sse', '/api/mcp-sse/messages', '/api/unknown', '/admin/dashboard']
+  for path in ['/api/mcp', '/api/mcp-sse', '/api/mcp-sse/messages', '/api/unknown', '/admin/dashboard']
     result = await testProtectedPath path
     protectedResults.push result
 

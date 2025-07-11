@@ -31,7 +31,7 @@ testPublicPath = (path) ->
 runTests = ->
   console.log '\nTesting SSE paths should be protected:'
   protectedResults = []
-  for path in ['/api/mcp-sse/sse', '/api/mcp-sse/messages']
+  for path in ['/api/mcp-sse', '/api/mcp-sse/messages']
     result = await testProtectedPath path
     protectedResults.push result
 

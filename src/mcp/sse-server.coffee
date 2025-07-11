@@ -88,8 +88,8 @@ createMcpServer = ->
 createSseRouter = ->
   router = express.Router()
 
-  # GET endpoint to establish SSE stream
-  router.get '/sse', (req, res) ->
+  # GET endpoint to establish SSE stream at root path
+  router.get '/', (req, res) ->
     logger.mcp 'SSE stream requested', {
       ip: req.ip
       userAgent: req.get('User-Agent')
