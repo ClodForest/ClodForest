@@ -1,19 +1,9 @@
 authenticate = require '../src/middleware/auth'
 { testMiddleware } = require './util/misc'
 
-console.log 'Testing auth middleware...'
+console.log 'Testing SSE auth protection...'
 
-# Test cases using race pattern
-testPublicPath = (path) ->
-  result = await testMiddleware authenticate, path, 500
-
-  if result.result is 'next'
-    console.log "✓ #{path} correctly allows access (public)"
-    return true
-  else
-    console.log "✗ #{path} should call next(), got: #{result.message}"
-    return false
-
+# Test helper functions (copied from authMiddleware.coffee pattern)
 testProtectedPath = (path) ->
   result = await testMiddleware authenticate, path, 500
 
@@ -27,27 +17,37 @@ testProtectedPath = (path) ->
     console.log "✗ #{path} should call status(401), got: #{result.message}"
     return false
 
+testPublicPath = (path) ->
+  result = await testMiddleware authenticate, path, 500
+
+  if result.result is 'next'
+    console.log "✓ #{path} correctly allows access (public)"
+    return true
+  else
+    console.log "✗ #{path} should call next(), got: #{result.message}"
+    return false
+
 # Run tests
 runTests = ->
-  console.log '\\nPublic paths:'
-  publicResults = []
-  for path in ['/api/health', '/oauth/token', '/.well-known/jwks', '/']
-    result = await testPublicPath path
-    publicResults.push result
-
-  console.log '\\nProtected paths:'
+  console.log '\nTesting SSE paths should be protected:'
   protectedResults = []
-  for path in ['/api/mcp', '/api/mcp-sse/sse', '/api/mcp-sse/messages', '/api/unknown', '/admin/dashboard']
+  for path in ['/api/mcp-sse/sse', '/api/mcp-sse/messages']
     result = await testProtectedPath path
     protectedResults.push result
 
+  console.log '\nTesting public paths should pass:'
+  publicResults = []
+  for path in ['/api/health', '/']
+    result = await testPublicPath path
+    publicResults.push result
+
   # Results
-  allResults = publicResults.concat protectedResults
+  allResults = protectedResults.concat publicResults
   passed = allResults.filter((r) -> r).length
   total = allResults.length
 
-  console.log "\\n" + "=".repeat(40)
-  console.log "Auth Tests: #{passed}/#{total} passed"
+  console.log "\n" + "=".repeat(40)
+  console.log "SSE Auth Tests: #{passed}/#{total} passed"
 
   if passed is total
     console.log "✓ All tests passed!"
