@@ -23,9 +23,45 @@ module.exports.app =
 
 app.use securityMiddleware
 
-app.use cors
-  origin:      process.env.CORS_ORIGIN or '*'
+# CORS configuration for production and development
+corsOptions = 
   credentials: true
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  exposedHeaders: ['Content-Type', 'Authorization']
+  maxAge: 86400  # 24 hours preflight cache
+
+# Configure origins based on environment
+if process.env.NODE_ENV is 'production'
+  # Production: Use specific allowed origins
+  allowedOrigins = [
+    'https://claude.ai'
+    'https://app.claude.ai'
+    'https://console.anthropic.com'
+  ]
+  
+  # Add custom origins from environment variable
+  if process.env.CORS_ORIGIN
+    customOrigins = process.env.CORS_ORIGIN.split(',').map (origin) -> origin.trim()
+    allowedOrigins = allowedOrigins.concat customOrigins
+  
+  corsOptions.origin = (origin, callback) ->
+    # Allow requests with no origin (like mobile apps or curl requests)
+    unless origin
+      logger.info 'CORS: Request with no origin allowed'
+      return callback null, true
+    
+    if allowedOrigins.includes origin
+      logger.info 'CORS: Allowed origin', { origin }
+      callback null, true
+    else
+      logger.warn 'CORS: Blocked origin', { origin, allowedOrigins }
+      callback new Error('Not allowed by CORS'), false
+else
+  # Development: Allow all origins for easier testing
+  corsOptions.origin = process.env.CORS_ORIGIN or true
+
+app.use cors corsOptions
 
 app.use express.json limit: '10mb'
 app.use express.urlencoded extended: true, limit: '10mb'
@@ -121,4 +157,5 @@ app.listen PORT, ->
     port: PORT
     environment: process.env.NODE_ENV or 'development'
     pid: process.pid
+    cors: if process.env.NODE_ENV is 'production' then 'restricted' else 'development'
   }
