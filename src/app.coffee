@@ -23,17 +23,9 @@ module.exports.app =
 
 app.use securityMiddleware
 
-# CORS configuration for production and development
-corsOptions = 
-  credentials: true
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-  exposedHeaders: ['Content-Type', 'Authorization']
-  maxAge: 86400  # 24 hours preflight cache
-
-# Configure origins based on environment
+# CORS configuration - different policies for different paths
 if process.env.NODE_ENV is 'production'
-  # Production: Use specific allowed origins
+  # Production: Use specific allowed origins for API endpoints
   allowedOrigins = [
     'https://claude.ai'
     'https://app.claude.ai'
@@ -45,23 +37,52 @@ if process.env.NODE_ENV is 'production'
     customOrigins = process.env.CORS_ORIGIN.split(',').map (origin) -> origin.trim()
     allowedOrigins = allowedOrigins.concat customOrigins
   
-  corsOptions.origin = (origin, callback) ->
-    # Allow requests with no origin (like mobile apps or curl requests)
-    unless origin
-      logger.info 'CORS: Request with no origin allowed'
-      return callback null, true
+  # CORS middleware with path-specific policies
+  corsMiddleware = (req, res, next) ->
+    corsOptions = 
+      credentials: true
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+      exposedHeaders: ['Content-Type', 'Authorization']
+      maxAge: 86400  # 24 hours preflight cache
     
-    if allowedOrigins.includes origin
-      logger.info 'CORS: Allowed origin', { origin }
-      callback null, true
+    # OAuth2 public endpoints should be accessible from any origin
+    if req.path.startsWith('/.well-known') or req.path.startsWith('/oauth')
+      corsOptions.origin = (origin, callback) ->
+        unless origin
+          logger.info 'CORS: OAuth public endpoint with no origin allowed', { path: req.path }
+          return callback null, true
+        logger.info 'CORS: OAuth public endpoint allowed for any origin', { origin, path: req.path }
+        callback null, true
     else
-      logger.warn 'CORS: Blocked origin', { origin, allowedOrigins }
-      callback new Error('Not allowed by CORS'), false
+      # Restricted origins for API endpoints
+      corsOptions.origin = (origin, callback) ->
+        unless origin
+          logger.info 'CORS: Request with no origin allowed'
+          return callback null, true
+        
+        if allowedOrigins.includes origin
+          logger.info 'CORS: Allowed origin', { origin }
+          callback null, true
+        else
+          logger.warn 'CORS: Blocked origin', { origin, allowedOrigins }
+          callback null, false  # Don't throw error, just deny CORS
+    
+    # Apply CORS with the determined options
+    cors(corsOptions)(req, res, next)
+  
+  app.use corsMiddleware
 else
   # Development: Allow all origins for easier testing
-  corsOptions.origin = process.env.CORS_ORIGIN or true
-
-app.use cors corsOptions
+  corsOptions = 
+    origin: process.env.CORS_ORIGIN or true
+    credentials: true
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+    exposedHeaders: ['Content-Type', 'Authorization']
+    maxAge: 86400
+  
+  app.use cors corsOptions
 
 app.use express.json limit: '10mb'
 app.use express.urlencoded extended: true, limit: '10mb'
