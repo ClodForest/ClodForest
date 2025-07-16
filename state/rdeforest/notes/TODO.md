@@ -1,5 +1,19 @@
 # Robert's TODO List
-**Updated**: Tuesday, July 15, 2025
+**Updated**: Tuesday, July 16, 2025
+
+## 📋 New Action Items
+
+### Context Management & Teaching Moments
+- [ ] **Consolidate context files**: Implement the inheritance system designed in comprehensive_session_context.md
+- [ ] **Teaching moments configuration**: Ensure Robert's user preferences always include accumulated lessons learned
+- [ ] **Pattern recognition**: Build system to detect when I'm repeating previously learned lessons
+
+### Redundant Import Patterns
+- **Lesson repeated**: Don't write defensive code for hypothetical problems (multiple import paths)
+- **Previous occurrence**: Likely covered in earlier sessions but not retained
+- **Action needed**: Search existing contexts for similar patterns and consolidate
+
+---
 
 ## 🚀 ClodForest OAuth2 DCR Implementation - COMPLETE ✅
 

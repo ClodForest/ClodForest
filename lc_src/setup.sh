@@ -14,7 +14,7 @@ pip install mcp
 
 # Test server
 echo "Testing server..."
-echo '{"jsonrpc": "2.0", "method": "tools/list", "id": 1}' | python clodforest_mcp.py
+echo '{"jsonrpc": "2.0", "method": "tools/list", "id": 1}' | python clodforest.py
 
 echo "✓ Setup complete"
-echo "Run: python clodforest_mcp.py"
+echo "Run: python clodforest.py"

@@ -375,3 +375,30 @@ If a process needs to stay attached (for debugging), explicitly state why and as
 - For CoffeeScript specifically: check the compiled JavaScript when unsure
 - Distinguish between what the language does automatically vs explicitly
 - When reviewing code, test assumptions against actual behavior
+
+### Teaching Moment: Wrapper Script Redundancy
+- **Lesson:** Before creating wrapper scripts, check if main script already handles use case with arguments
+- **Context:** Created run_integrated.py when clodforest_mcp_oauth_integrated.py already had `--stdio` flag handling
+- **Date:** 2025-07-16
+- **Pattern:** Apply Unix philosophy - avoid unnecessary abstraction layers
+- **Prevention:** Default to modification over creation, question every new file's necessity
+
+## Code Creation Decision Framework
+
+### Pre-Creation Checklist
+1. **Redundancy Check**: Does this functionality already exist in another file?
+2. **Value Analysis**: Am I just moving code around without adding real value?
+3. **Argument Alternative**: Could this be a simple flag or parameter instead?
+4. **Unix Philosophy**: Does this violate "do one thing well" by creating unnecessary layers?
+
+### Default to Enhancement Over Creation
+- **First Try**: Adding flags/parameters to existing code
+- **Second Try**: Modifying existing scripts with new functionality
+- **Third Try**: Using environment variables or configuration
+- **Last Resort**: Creating new files only when above options don't work
+
+### Brevity Protocol for Code
+- **Skip unnecessary layers**: If you can run it directly, do that
+- **Surgical changes**: Modify what exists rather than recreating
+- **Question abstractions**: What specific problem does this wrapper solve?
+- **Apply Robert's minimalism**: Choose the smaller solution when both work
