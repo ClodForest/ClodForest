@@ -90,7 +90,7 @@ OAUTH_CONFIG = get_config()
 DEBUG_MODE = os.getenv("CLODFOREST_DEBUG", "false").lower() == "true"
 
 # Configure structured logging
-log_dir = Path("logs")
+log_dir = Path(__file__).parent.parent / "logs"
 log_dir.mkdir(exist_ok=True)
 
 class JSONFormatter(logging.Formatter):
@@ -590,11 +590,26 @@ async def token_endpoint(request: Request):
         raise HTTPException(status_code=400, detail="Invalid client_id")
     
     client = registered_clients[token_request.client_id]
+    # Complete auto-registration if this was a cached client with dummy secret
+    if client["client_secret"] == "auto_generated_secret" and token_request.client_secret:
+        log_oauth("completing_auto_registration", 
+                   client_id=token_request.client_id,
+                   reason="updating_with_real_secret")
+        
+        # Update the client with the real secret Claude.ai is providing
+        client["client_secret"] = token_request.client_secret
+        registered_clients[token_request.client_id] = client
+        
+        log_oauth("auto_registration_completed", 
+                   client_id=token_request.client_id,
+                   note="secret_updated_from_token_request")
+    
     if token_request.client_secret != client["client_secret"]:
         log_oauth("token_request_failed", 
                    reason="invalid_client_credentials",
                    client_id=token_request.client_id,
-                   note="client_needs_to_reregister")
+                   provided_secret=token_request.client_secret[:10] + "..." if token_request.client_secret else None,
+                   stored_secret=client["client_secret"][:10] + "...")
         raise HTTPException(status_code=401, detail="Invalid client credentials")
     
     # Validate PKCE if present
