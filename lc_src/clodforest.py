@@ -307,24 +307,35 @@ async def authorize(
     code_challenge_method: Optional[str] = None
 ):
     """OAuth 2.1 Authorization Endpoint"""
-
+    
+    logger.info(f"Authorization request - client_id: {client_id}, response_type: {response_type}")
+    logger.info(f"Redirect URI: {redirect_uri}, scope: {scope}, state: {state}")
+    logger.info(f"PKCE challenge: {code_challenge[:10] if code_challenge else None}...")
+    logger.info(f"Registered clients: {list(registered_clients.keys())}")
+    
     # Validate client
     if client_id not in registered_clients:
+        logger.error(f"Client not found: {client_id}")
+        logger.info("Client needs to register first")
         raise HTTPException(status_code=400, detail="Invalid client_id")
-
+    
     client = registered_clients[client_id]
-
+    logger.info(f"Found client: {client.get('client_name')}")
+    
     # Validate response_type
     if response_type != "code":
+        logger.error(f"Unsupported response type: {response_type}")
         raise HTTPException(status_code=400, detail="Unsupported response_type")
-
+    
     # Validate redirect_uri
     if redirect_uri and redirect_uri not in client.get("redirect_uris", []):
+        logger.error(f"Invalid redirect URI: {redirect_uri}")
+        logger.info(f"Allowed redirect URIs: {client.get('redirect_uris')}")
         raise HTTPException(status_code=400, detail="Invalid redirect_uri")
-
+    
     # For ClodForest, we'll auto-approve Claude.ai requests
     # In production, you might want user consent here
-
+    
     # Generate authorization code
     auth_code = generate_authorization_code()
     code_data = {
@@ -335,16 +346,20 @@ async def authorize(
         "code_challenge": code_challenge,
         "code_challenge_method": code_challenge_method
     }
-
+    
     authorization_codes[auth_code] = code_data
-
+    logger.info(f"Generated authorization code: {auth_code[:10]}... for client {client_id}")
+    
     # Redirect back to client with authorization code
     callback_url = redirect_uri or client["redirect_uris"][0]
     params = f"code={auth_code}"
     if state:
         params += f"&state={state}"
-
-    return RedirectResponse(f"{callback_url}?{params}")
+    
+    final_url = f"{callback_url}?{params}"
+    logger.info(f"Redirecting to: {final_url}")
+    
+    return RedirectResponse(final_url)
 
 # Token Endpoint
 @app.post("/oauth/token")
