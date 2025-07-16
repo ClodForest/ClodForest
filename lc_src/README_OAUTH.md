@@ -143,7 +143,11 @@ curl http://localhost:8000/debug/tokens
 
 ### Health Check
 ```bash
+# Standard health check
 curl http://localhost:8000/health
+
+# ALB health check (AWS Application Load Balancer)
+curl http://localhost:8000/api/health
 ```
 
 ## Log Analysis

@@ -299,11 +299,16 @@ async def mcp_proxy(request: Request, path: str, token_data: Dict[str, Any] = De
             headers=dict(response.headers)
         )
 
-# Health check
+# Health check endpoints
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
     return {"status": "ok", "service": "ClodForest OAuth2 DCR Server"}
+
+@app.get("/api/health")
+async def alb_health_check():
+    """ALB health check endpoint"""
+    return {"status": "ok", "service": "ClodForest OAuth2 DCR Server", "version": "1.0.0"}
 
 # Debug endpoints (remove in production)
 @app.get("/debug/clients")

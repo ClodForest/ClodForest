@@ -135,6 +135,25 @@ async def test_oauth_flow():
             print(f"   Error: {response.text}")
         print()
         
+        # 6. Test health endpoints
+        print("6. Testing health endpoints...")
+        
+        # Test standard health endpoint
+        response = await client.get(f"{base_url}/health")
+        print(f"   /health Status: {response.status_code}")
+        if response.status_code == 200:
+            health_data = response.json()
+            print(f"   Service: {health_data.get('service')}")
+        
+        # Test ALB health endpoint
+        response = await client.get(f"{base_url}/api/health")
+        print(f"   /api/health Status: {response.status_code}")
+        if response.status_code == 200:
+            health_data = response.json()
+            print(f"   Service: {health_data.get('service')}")
+            print(f"   Version: {health_data.get('version')}")
+        print()
+        
         print("✅ OAuth2 DCR flow test complete!")
 
 if __name__ == "__main__":
