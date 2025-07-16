@@ -1,2 +1,13 @@
-# ClodForest MCP Server - Minimal dependencies
-mcp>=1.2.0
+# ClodForest OAuth2 DCR + MCP Server Dependencies
+
+# Core MCP
+fastmcp>=0.1.0
+
+# OAuth2 DCR Server  
+fastapi>=0.104.0
+uvicorn>=0.24.0
+pydantic>=2.5.0
+httpx>=0.25.0
+
+# Production deployment
+python-multipart>=0.0.6
