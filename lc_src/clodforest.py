@@ -10,6 +10,7 @@ import secrets
 import time
 import hashlib
 import base64
+import logging
 from pathlib import Path
 from typing import Dict, Any, Optional
 
@@ -85,6 +86,13 @@ mcp = FastMCP("ClodForest")
 CONTEXT_DIR = Path(__file__).parent.parent / "state" / "contexts"
 OAUTH_CONFIG = get_config()
 DEBUG_MODE = os.getenv("CLODFOREST_DEBUG", "false").lower() == "true"
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 # Create separate FastAPI app for OAuth endpoints
 app = FastAPI(title="ClodForest MCP + OAuth2 DCR Server", version="1.0.0")
@@ -235,6 +243,8 @@ def cleanup_expired_tokens():
 
 # OAuth2 Discovery Endpoints
 @app.get("/.well-known/oauth-authorization-server")
+@app.get("/.well-known/oauth-authorization-server/")
+@app.get("/.well-known/oauth-authorization-server/mcp")
 async def oauth_discovery():
     """RFC 8414 OAuth Authorization Server Metadata"""
     return JSONResponse(OAUTH_CONFIG)
@@ -338,52 +348,94 @@ async def authorize(
 
 # Token Endpoint
 @app.post("/oauth/token")
-async def token_endpoint(request: TokenRequest):
+async def token_endpoint(request: Request):
     """OAuth 2.1 Token Endpoint"""
-
-    if request.grant_type != "authorization_code":
+    
+    # Log the raw request for debugging
+    body = await request.body()
+    logger.info(f"Token request body: {body.decode('utf-8')}")
+    logger.info(f"Token request headers: {dict(request.headers)}")
+    
+    # Parse the request
+    try:
+        if request.headers.get("content-type") == "application/x-www-form-urlencoded":
+            from urllib.parse import parse_qs
+            form_data = parse_qs(body.decode('utf-8'))
+            
+            # Convert form data to TokenRequest format
+            token_request = TokenRequest(
+                grant_type=form_data.get('grant_type', [''])[0],
+                code=form_data.get('code', [''])[0] or None,
+                redirect_uri=form_data.get('redirect_uri', [''])[0] or None,
+                client_id=form_data.get('client_id', [''])[0] or None,
+                client_secret=form_data.get('client_secret', [''])[0] or None,
+                code_verifier=form_data.get('code_verifier', [''])[0] or None
+            )
+        else:
+            # JSON format
+            import json
+            json_data = json.loads(body)
+            token_request = TokenRequest(**json_data)
+    except Exception as e:
+        logger.error(f"Failed to parse token request: {e}")
+        raise HTTPException(status_code=400, detail=f"Invalid request format: {str(e)}")
+    
+    logger.info(f"Parsed token request: {token_request}")
+    
+    if token_request.grant_type != "authorization_code":
+        logger.error(f"Unsupported grant type: {token_request.grant_type}")
         raise HTTPException(status_code=400, detail="Unsupported grant_type")
-
+    
     # Validate authorization code
-    if not request.code or request.code not in authorization_codes:
+    if not token_request.code or token_request.code not in authorization_codes:
+        logger.error(f"Invalid authorization code: {token_request.code}")
+        logger.info(f"Available codes: {list(authorization_codes.keys())}")
         raise HTTPException(status_code=400, detail="Invalid authorization code")
-
-    code_data = authorization_codes[request.code]
-
+    
+    code_data = authorization_codes[token_request.code]
+    logger.info(f"Code data: {code_data}")
+    
     # Check expiration
     if time.time() > code_data["expires_at"]:
-        del authorization_codes[request.code]
+        logger.error(f"Authorization code expired")
+        del authorization_codes[token_request.code]
         raise HTTPException(status_code=400, detail="Authorization code expired")
-
+    
     # Validate client
-    if request.client_id != code_data["client_id"]:
+    if token_request.client_id != code_data["client_id"]:
+        logger.error(f"Client mismatch: {token_request.client_id} vs {code_data['client_id']}")
         raise HTTPException(status_code=400, detail="Client mismatch")
-
-    if request.client_id not in registered_clients:
+    
+    if token_request.client_id not in registered_clients:
+        logger.error(f"Client not registered: {token_request.client_id}")
         raise HTTPException(status_code=400, detail="Invalid client_id")
-
-    client = registered_clients[request.client_id]
-    if request.client_secret != client["client_secret"]:
+    
+    client = registered_clients[token_request.client_id]
+    if token_request.client_secret != client["client_secret"]:
+        logger.error(f"Invalid client credentials for {token_request.client_id}")
         raise HTTPException(status_code=401, detail="Invalid client credentials")
-
+    
     # Validate PKCE if present
-    if code_data.get("code_challenge") and request.code_verifier:
-        if not verify_pkce_challenge(request.code_verifier, code_data["code_challenge"], code_data.get("code_challenge_method", "S256")):
+    if code_data.get("code_challenge") and token_request.code_verifier:
+        logger.info(f"Validating PKCE challenge")
+        if not verify_pkce_challenge(token_request.code_verifier, code_data["code_challenge"], code_data.get("code_challenge_method", "S256")):
+            logger.error(f"PKCE validation failed")
             raise HTTPException(status_code=400, detail="Invalid PKCE verification")
-
+    
     # Generate access token
     access_token = generate_access_token()
     token_data = {
-        "client_id": request.client_id,
+        "client_id": token_request.client_id,
         "scope": code_data["scope"],
         "expires_at": time.time() + 3600,  # 1 hour expiration
     }
-
+    
     access_tokens[access_token] = token_data
-
+    logger.info(f"Generated access token: {access_token[:10]}... for client {token_request.client_id}")
+    
     # Clean up authorization code (one-time use)
-    del authorization_codes[request.code]
-
+    del authorization_codes[token_request.code]
+    
     return JSONResponse({
         "access_token": access_token,
         "token_type": "Bearer",
@@ -393,11 +445,13 @@ async def token_endpoint(request: TokenRequest):
 
 # Health check endpoints
 @app.get("/health")
+@app.get("/health/")
 async def health_check():
     """Health check endpoint"""
     return {"status": "ok", "service": "ClodForest MCP + OAuth2 DCR Server"}
 
 @app.get("/api/health")
+@app.get("/api/health/")
 async def alb_health_check():
     """ALB health check endpoint"""
     return {"status": "ok", "service": "ClodForest MCP + OAuth2 DCR Server", "version": "1.0.0"}
@@ -423,38 +477,47 @@ if DEBUG_MODE:
 @app.middleware("http")
 async def oauth_protection_middleware(request: Request, call_next):
     """Middleware to protect MCP endpoints with OAuth"""
-
+    
     # Allow OAuth endpoints and health checks without authentication
     if request.url.path.startswith(("/.well-known", "/oauth", "/register", "/health", "/api/health", "/debug")):
         return await call_next(request)
-
+    
     # For MCP endpoints, require OAuth authentication
     if request.url.path.startswith("/mcp"):
         try:
             auth_header = request.headers.get("authorization")
+            logger.info(f"MCP request auth header: {auth_header}")
+            
             if not auth_header or not auth_header.startswith("Bearer "):
+                logger.error("No bearer token provided")
                 return JSONResponse(
                     status_code=401,
                     content={"error": "Authorization header required"}
                 )
-
+            
             token = auth_header.split(" ")[1]
+            logger.info(f"Validating token: {token[:10]}...")
+            
             token_data = validate_token(token)
             if not token_data:
+                logger.error(f"Invalid token: {token[:10]}...")
+                logger.info(f"Available tokens: {list(access_tokens.keys())}")
                 return JSONResponse(
                     status_code=401,
                     content={"error": "Invalid or expired token"}
                 )
-
+            
+            logger.info(f"Token validated successfully for client: {token_data.get('client_id')}")
             # Token is valid, proceed with request
             return await call_next(request)
-
+            
         except Exception as e:
+            logger.error(f"Authentication failed: {e}")
             return JSONResponse(
                 status_code=401,
                 content={"error": f"Authentication failed: {str(e)}"}
             )
-
+    
     # All other endpoints pass through normally
     return await call_next(request)
 
