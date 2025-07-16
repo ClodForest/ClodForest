@@ -195,8 +195,10 @@ def log_app(message: str, **data):
         }
     })
 
-# Create separate FastAPI app for OAuth endpoints
-app = FastAPI(title="ClodForest MCP + OAuth2 DCR Server", version="1.0.0")
+# Create MCP HTTP app and mount it to FastAPI
+mcp_app = mcp.http_app(path='/')  # MCP endpoint at root of mounted app
+app = FastAPI(title="ClodForest MCP + OAuth2 DCR Server", version="1.0.0", lifespan=mcp_app.lifespan)
+app.mount("/mcp", mcp_app)  # Available at /mcp
 
 # Add CORS middleware
 app.add_middleware(
@@ -755,70 +757,7 @@ async def oauth_protection_middleware(request: Request, call_next):
     # All other endpoints pass through normally
     return await call_next(request)
 
-# MCP endpoint integration
-@app.post("/mcp")
-async def mcp_endpoint(request: Request):
-    """MCP endpoint - handle MCP protocol requests"""
-    try:
-        # Get the raw request body
-        body = await request.body()
-
-        # For stdio mode, we need to integrate with FastMCP differently
-        # This is a simplified implementation that would need proper MCP protocol handling
-
-        # Parse JSON-RPC request
-        import json
-        try:
-            mcp_request = json.loads(body)
-        except json.JSONDecodeError:
-            return JSONResponse(
-                status_code=400,
-                content={"error": "Invalid JSON-RPC request"}
-            )
-
-        # Basic MCP method routing
-        method = mcp_request.get("method")
-        params = mcp_request.get("params", {})
-        request_id = mcp_request.get("id")
-
-        if method == "tools/call":
-            tool_name = params.get("name")
-            tool_args = params.get("arguments", {})
-
-            # Route to MCP tools
-            if tool_name == "hello":
-                result = hello(tool_args.get("name", "World"))
-            elif tool_name == "list_contexts":
-                result = list_contexts()
-            elif tool_name == "read_context":
-                result = read_context(tool_args.get("file_path", ""))
-            elif tool_name == "search_contexts":
-                result = search_contexts(tool_args.get("query", ""))
-            elif tool_name == "write_context":
-                result = write_context(tool_args.get("file_path", ""), tool_args.get("content", ""))
-            else:
-                return JSONResponse(
-                    status_code=400,
-                    content={"error": f"Unknown tool: {tool_name}"}
-                )
-
-            return JSONResponse({
-                "jsonrpc": "2.0",
-                "id": request_id,
-                "result": {"content": [{"type": "text", "text": result}]}
-            })
-
-        else:
-            return JSONResponse(
-                status_code=400,
-                content={"error": f"Unknown method: {method}"}
-            )
-
-    except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={"error": f"Internal server error: {str(e)}"}
-        )
+# OAuth endpoint protection middleware now handles /mcp automatically via mounting
 
 if __name__ == "__main__":
     # Allow stdio for local testing
@@ -840,7 +779,7 @@ if __name__ == "__main__":
         print(f"Starting ClodForest MCP + OAuth2 DCR server on http://{host}:{port}")
         print(f"OAuth Discovery: http://{host}:{port}/.well-known/oauth-authorization-server")
         print(f"Client Registration: http://{host}:{port}/register")
-        print(f"MCP Endpoint: http://{host}:{port}/mcp")
+        print(f"MCP Endpoint: http://{host}:{port}/mcp (FastMCP HTTP transport)")
         print(f"Health Check: http://{host}:{port}/api/health")
         print(f"Debug Mode: {DEBUG_MODE}")
         print(f"Logs Directory: {log_dir.absolute()}")
