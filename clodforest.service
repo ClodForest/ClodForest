@@ -5,9 +5,8 @@ After=network.target
 [Service]
 Type=simple
 User=ec2-user
-WorkingDirectory=/home/ec2-user/ClodForest
-# Load nvm and use Node v24 before starting
-ExecStart=/bin/bash -c 'source /home/ec2-user/.nvm/nvm.sh && nvm use 24 && exec coffee src/app.coffee'
+WorkingDirectory=/home/ec2-user/ClodForest/lc_src
+ExecStart=/bin/bash -c 'source venv/bin/activate && python clodforest.py'
 Restart=always
 RestartSec=10
 Environment=NODE_ENV=production
