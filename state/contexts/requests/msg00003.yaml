@@ -1,0 +1,101 @@
+---
+# ClodForest Session Handoff - July 16, 2025
+type: "session_handoff"
+from_model: "Claude Sonnet 4"
+to_model: "Claude Opus 4" 
+context_transfer: "Cross-model session continuity via ClodForest MCP"
+created: "2025-07-16T22:00:00Z"
+
+## Session Summary
+**MAJOR ACHIEVEMENT**: Successfully converted Robert's YAML identity file to Markdown and updated ClodForest project status with multi-user features roadmap.
+
+**Connection Issues Experienced**: 
+- MCP tools went down mid-session with "Connection closed" errors
+- Initially thought it was ClodForest server issue
+- Robert checked Anthropic status page - confirmed Sonnet service errors
+- Connection restored after shift-refresh, tools working again
+- This demonstrates exactly why auth persistence is critical!
+
+## Robert's Current Priorities
+1. **Auth Persistence** - Implement SQLite storage for OAuth clients/tokens (high priority)
+2. **User Identity Tracking** - Map OAuth clients to real users for audit trails (high priority) 
+3. **Path Simplification** - Remove special treatment of top-level context directory (medium priority)
+4. **ChatGPT Test** - Give MCP endpoint to brother-in-law for cross-platform validation
+
+## Key Files Modified This Session
+- `core/robert_identity.md` - NEW: Converted from YAML, much more readable
+- `projects/ClodForest/status.md` - UPDATED: Added multi-user features roadmap
+- `core/robert_identity.yaml` - TO BE REMOVED: Robert will delete after confirming markdown version
+
+## Technical Context
+**ClodForest MCP Integration Status**: ✅ FULLY OPERATIONAL
+- OAuth2 DCR working with Claude.ai
+- All MCP tools functional (hello, list_contexts, read_context, search_contexts, write_context)
+- FastMCP HTTP transport at https://clodforest.thatsnice.org/mcp/mcp/
+- Auto-registration handles Claude.ai client caching elegantly
+
+**Current Architecture Issues**:
+- Memory-only auth storage (causes disconnects on restart)
+- No user identity tracking (can't tell who made changes)
+- Unnecessary path complexity in context directory handling
+
+## Multi-User Roadmap Added
+**Authentication Persistence**:
+- SQLite storage for OAuth clients, tokens, refresh tokens
+- Client lifecycle management
+- Migration from memory storage
+- Performance optimization
+
+**User Identity & Audit Tracking**:
+- User registration system mapping OAuth clients to real people
+- Change attribution logging for all write_context calls
+- Audit trail queries and reporting
+- Admin interface for user management
+
+**ChatGPT Integration Test Plan**:
+- Brother-in-law will test MCP protocol compatibility
+- Validates cross-platform MCP standard compliance
+- Requires auth persistence and user tracking first
+- Risk mitigation with backups and rate limiting
+
+## Collaboration Notes
+**Robert's Working Style**:
+- 40 years programming experience, highly technical
+- Expects retention of teaching moments
+- Prefers brevity, skip recaps unless requested
+- Values systematic improvement and process refinement
+- Unix philosophy, FreeBSD, YAML, anti-systemd
+
+**Current Projects**:
+- Primary: ClodForest (AI coordination infrastructure)
+- Work: Agent Calico (VCA ServiceNow chatbot)  
+- Future: ClodHearth (local LLM fine-tuning)
+- Personal: Ozryn's Keep D&D campaign
+
+## Immediate Next Steps
+1. **Path Simplification**: Remove context directory special handling - treat all paths uniformly
+2. **SQLite Auth Persistence**: Stop losing OAuth state on server restarts
+3. **User Identity System**: Track who makes what changes before multi-user access
+4. **ChatGPT Test Prep**: Set up brother-in-law test account and dedicated test context area
+
+## Technical Lessons from This Session
+**Connection Reliability**: Claude.ai MCP connections can drop due to service issues on Anthropic side - not necessarily the target server
+**Auth Persistence Critical**: Memory-only OAuth storage causes user friction on any restart/disconnect
+**Cross-Platform Validation**: ChatGPT test will validate MCP protocol implementation beyond Claude ecosystem
+**Session Handoffs**: ClodForest MCP enables seamless context transfer between Claude models/sessions
+
+## Status File Location
+Primary project status: `projects/ClodForest/status.md`
+- Contains complete milestone tracking
+- Multi-user features roadmap
+- ChatGPT integration test plan
+- All technical implementation details
+
+## MCP Tools Verification
+If connection seems unreliable, test with simple commands:
+- `hello` - Basic connectivity test
+- `list_contexts` - Browse available files
+- `read_context: "projects/ClodForest/status.md"` - Read current status
+- Service issues may require shift-refresh to reconnect
+
+**Handoff completed successfully via ClodForest MCP tools** ✅

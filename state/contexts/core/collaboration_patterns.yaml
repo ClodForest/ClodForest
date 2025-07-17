@@ -4,8 +4,8 @@ version: "1.1.0"
 created: "2025-06-08T19:00:00Z"
 context_type: "core_collaboration"
 description: "Fundamental collaboration dynamics inherited by all domains with teaching moments integration"
-inherits: ["core/robert-identity.yaml"]
-references: ["core/teaching_moments.yaml"]
+inherits: ["contexts/core/robert-identity.yaml"]
+references: ["contexts/core/teaching_moments.yaml"]
 
 partnership_model:
   relationship_type: "equal_collaborator"

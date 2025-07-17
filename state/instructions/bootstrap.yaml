@@ -15,7 +15,7 @@ core_capabilities:
   context_loading:
     system: "inheritance_based"
     base_url: "https://clodforest.thatsnice.org/api/repo/contexts/"
-    auto_load: ["core/robert-identity.yaml", "core/collaboration-patterns.yaml", "core/communication-style.yaml"]
+    auto_load: ["contexts/core/robert-identity.yaml", "contexts/core/collaboration-patterns.yaml", "contexts/core/communication-style.yaml"]
 
   session_management:
     handoff_artifacts: "Comprehensive time capsules for continuity"

@@ -40,6 +40,69 @@
 
 **Priority**: Medium - Architectural cleanup that will simplify future development
 
+### Authentication Persistence
+**Current Issue**: OAuth clients, tokens, and registration data stored in memory - lost on server restart
+**Problem**: Users must re-authenticate after every deployment/restart, no persistent client relationships
+**Solution Required**:
+- [ ] **Implement SQLite auth persistence** - Store OAuth clients, tokens, refresh tokens, registration data
+- [ ] **Client lifecycle management** - Handle token expiration, refresh, and cleanup
+- [ ] **Migration from memory storage** - Graceful transition without breaking existing integrations
+- [ ] **Backup and recovery** - Auth database backup strategy for production
+- [ ] **Performance optimization** - Efficient token validation without memory bottlenecks
+
+**Rationale**: Production auth systems must persist across restarts. Memory-only storage is development-level only.
+
+**Priority**: High - Required for production multi-user deployment
+
+### User Identity and Audit Tracking
+**Current Issue**: No association between OAuth clients and real users - anonymous change tracking
+**Problem**: Cannot identify who made which changes to context files - no accountability or audit trail
+**Solution Required**:
+- [ ] **User registration system** - Map OAuth clients to real user identities
+- [ ] **Client-user association interface** - Admin interface to link clients to people
+- [ ] **Change attribution logging** - Log all write_context calls with user identity
+- [ ] **Audit trail queries** - Search and filter changes by user, date, file, etc.
+- [ ] **User management interface** - Add/remove users, manage permissions
+- [ ] **Context file metadata** - Track last modified by, creation user, change history
+
+**Use Case**: "Robert's brother-in-law will test with ChatGPT" - need to track his changes separately
+
+**Rationale**: Shared systems require accountability. Essential for identifying change sources and debugging.
+
+**Priority**: High - Required before multi-user access (ChatGPT test)
+
+---
+
+## 🧪 MULTI-AI TESTING PLAN
+
+### ChatGPT MCP Integration Test
+**Objective**: Validate MCP protocol compatibility beyond Claude.ai ecosystem
+**Test Subject**: Brother-in-law using ChatGPT with ClodForest MCP endpoint
+**Prerequisites**: 
+- [ ] Auth persistence implemented (no restart disruptions)
+- [ ] User identity tracking active (attribution for all changes)
+- [ ] Test user account created and associated with client
+- [ ] Dedicated test context area for external experiments
+
+**Success Criteria**:
+- [ ] ChatGPT successfully authenticates via OAuth2 DCR
+- [ ] All MCP tools (read_context, write_context, etc.) functional
+- [ ] Change attribution correctly identifies external user
+- [ ] No interference with existing Claude.ai integration
+- [ ] Protocol compatibility validates MCP standard compliance
+
+**Risk Mitigation**:
+- [ ] Backup production contexts before external access
+- [ ] Rate limiting for external clients
+- [ ] Monitoring for unusual activity patterns
+- [ ] Rollback plan if integration issues arise
+
+**Learning Objectives**: 
+- Cross-platform MCP protocol validation
+- Multi-user concurrent access patterns
+- External AI system integration requirements
+- Real-world stress testing of auth and tracking systems
+
 ---
 
 ## 🚀 BREAKTHROUGH TIMELINE
@@ -279,6 +342,24 @@ if client["client_secret"] == "auto_generated_secret":
 - [ ] Validate backward compatibility
 - [ ] Update documentation for simplified paths
 
+### 🏗️ **MULTI-USER FEATURES NEEDED**
+- [ ] SQLite auth persistence (clients, tokens, refresh tokens)
+- [ ] Client lifecycle management (expiration, cleanup)
+- [ ] User registration and identity mapping system
+- [ ] Client-user association interface
+- [ ] Change attribution logging (who modified what)
+- [ ] Audit trail queries and reporting
+- [ ] User management interface
+- [ ] Context file metadata with change history
+
+### 🧪 **CHATGPT INTEGRATION TEST PREP**
+- [ ] Test user account creation for brother-in-law
+- [ ] Dedicated test context area setup
+- [ ] Rate limiting for external clients
+- [ ] Backup production contexts
+- [ ] Monitoring for cross-platform compatibility
+- [ ] Protocol validation beyond Claude.ai ecosystem
+
 ---
 
 ## 🎉 CELEBRATION COMMANDS
@@ -324,10 +405,12 @@ From zero Claude.ai connectivity to full remote context access in a single break
 
 **The vision is now reality**: Claude.ai has secure, authenticated access to the entire ClodForest context system via industry-standard MCP tools.
 
+**Next challenge**: Multi-user support with ChatGPT integration testing! 🚀
+
 *🏆 From impossible to inevitable - Claude.ai and ClodForest united! 🚀*
 
 ---
 
 **Status updated via Claude.ai MCP tools at**: 2025-07-16T21:30:00Z  
 **Integration verified by**: Live tool execution and context access  
-**Next milestone**: ClodHearth local LLM integration using same patterns
+**Next milestone**: Multi-user auth persistence + ChatGPT MCP compatibility test

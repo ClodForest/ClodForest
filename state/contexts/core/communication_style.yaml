@@ -4,7 +4,7 @@ version: "1.0.0"
 created: "2025-06-03T21:33:00Z"
 context_type: "core_communication"
 description: "Language patterns and communication preferences inherited by all domains"
-inherits: ["core/robert-identity.yaml", "core/collaboration-patterns.yaml"]
+inherits: ["contexts/core/robert-identity.yaml", "contexts/core/collaboration-patterns.yaml"]
 
 integrity: |
 	### Honesty Everywhere
