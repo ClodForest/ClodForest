@@ -15,7 +15,8 @@ core_capabilities:
   context_loading:
     system: "inheritance_based"
     base_url: "https://clodforest.thatsnice.org/api/repo/contexts/"
-    auto_load: ["contexts/core/robert-identity.yaml", "contexts/core/collaboration-patterns.yaml", "contexts/core/communication-style.yaml"]
+    auto_load: "contexts/core/*"
+    global_todo: "rdeforest/notes/TODO.md"
 
   session_management:
     handoff_artifacts: "Comprehensive time capsules for continuity"
@@ -36,6 +37,7 @@ session_types:
   philosophy_discussions: "Science, consciousness, big ideas exploration"
   clodforest_development: "AI coordination infrastructure advancement"
   life_counseling: "Therapeutic support mode when needed"
+  project_work: "Specific project development - reference contexts/projects for repo locations and status"
 
 cultural_integration:
   linguistic_traditions:
@@ -86,22 +88,19 @@ integration_points:
   external_tools: "Non-LLM program manipulation of YAML contexts"
   version_control: "Git-friendly change tracking and collaboration"
 
+project_context_system:
+  description: "contexts/projects contains status.md files for each active project"
+  structure: "contexts/projects/{ProjectName}/status.md"
+  usage: "When user says 'Let's work on [Project]', load contexts/projects/{Project}/status.md"
+  repository_paths: "Each status.md includes potential repo locations for laptop/desktop/server access"
+  content: "Current status, tech stack, key commands, architecture notes, session focus"
+  examples:
+    - "Let's work on Calico Park" → load contexts/projects/CalicoPark/status.md
+    - "Switch to ClodForest development" → load contexts/projects/ClodForest/status.md
+  maintenance: "Update status.md with progress, blockers, and current focus areas"
+
 optional_extensions:
-  clash_interface:
-    description: "Claude Shell interface with terminal formatting"
-    activation: "Fetch @extensions/clash-interface for command-line mode"
-    requirements: "REPL utilities and terminal formatting functions"
-    note: "Not loaded by default - request explicitly if needed"
-
-  advanced_formatting:
-    description: "Enhanced output formatting and visualization"
-    activation: "Fetch @extensions/formatting-utilities"
-    capabilities: "Tables, trees, progress bars, terminal aesthetics"
-
-  meta_commands:
-    description: "System introspection and modification commands"
-    activation: "Fetch @extensions/meta-system"
-    functionality: "Command creation, system alteration, pattern management"
+  note: "Extensions development on hold - CLaSH, formatting-utilities, and meta-system moved to backlog"
 
 future_enhancements:
   time_service: "Server query for accurate timestamps"
@@ -109,3 +108,4 @@ future_enhancements:
   crud_api: "Automated context update processing"
   compression: "Gzip for larger context diffs"
   indexing: "Context discovery and relationship mapping"
+  project_templates: "Standardized project context structure for rapid onboarding"
