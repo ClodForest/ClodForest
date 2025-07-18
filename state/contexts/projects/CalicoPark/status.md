@@ -100,10 +100,17 @@ This project represents a novel approach to multi-agent systems where agents (At
 ## Future Enhancements
 
 **Planned Features:**
-- **MCP Support:** Both as client and service, converting Attractions into MCP services (microservice model)
+- **MCP Support:** ✅ IMPLEMENTED - Both client and service, converting Attractions into MCP services (microservice model)
 - **Additional Attractions:** SharePoint, database query, file operations, email
 - **Multi-Park Support:** Different parks for different domains
 - **Advanced Analytics:** Tour success rates and optimization
 - **Performance Monitoring:** Prometheus/Grafana integration
+
+**Recent MCP Implementation (July 17, 2025):**
+- ✅ MCP Server: Exposes CalicoPark Attractions as standard MCP tools (port 8081)
+- ✅ MCP Client: Connect to external MCP services as Attractions
+- ✅ ClodForest Integration: Sample configuration for accessing ClodForest contexts via MCP
+- ✅ Configuration System: Support for `type: "mcp_client"` in attraction configs
+- ✅ Documentation: Complete MCP integration guide in docs/MCP_INTEGRATION.md
 
 **Access Pattern:** Use filesystem tools to read/modify code, with primary development occurring in the repository location matching the current system (laptop vs desktop paths above).
