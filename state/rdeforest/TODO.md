@@ -7,6 +7,8 @@
 - [ ] **Consolidate context files**: Implement the inheritance system designed in comprehensive_session_context.md
 - [ ] **Teaching moments configuration**: Ensure Robert's user preferences always include accumulated lessons learned
 - [ ] **Pattern recognition**: Build system to detect when I'm repeating previously learned lessons
+- [ ] **Review the to-do list for updates**: Check for completed items and new priorities
+- [ ] **Automate AWS SSH tunnel setup**: Make SSH tunnel to AWS automatically establish/restore for seamless remote access from laptop/local bar
 
 ### Redundant Import Patterns
 - **Lesson repeated**: Don't write defensive code for hypothetical problems (multiple import paths)
