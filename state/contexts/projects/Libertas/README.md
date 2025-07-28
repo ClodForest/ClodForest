@@ -1,27 +1,40 @@
-# Libertas Desktop Server Project
+# Libertas System Issues Tracker
 
-This project tracks issues, configurations, and documentation for the Libertas home desktop server.
+**Last Updated:** 2025-07-28
 
-## Structure
+## 🎯 Active Issues
 
-- `Issues.md` - Main issue tracking
-- `status/` - Individual issue status files
-- `configs/` - Configuration files (to be added)
-- `docs/` - Documentation (to be added)
+### 🔴 Medium Priority
+- **[Display Wake Issues](./status/display-wake-issues.md)** - Monitors may not wake properly after reboot
+- **[Power Management Monitoring](./status/power-management-monitoring.md)** - Ongoing optimization and monitoring
 
-## Current Issues
+### 🟡 Low Priority  
+- **[USB Descriptor Errors](./status/usb-descriptor-errors.md)** - Single USB device hardware issue
 
-See [Issues.md](Issues.md) for the current list of open issues.
+## ✅ Resolved Issues
 
-## Getting Started
+### 🟢 Completed
+- **[Ethernet Interface Loss](./status/ethernet-interface.md)** - PCIe ASPM compatibility fixed *(2025-07-28)*
 
-1. Create the directory structure as outlined
-2. Create each status file for individual issue tracking
-3. Update hardware information in status files
-4. Begin investigation steps for each issue
+## 📚 Documentation
 
-## Notes
+- **[ASUS BIOS Settings Guide](./docs/asus-bios-settings.md)** - Complete power management configuration
+- **Hardware Specs** - ASUS ROG CROSSHAIR X870E HERO, AMD Ryzen 9 7900X
 
-- Replace dates as needed when creating files
-- Add hardware specifications to relevant issue files
-- Update status as issues are investigated and resolved
+## 🚀 System Status
+
+**Overall Health:** ✅ **EXCELLENT**
+- **Critical Systems:** All stable
+- **Network:** Ethernet 1Gbps stable
+- **Power Management:** Optimized for stability
+- **Boot Process:** Clean, no critical errors
+
+## 📋 Next Session Topics
+
+1. **Display wake troubleshooting** - Investigate monitor initialization issues
+2. **USB device identification** - Find and test problematic USB device  
+3. **Power consumption analysis** - Measure impact of disabled power management
+4. **Performance benchmarking** - Verify no degradation from power changes
+
+---
+*For new issues, create tracking files in `/status/` directory with priority and investigation steps.*
