@@ -46,8 +46,8 @@ WARNING: CPU: 2 PID: 10907 at drivers/net/ethernet/intel/igc/igc_main.c:6482 igc
 - [x] Check dmesg output
 - [x] Research igc driver PCIe link loss issues
 - [x] Identify known solutions from community reports
-- [ ] Implement recommended fixes
-- [ ] Test interface stability after fix
+- [x] Implement BIOS fix: CPU PCIE ASPM Mode Control → Disabled
+- [ ] Test interface stability after reboot
 - [ ] Monitor for recurring issues
 
 ## Symptoms
@@ -66,10 +66,10 @@ pcie_port_pm=off pcie_aspm.policy=performance
 ```
 Then run: `sudo update-grub && sudo reboot`
 
-### Option 2: BIOS Configuration
-- Access ASUS BIOS setup
-- Look for "PCIe ASPM Support" option
-- Disable PCIe ASPM if available
+### Option 2: BIOS Configuration ✅ IMPLEMENTED
+- Access ASUS BIOS setup ✅
+- Found "CPU PCIE ASPM Mode Control" setting ✅
+- Disabled CPU PCIE ASPM Mode Control ✅
 
 ### Option 3: Alternative Kernel Parameter
 If Option 1 doesn't work:

@@ -1,7 +1,15 @@
 # Robert's TODO List
-**Updated**: Tuesday, July 16, 2025
+**Updated**: Sunday, August 03, 2025
 
 ## 📋 New Action Items
+
+### Ticket Analysis Collaboration Project
+- [ ] **Connect with ticket analysis colleague**: Reach out Monday to discuss collaboration on ticket summarizer tool
+- [ ] **Shadow current process**: Understand what reports she generates, time investment, pain points
+- [ ] **Identify automation target**: Pick most time-consuming analysis task for first automation
+- [ ] **Build ticket summarizer MVP**: Create tool that reduces her hours-long tasks to minutes
+- [ ] **Iterate based on feedback**: Use her validation to refine both technical approach and UX
+- [ ] **Expand scope**: Brainstorm additional summaries/analyses that would be valuable
 
 ### Context Management & Teaching Moments
 - [ ] **Consolidate context files**: Implement the inheritance system designed in comprehensive_session_context.md
@@ -14,6 +22,24 @@
 - **Lesson repeated**: Don't write defensive code for hypothetical problems (multiple import paths)
 - **Previous occurrence**: Likely covered in earlier sessions but not retained
 - **Action needed**: Search existing contexts for similar patterns and consolidate
+
+### Vaultwarden/Bitwarden Self-Hosted Password & Passkey Management
+- [ ] **Set up Vaultwarden on AWS**: Deploy Vaultwarden Docker container on EC2 or ECS
+  - [ ] Choose appropriate instance size (t3.micro should suffice)
+  - [ ] Configure SSL/TLS with Let's Encrypt
+  - [ ] Set up automated backups to S3
+  - [ ] Configure security groups for HTTPS access only
+- [ ] **Install Bitwarden clients**: Set up on all devices (Mac, iPhone, browsers)
+  - [ ] Configure to point to self-hosted Vaultwarden instance
+  - [ ] Enable YubiKey as 2FA for Vaultwarden access
+- [ ] **Migrate from Firefox password manager**: Export existing passwords and import to Vaultwarden
+- [ ] **Create first Passkey**: Test with a low-stakes service first
+- [ ] **Selective Passkey migration**: Identify and migrate services where Passkeys provide clear benefit
+  - [ ] Prioritize mobile-only apps that currently require Discord copy-paste
+  - [ ] Services that support both password and Passkey for fallback
+  - [ ] High-security services where phishing resistance matters
+- [ ] **Document setup**: Create runbook for maintenance and disaster recovery
+- [ ] **Disable Apple Passkey prompts**: Once Bitwarden is handling Passkeys
 
 ---
 
