@@ -17,6 +17,8 @@
 - [ ] **Pattern recognition**: Build system to detect when I'm repeating previously learned lessons
 - [ ] **Review the to-do list for updates**: Check for completed items and new priorities
 - [ ] **Automate AWS SSH tunnel setup**: Make SSH tunnel to AWS automatically establish/restore for seamless remote access from laptop/local bar
+- [ ] **MATE Panel GPU/VRAM monitor**: Create custom Python panel applet to display GPU utilization % and VRAM usage (e.g., "GPU: 45% VRAM: 8.2/24GB") using nvidia-smi - existing MATE applets don't support GPU monitoring
+- [ ] **Singing lessons**: Research and sign up for singing lessons
 
 ### Redundant Import Patterns
 - **Lesson repeated**: Don't write defensive code for hypothetical problems (multiple import paths)
