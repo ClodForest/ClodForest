@@ -1,80 +1,96 @@
 # ClodStoreE - Scene-Based Story Management
 
-## In LangFlow, your flow structure:
+## Features
+- **Scene Management**: Track locations and transitions
+- **Character Knowledge**: Characters only know what they witnessed
+- **Event System**: Record and track who saw what
+- **Persistent State**: SQLite database for story continuity
 
-### 1. Initialize Database (run once)
-Python node with:
+## Setup in LangFlow
+
+### Flow Structure
+```
+User Input → [State Check] → [Prompt] → Ollama → [Record Event] → Output
+```
+
+### Python Nodes
+
+Each Python node should start with:
 ```python
-import sqlite3
-# Initialize your database
-exec(open('/Users/robert/git/github/ClodForest/ClodForest/state/v1/projects/ClodStoreE/state_manager.py').read())
-result = init_database()
+import sys
+sys.path.append('/Users/robert/git/github/ClodForest/ClodForest/state/v1/projects')
+from ClodStoreE import get_manager
+
+manager = get_manager()
 ```
 
-### 2. Main Story Flow
-
-**Input Analysis** (Python node):
+#### Node 1: Initialize (run once)
 ```python
-# Analyze user input for scene changes, character actions, etc.
-user_input = message  # from input node
-current_scene = get_current_scene_state()
-
-# Detect scene transitions
-if "enter" in user_input.lower() or "go to" in user_input.lower():
-    # Scene change logic
-    pass
-    
-# Detect character arrivals
-if "arrives" in user_input.lower() or "enters" in user_input.lower():
-    # Character entry logic
-    pass
-
-return current_scene
+manager.start_scene("Dragon's Rest Inn", "Crystal City", "A cozy tavern")
+manager.add_character("Sage", "The ancient librarian")
+output = "Scene initialized"
 ```
 
-**Event Recording** (Python node after LLM response):
+#### Node 2: Get State (before prompt)
 ```python
-# Record what happened based on LLM output
-response = llm_output  # from Ollama
-
-# Parse response for events
-# Record who witnessed what
-witnesses = current_scene['characters']
-record_event('dialogue', {'content': response}, witnesses)
-
-return response
+state_info = manager.format_state_for_prompt("Sage")
+output = state_info
 ```
 
-### 3. Character-Aware Prompt Template:
+#### Node 3: Record Event (after LLM)
+```python
+state = manager.get_current_state()
+witnesses = state['characters']
+event_data = {'speaker': 'Sage', 'content': response}
+manager.record_event('dialogue', event_data, witnesses)
+output = response
 ```
-Current Scene: {scene_name} at {location}
-Present Characters: {present_characters}
 
-{character_name}'s Knowledge:
-{character_knowledge}
-
-Recent Events in Scene:
-{recent_events}
+### Prompt Template
+```
+{state_info}
 
 User: {user_input}
 
-[Respond as {character_name}, only using information they would know]
-{character_name}:
+[Respond as the character, only using information they have witnessed]
+Character:
 ```
 
-## Test Scenario:
+## Architecture
 
-1. Initialize database
-2. Start scene: "Dragon's Rest Inn" 
-3. Add character: "Sage"
-4. User: "A mysterious traveler enters"
-5. Add character: "Traveler"
-6. Record event: type="arrival", witnessed by Sage
-7. Sage speaks (only knows Traveler arrived)
-8. Traveler speaks (doesn't know previous events)
+```
+ClodStoreE/
+├── __init__.py        # Package init
+├── clodstore.py       # Main StoryStateManager class
+├── schema.sql         # Database schema
+├── langflow_nodes.py  # Copy-paste templates
+└── clodstore.db       # SQLite database (created on first run)
+```
 
-## Key Features:
-- Characters only know what they witnessed
-- Scene transitions are tracked
-- Events have witness lists
-- Each character has separate knowledge base
+## Testing
+
+1. Initialize with Sage in the tavern
+2. Have Sage speak about something
+3. Add a Traveler character: "A traveler enters"
+4. Traveler won't know what Sage said before they arrived
+5. Both will know what happens after
+
+## API Reference
+
+```python
+manager = StoryStateManager()
+
+# Scene management
+manager.start_scene(name, location, description)
+manager.get_current_state()
+
+# Character management  
+manager.add_character(name, description)
+manager.get_character_knowledge(character_name)
+
+# Event tracking
+manager.record_event(event_type, event_data, witness_list)
+
+# Formatting
+manager.format_state_for_prompt(speaking_character)
+```
